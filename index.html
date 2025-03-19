@@ -14,6 +14,14 @@
             color: #333;
         }
 
+        /* Estilo do h1 */
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
         /* Container principal */
         .container {
             max-width: 800px;
@@ -90,6 +98,35 @@
             color: #fff;
         }
 
+        /* Estilo dos botões */
+        .btn {
+            padding: 5px 10px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-link {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .btn-link:hover {
+            background-color: #218838;
+        }
+
+        .btn-image {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .btn-image:hover {
+            background-color: #e0a800;
+        }
+
         /* Responsividade */
         @media (max-width: 600px) {
             .container {
@@ -105,6 +142,11 @@
                 font-size: 14px;
                 padding: 8px;
             }
+
+            .btn {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
         }
     </style>
 </head>
@@ -115,11 +157,31 @@
     <div class="grupo">
         <div class="grupo-titulo" onclick="toggleList('grupo1')">Grupo 02 - Saida casa do Jenerino</div>
         <div class="grupo-lista" id="grupo1">
-            <a href="https://goo.gl/maps/Md49jEyZRj3EvN6v9">1 Conjunto São Paulo</a> <a href="img/01.Conjunto Sao Paulo.jpg">Ver mapa</a>
-            <a href="https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing&authuser=0">2 Curva São Paulo</a>
-            <a href="https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing">3 Vila Beira Rio</a>
-            <a href="#">4 Res Araguaia</a>
-            <a href="https://www.google.com/maps/d/edit?mid=1MYrUYQJ1id99b_MZ7-xi5hrfKlyMAKE&usp=sharing">5 Vila Bagda</a>
+            <div>
+                <a href="img/01.Conjunto Sao Paulo.jpg">imagem conjunto sao paulo</a>
+                <button class="btn btn-link" onclick="window.open('img/01.Conjunto Sao Paulo.jpg', '_blank')">Abrir Imagem</button>
+                <button class="btn btn-image" onclick="window.open('https://goo.gl/maps/Md49jEyZRj3EvN6v9', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://goo.gl/maps/Md49jEyZRj3EvN6v9">1 Conjunto São Paulo </a>
+                <button class="btn btn-link" onclick="window.open('https://goo.gl/maps/Md49jEyZRj3EvN6v9', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing&authuser=0">2 Curva São Paulo</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing&authuser=0', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing">3 Vila Beira Rio</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">4 Res Araguaia</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://www.google.com/maps/d/edit?mid=1MYrUYQJ1id99b_MZ7-xi5hrfKlyMAKE&usp=sharing">5 Vila Bagda</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/edit?mid=1MYrUYQJ1id99b_MZ7-xi5hrfKlyMAKE&usp=sharing', '_blank')">Abrir Link</button>
+            </div>
         </div>
     </div>
 
@@ -127,11 +189,26 @@
     <div class="grupo">
         <div class="grupo-titulo" onclick="toggleList('grupo3')">Grupo 03 -  Saida casa do Ewerton</div>
         <div class="grupo-lista" id="grupo3">
-            <a href=" https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing">6.1 Vila Firmino</a>
-            <a href="https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing">6.2 Vila Firmino</a>
-            <a href="#">7 Parque Poty</a>
-            <a href="#">8 Vila Poty</a>
-            <a href="#">9 Sales</a>
+            <div>
+                <a href=" https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing">6.1 Vila Firmino</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing">6.2 Vila Firmino</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing', '_blank')">Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">7 Parque Poty</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">8 Vila Poty</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">9 Sales</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
         </div>
     </div>
 
@@ -139,10 +216,22 @@
     <div class="grupo">
         <div class="grupo-titulo" onclick="toggleList('grupo4')">Grupo 04 - Saida casa do Jose Lopes</div>
         <div class="grupo-lista" id="grupo4">
-            <a href="#">10 Cidade Nova</a>
-            <a href="#">11 Porto Rico</a>
-            <a href="#">12 Renascenca I</a>
-            <a href="https://www.google.com/maps/d/edit?mid=14yxkw5es33dESFQOouLKK3ds_Wdl_u8&usp=sharing">13 Renascenca III</a>
+            <div>
+                <a href="#">10 Cidade Nova</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">11 Porto Rico</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">12 Renascenca I</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="https://www.google.com/maps/d/edit?mid=14yxkw5es33dESFQOouLKK3ds_Wdl_u8&usp=sharing">13 Renascenca III</a>
+                <button class="btn btn-link" onclick="window.open('https://www.google.com/maps/d/edit?mid=14yxkw5es33dESFQOouLKK3ds_Wdl_u8&usp=sharing', '_blank')">Abrir Link</button>
+            </div>
         </div>
     </div>
 
@@ -150,11 +239,26 @@
     <div class="grupo">
         <div class="grupo-titulo" onclick="toggleList('grupo1-2')">Grupo 01 - Saida do Salao do Reino</div>
         <div class="grupo-lista" id="grupo1-2">
-            <a href="#">14 Loteamento Renascença</a>
-            <a href="#">15 Renacenla III Terceira Etapa</a>
-            <a href="#">16 Porto Rico II</a>
-            <a href="#">17 Andarai</a>
-            <a href="#">18 Jardim dos Passaros</a>
+            <div>
+                <a href="#">14 Loteamento Renascença</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">15 Renacenla III Terceira Etapa</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">16 Porto Rico II</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">17 Andarai</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">18 Jardim dos Passaros</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
         </div>
     </div>
 
@@ -162,18 +266,54 @@
     <div class="grupo">
         <div class="grupo-titulo" onclick="toggleList('grupo5')">Grupo 05 - Saida do Fernando</div>
         <div class="grupo-lista" id="grupo5">
-            <a href="#">19 Washigton</a>
-            <a href="#">20 Vitoria Regia</a>
-            <a href="#">21 Sertaozinho</a>
-            <a href="#">22 Canaxue</a>
-            <a href="#">23 Novo Milenio</a>
-            <a href="#">24 Todos os Santos</a>
-            <a href="#">25 Deus Provera</a>
-            <a href="#">26 Loteamento todos os Santos Lado Direito</a>
-            <a href="#">27.1 Pedro Balzi - Frente com Conj</a>
-            <a href="#">27.2 Pedro Balzi - Parte de Cima</a>
-            <a href="#">27.3 Pedro Balzi - Vila nova Esperança</a>
-            <a href="#">28 Povoado Jumento</a>
+            <div>
+                <a href="#">19 Washigton</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">20 Vitoria Regia</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">21 Sertaozinho</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">22 Canaxue</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">23 Novo Milenio</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">24 Todos os Santos</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">25 Deus Provera</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">26 Loteamento todos os Santos Lado Direito</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">27.1 Pedro Balzi - Frente com Conj</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">27.2 Pedro Balzi - Parte de Cima</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">27.3 Pedro Balzi - Vila nova Esperança</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
+            <div>
+                <a href="#">28 Povoado Jumento</a>
+                <button class="btn btn-link" disabled>Abrir Link</button>
+            </div>
         </div>
     </div>
 </div>
