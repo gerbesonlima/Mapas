@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
     <title>Territorios Congregação Sao Paulo</title>
     
 </head>
@@ -78,47 +79,9 @@
     </div>
 </div>
 
-<button id="toggle-theme">Alternar Tema</button>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleButton = document.getElementById("toggle-theme");
-    const body = document.body;
 
-    // Verifica se já existe um tema salvo no navegador
-    if (localStorage.getItem("theme") === "dark") {
-        body.classList.add("dark-mode");
-    } else {
-        body.classList.add("light-mode");
-    }
 
-    toggleButton.addEventListener("click", function () {
-        if (body.classList.contains("light-mode")) {
-            body.classList.remove("light-mode");
-            body.classList.add("dark-mode");
-            localStorage.setItem("theme", "dark"); // Salva no navegador
-        } else {
-            body.classList.remove("dark-mode");
-            body.classList.add("light-mode");
-            localStorage.setItem("theme", "light"); // Salva no navegador
-        }
-    });
-});
-</script>
-
-<script>
-    function toggleList(id) {
-        const lista = document.getElementById(id);
-        const titulo = lista.previousElementSibling;
-
-        if (lista.style.display === "none" || lista.style.display === "") {
-            lista.style.display = "block";
-            titulo.classList.add('active');
-        } else {
-            lista.style.display = "none";
-            titulo.classList.remove('active');
-        }
-    }
-</script>
+<footer><button id="toggle-theme">Alternar Tema</button></footer>
 
 </body>
 </html>
