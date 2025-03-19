@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Expansível Responsiva</title>
+    <style>
+        /* Reset básico */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo dos grupos */
+        .grupo {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .grupo:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Título do grupo */
+        .grupo-titulo {
+            padding: 15px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .grupo-titulo:hover {
+            background-color: #0056b3;
+        }
+
+        /* Ícone de seta */
+        .grupo-titulo::after {
+            content: '▼';
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .grupo-titulo.active::after {
+            transform: rotate(180deg);
+        }
+
+        /* Lista de itens */
+        .grupo-lista {
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            display: none;
+        }
+
+        .grupo-lista a {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #007bff;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .grupo-lista a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .grupo-titulo {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .grupo-lista a {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Mapas dos Territorios</h1>
+<div class="container">
+    <!-- Grupo 01 -->
+    <div class="grupo">
+        <div class="grupo-titulo" onclick="toggleList('grupo1')">Grupo 02</div>
+        <div class="grupo-lista" id="grupo1">
+            <a href="Conjunto sao paulo.html">1 Conjunto São Paulo</a>
+            <a href="#">2 Curva São Paulo</a>
+            <a href="#">3 Vila Beira Rio</a>
+            <a href="#">4 Res Araguaia</a>
+            <a href="#">5 Vila Bagda</a>
+        </div>
+    </div>
+
+    <!-- Grupo 03 -->
+    <div class="grupo">
+        <div class="grupo-titulo" onclick="toggleList('grupo3')">Grupo 03</div>
+        <div class="grupo-lista" id="grupo3">
+            <a href="#">6.1 Vila Firmino</a>
+            <a href="#">6.2 Vila Firmino</a>
+            <a href="#">7 Parque Poty</a>
+            <a href="#">8 Vila Poty</a>
+            <a href="#">9 Sales</a>
+        </div>
+    </div>
+
+    <!-- Grupo 04 -->
+    <div class="grupo">
+        <div class="grupo-titulo" onclick="toggleList('grupo4')">Grupo 04</div>
+        <div class="grupo-lista" id="grupo4">
+            <a href="#">10 Cidade Nova</a>
+            <a href="#">11 Porto Rico</a>
+            <a href="#">12 Renascenca I</a>
+            <a href="#">13 Renascenca III</a>
+        </div>
+    </div>
+
+    <!-- Grupo 01 (Segunda Parte) -->
+    <div class="grupo">
+        <div class="grupo-titulo" onclick="toggleList('grupo1-2')">Grupo 01</div>
+        <div class="grupo-lista" id="grupo1-2">
+            <a href="#">14 Loteamento Renascença</a>
+            <a href="#">15 Renacenla III Terceira Etapa</a>
+            <a href="#">16 Porto Rico II</a>
+            <a href="#">17 Andarai</a>
+            <a href="#">18 Jardim dos Passaros</a>
+        </div>
+    </div>
+
+    <!-- Grupo 05 -->
+    <div class="grupo">
+        <div class="grupo-titulo" onclick="toggleList('grupo5')">Grupo 05</div>
+        <div class="grupo-lista" id="grupo5">
+            <a href="#">19 Washigton</a>
+            <a href="#">20 Vitoria Regia</a>
+            <a href="#">21 Sertaozinho</a>
+            <a href="#">22 Canaxue</a>
+            <a href="#">23 Novo Milenio</a>
+            <a href="#">24 Todos os Santos</a>
+            <a href="#">25 Deus Provera</a>
+            <a href="#">26 Loteamento todos os Santos Lado Direito</a>
+            <a href="#">27.1 Pedro Balzi - Frente com Conj</a>
+            <a href="#">27.2 Pedro Balzi - Parte de Cima</a>
+            <a href="#">27.3 Pedro Balzi - Vila nova Esperança</a>
+            <a href="#">28 Povoado Jumento</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleList(id) {
+        const lista = document.getElementById(id);
+        const titulo = lista.previousElementSibling;
+
+        if (lista.style.display === "none" || lista.style.display === "") {
+            lista.style.display = "block";
+            titulo.classList.add('active');
+        } else {
+            lista.style.display = "none";
+            titulo.classList.remove('active');
+        }
+    }
+</script>
+
+</body>
+</html>

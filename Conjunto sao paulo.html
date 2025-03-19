@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapas de Territórios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        h1 {
+            text-align: center;
+            color: #000000; /* Texto preto */
+            background-color: #add8e6; /* Azul claro */
+            padding: 20px;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table, th, td {
+            border: 1px solid #000000;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #0000ff;
+            color: #ffffff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        a {
+            color: #0000ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #0000ff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0000cc;
+        }
+
+        #informacoes-salvas {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #000000;
+        }
+
+        button.excluir {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button.excluir:hover {
+            background-color: #cc0000;
+        }
+
+        @media (max-width: 600px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            th {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                border: 1px solid #000000;
+                margin-bottom: 10px;
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px solid #000000;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td:before {
+                position: absolute;
+                top: 6px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Mapas de Territórios --- <a href="incial.html">Inicio</a></h1>
+    <table>
+        <tr>
+            <th>N°</th>
+            <th>Territórios</th>
+            <th>Dirigido por</th>
+            <th>Data</th>
+            <th>Observações</th>
+            <th>Salvar</th>
+        </tr>
+        <tr>
+            <td data-label="N°">01</td>
+            <td data-label="Territórios"><a href="https://goo.gl/maps/Md49jEyZRj3EvN6v9">Conjunto São Paulo</a></td>
+            <td data-label="Dirigido por">
+                <input type="text" id="nome-01" name="nome" placeholder="Nome">
+            </td>
+            <td data-label="Data">
+                <input type="date" id="data-01" name="data">
+            </td>
+            <td data-label="Observações">
+                <input type="text" id="observacoes-01" name="observacoes" placeholder="Observações">
+            </td>
+            <td data-label="Salvar">
+                <button type="button" onclick="salvarInformacoes('01')">Salvar</button>
+            </td>
+        </tr>
+        <!-- Adicione mais linhas conforme necessário -->
+    </table>
+
+    <div id="informacoes-salvas">
+        <h2>Ultimas atualizações</h2>
+        <ul id="lista-informacoes"></ul>
+    </div>
+
+    <script>
+        // Função para formatar a data no formato "18 - 03 - 2025"
+        function formatarData(data) {
+            const [ano, mes, dia] = data.split('-');
+            return `${dia} - ${mes} - ${ano}`;
+        }
+
+        // Função para salvar informações no LocalStorage
+        function salvarInformacoes(id) {
+            const nome = document.getElementById(`nome-${id}`).value;
+            const data = document.getElementById(`data-${id}`).value;
+            const observacoes = document.getElementById(`observacoes-${id}`).value;
+
+            const dataFormatada = formatarData(data);
+
+            // Cria um objeto com as informações
+            const informacao = {
+                id: new Date().getTime(), // Usa o timestamp como ID único
+                data: dataFormatada,
+                nome: nome,
+                observacoes: observacoes
+            };
+
+            // Recupera as informações salvas do LocalStorage (se existirem)
+            let informacoesSalvas = JSON.parse(localStorage.getItem('informacoes')) || [];
+
+            // Adiciona a nova informação no início do array
+            informacoesSalvas.unshift(informacao);
+
+            // Salva o array atualizado no LocalStorage
+            localStorage.setItem('informacoes', JSON.stringify(informacoesSalvas));
+
+            // Atualiza a exibição das informações salvas
+            exibirInformacoesSalvas();
+
+            // Limpa os campos após salvar
+            document.getElementById(`nome-${id}`).value = "";
+            document.getElementById(`data-${id}`).value = "";
+            document.getElementById(`observacoes-${id}`).value = "";
+        }
+
+        // Função para excluir uma informação
+        function excluirInformacao(id) {
+            // Recupera as informações salvas do LocalStorage
+            let informacoesSalvas = JSON.parse(localStorage.getItem('informacoes')) || [];
+
+            // Filtra o array para remover a informação com o ID correspondente
+            informacoesSalvas = informacoesSalvas.filter(info => info.id !== id);
+
+            // Salva o array atualizado no LocalStorage
+            localStorage.setItem('informacoes', JSON.stringify(informacoesSalvas));
+
+            // Atualiza a exibição das informações salvas
+            exibirInformacoesSalvas();
+        }
+
+        // Função para exibir as informações salvas
+        function exibirInformacoesSalvas() {
+            const listaInformacoes = document.getElementById("lista-informacoes");
+            listaInformacoes.innerHTML = ""; // Limpa a lista antes de exibir
+
+            // Recupera as informações salvas do LocalStorage
+            const informacoesSalvas = JSON.parse(localStorage.getItem('informacoes')) || [];
+
+            // Exibe cada informação na lista
+            informacoesSalvas.forEach(info => {
+                const novaInformacao = document.createElement("li");
+                novaInformacao.innerHTML = `
+                    <strong>Data:</strong> ${info.data} <br>
+                    <strong>Dirigido por:</strong> ${info.nome} <br>
+                    <strong>Observações:</strong> ${info.observacoes}
+                    <button class="excluir" onclick="excluirInformacao(${info.id})">Excluir</button>
+                `;
+                listaInformacoes.appendChild(novaInformacao);
+            });
+        }
+
+        // Exibe as informações salvas ao carregar a página
+        window.onload = exibirInformacoesSalvas;
+    </script>
+</body>
+</html>
