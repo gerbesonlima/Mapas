@@ -38,72 +38,52 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbysusFsS79Q0RIGZNSQbFjuHDs-TLJ4ymNDGcRDm7DMykDkSV0LcGqYcCdn5wCb2loJWQ/exec';
-
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch(`${scriptURL}?action=getMessages`)
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(row => addMessage(row[0], row[1], new Date(row[2]).toLocaleString('pt-BR')));
-            });
-    });
-
-    document.getElementById('messageForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const name = document.getElementById('name').value;
-        const message = document.getElementById('message').value;
-        const timestamp = new Date().toLocaleString('pt-BR');
-        const messageData = { name, message };
-
-        fetch(scriptURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(messageData)
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result === 'Mensagem salva') {
-                addMessage(name, message, timestamp);
-                document.getElementById('messageForm').reset();
+    document.addEventListener("DOMContentLoaded", async function () {
+        const form = document.getElementById("messageForm");
+        const messagesContainer = document.getElementById("messages");
+        const apiUrl = "https://script.google.com/macros/s/AKfycbwAxFf4vBULMBupjcMPOlGHQaOF6zm4gADi9l8s5zq_Kp-v-uQCUz-aU8YbU-pLrVr7/exec";
+    
+        // Função para carregar mensagens do Google Sheets
+        async function loadMessages() {
+            try {
+                const response = await fetch(apiUrl + "?action=getMessages");
+                const messages = await response.json();
+                
+                messagesContainer.innerHTML = ""; // Limpa antes de carregar
+    
+                messages.forEach(msg => {
+                    const messageElement = document.createElement("div");
+                    messageElement.classList.add("message");
+                    messageElement.innerHTML = `<strong>${msg.name}</strong> (${msg.date}): ${msg.message}`;
+                    messagesContainer.appendChild(messageElement);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar mensagens:", error);
+            }
+        }
+    
+        // Carregar mensagens ao iniciar
+        loadMessages();
+    
+        // Enviar formulário
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+    
+            const name = document.getElementById("name").value;
+            const message = document.getElementById("message").value;
+    
+            try {
+                await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, message })
+                });
+    
+                form.reset(); // Limpa o formulário
+                loadMessages(); // Atualiza a lista
+            } catch (error) {
+                console.error("Erro ao enviar mensagem:", error);
             }
         });
     });
-
-    document.getElementById("messageForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-    
-        var name = document.getElementById("name").value;
-        var message = document.getElementById("message").value;
-    
-        fetch("URL_DA_SUA_API_DO_GOOGLE_APPS_SCRIPT", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: name, message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                document.getElementById("messageForm").reset();
-                loadMessages();
-            }
-        });
-    });
-    
-    function loadMessages() {
-        fetch("https://script.google.com/macros/s/AKfycbzNQSAL-yVEk0xBFIdWZ777dnd3uRDDmDYEoWCapLDaQbOwfT7UE3_-_prG6YMfCMgPfQ/exec")
-        .then(response => response.json())
-        .then(data => {
-            var messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML = "";
-            data.forEach(msg => {
-                var msgElement = document.createElement("p");
-                msgElement.innerHTML = `<strong>${msg.name}:</strong> ${msg.message} <br> <small>${new Date(msg.date).toLocaleString()}</small>`;
-                messagesDiv.appendChild(msgElement);
-            });
-        });
-    }
-    
-    loadMessages();
     
