@@ -105,3 +105,72 @@ h1 {
         padding: 8px;
     }
 }
+
+/* Estilo das mensagens */
+.message-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1e1e1e; /* Fundo mais escuro */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.message-container h2 {
+    color: #4da8da; /* Azul suave */
+}
+
+#messageForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#messageForm input, #messageForm textarea {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #252525; /* Fundo escuro */
+    color: #e0e0e0; /* Texto claro */
+}
+
+#messageForm button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4da8da; /* Azul suave */
+    color: #121212; /* Texto escuro */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#messageForm button:hover {
+    background-color: #357ba3;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #252525; /* Fundo escuro */
+}
+
+.message strong {
+    color: #4da8da; /* Azul suave */
+}
+
+.message button {
+    margin-left: 10px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4da8da; /* Azul suave */
+    color: #121212; /* Texto escuro */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.message button:hover {
+    background-color: #357ba3;
+}
