@@ -38,3 +38,72 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbysusFsS79Q0RIGZNSQbFjuHDs-TLJ4ymNDGcRDm7DMykDkSV0LcGqYcCdn5wCb2loJWQ/exec';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch(`${scriptURL}?action=getMessages`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(row => addMessage(row[0], row[1], new Date(row[2]).toLocaleString('pt-BR')));
+            });
+    });
+
+    document.getElementById('messageForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const message = document.getElementById('message').value;
+        const timestamp = new Date().toLocaleString('pt-BR');
+        const messageData = { name, message };
+
+        fetch(scriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(messageData)
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === 'Mensagem salva') {
+                addMessage(name, message, timestamp);
+                document.getElementById('messageForm').reset();
+            }
+        });
+    });
+
+    document.getElementById("messageForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+    
+        var name = document.getElementById("name").value;
+        var message = document.getElementById("message").value;
+    
+        fetch("URL_DA_SUA_API_DO_GOOGLE_APPS_SCRIPT", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: name, message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById("messageForm").reset();
+                loadMessages();
+            }
+        });
+    });
+    
+    function loadMessages() {
+        fetch("https://script.google.com/macros/s/AKfycbzNQSAL-yVEk0xBFIdWZ777dnd3uRDDmDYEoWCapLDaQbOwfT7UE3_-_prG6YMfCMgPfQ/exec")
+        .then(response => response.json())
+        .then(data => {
+            var messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML = "";
+            data.forEach(msg => {
+                var msgElement = document.createElement("p");
+                msgElement.innerHTML = `<strong>${msg.name}:</strong> ${msg.message} <br> <small>${new Date(msg.date).toLocaleString()}</small>`;
+                messagesDiv.appendChild(msgElement);
+            });
+        });
+    }
+    
+    loadMessages();
+    
