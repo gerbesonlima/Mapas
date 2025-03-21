@@ -55,6 +55,8 @@ h1 {
     background-color: #357ba3;
 }
 
+
+
 /* Ícone de seta */
 .grupo-titulo::after {
     content: '▼';
@@ -73,6 +75,7 @@ h1 {
     display: none;
 }
 
+
 .grupo-lista a {
     display: block;
     padding: 10px;
@@ -83,6 +86,20 @@ h1 {
     color: #4da8da;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+.container a {
+    text-align: center;
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #333;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #4da8da;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
 
 .grupo-lista a:hover {
     background-color: #4da8da;
@@ -101,6 +118,11 @@ h1 {
     }
 
     .grupo-lista a {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .container a {
         font-size: 14px;
         padding: 8px;
     }
