@@ -88,7 +88,6 @@ h1 {
 }
 
 .container a {
-    text-align: center;
     display: block;
     padding: 10px;
     margin: 5px 0;
@@ -128,6 +127,10 @@ h1 {
     }
 }
 
+footer a{
+text-align: center;
+
+}
 /* Estilo das mensagens */
 .message-container {
     max-width: 800px;
