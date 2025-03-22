@@ -8,11 +8,7 @@ body, html {
     color: #e0e0e0; /* Texto claro */
 }
 html {
-    background-image: url('img/img\ de\ fundo.jpg'); /* Caminho da imagem */
-    background-size: cover; /* Faz a imagem cobrir toda a tela */
-    background-position: center; /* Centraliza a imagem */
-    background-repeat: no-repeat; /* Evita que a imagem se repita */
-    background-attachment: fixed; /* Fixa a imagem ao rolar a página */
+    
 }
 
 h1 {
