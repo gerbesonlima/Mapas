@@ -4,7 +4,7 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background-color: #494444; /* Fundo escuro */
+    background-color: #2b2929; /* Fundo escuro */
     color: #e0e0e0; /* Texto claro */
 }
 
@@ -115,7 +115,7 @@ h1 {
 /* Rodapé */
 footer {
     text-align: center;
-    padding: 15px;
+    padding: 20px;
     background-color: #1e1e1e;
     margin-top: 20px;
     border-top: 1px solid #333;
