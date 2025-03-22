@@ -8,9 +8,11 @@ body, html {
     color: #e0e0e0; /* Texto claro */
 }
 
+/* Títulos */
 h1 {
     text-align: center;
     color: #4da8da; /* Azul suave */
+    margin-top: 20px;
 }
 
 /* Container principal */
@@ -20,7 +22,7 @@ h1 {
     padding: 20px;
     background-color: #1e1e1e; /* Fundo mais escuro */
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* Estilo dos grupos */
@@ -29,11 +31,12 @@ h1 {
     border: 1px solid #333;
     border-radius: 8px;
     overflow: hidden;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .grupo:hover {
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
 }
 
 /* Título do grupo */
@@ -48,14 +51,13 @@ h1 {
     justify-content: space-between;
     align-items: center;
     border-radius: 8px 8px 0 0;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .grupo-titulo:hover {
     background-color: #357ba3;
+    transform: translateY(-2px);
 }
-
-
 
 /* Ícone de seta */
 .grupo-titulo::after {
@@ -75,7 +77,6 @@ h1 {
     display: none;
 }
 
-
 .grupo-lista a {
     display: block;
     padding: 10px;
@@ -84,9 +85,16 @@ h1 {
     border-radius: 5px;
     text-decoration: none;
     color: #4da8da;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
 }
 
+.grupo-lista a:hover {
+    background-color: #4da8da;
+    color: #121212;
+    transform: scale(1.05);
+}
+
+/* Links do container */
 .container a {
     display: block;
     padding: 10px;
@@ -95,14 +103,55 @@ h1 {
     border-radius: 5px;
     text-decoration: none;
     color: #4da8da;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
 }
 
-
-
-.grupo-lista a:hover {
+.container a:hover {
     background-color: #4da8da;
     color: #121212;
+    transform: scale(1.05);
+}
+
+/* Rodapé */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #1e1e1e;
+    margin-top: 20px;
+    border-top: 1px solid #333;
+}
+
+footer a {
+    color: #4da8da;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #357ba3;
+}
+
+h2 {
+    text-align: center;
+    color: #f8fffff0;
+    border-bottom: 2px solid #2c3e50;
+    padding-bottom: 5px;
+}
+
+/* Imagens */
+img {
+    max-width: 10%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.2);
 }
 
 /* Responsividade */
@@ -116,86 +165,61 @@ h1 {
         padding: 12px;
     }
 
-    .grupo-lista a {
+    .grupo-lista a, .container a {
         font-size: 14px;
         padding: 8px;
     }
 
-    .container a {
-        font-size: 14px;
-        padding: 8px;
+    footer {
+        padding: 10px;
     }
 }
 
-footer a{
-text-align: center;
 
-}
-/* Estilo das mensagens */
-.message-container {
-    max-width: 800px;
-    margin: 20px auto;
+/* Rodapé profissional */
+footer {
+    background-color: #181818; /* Cor escura */
+    color: #e0e0e0;
+    text-align: center;
     padding: 20px;
-    background-color: #1e1e1e; /* Fundo mais escuro */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin-top: 40px;
 }
 
-.message-container h2 {
-    color: #4da8da; /* Azul suave */
+footer p {
+    margin: 5px 0;
+    font-size: 14px;
 }
 
-#messageForm {
-    display: flex;
-    flex-direction: column;
+.footer-links {
+    margin-top: 10px;
 }
 
-#messageForm input, #messageForm textarea {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    background-color: #252525; /* Fundo escuro */
-    color: #e0e0e0; /* Texto claro */
+.footer-links a {
+    color: #4da8da;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 14px;
+    transition: color 0.3s ease;
 }
 
-#messageForm button {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4da8da; /* Azul suave */
-    color: #121212; /* Texto escuro */
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.footer-links a:hover {
+    color: #357ba3;
+    text-decoration: underline;
 }
 
-#messageForm button:hover {
-    background-color: #357ba3;
+/* Responsividade */
+@media (max-width: 600px) {
+    .map-container iframe {
+        height: 250px;
+    }
+
+    footer {
+        padding: 15px;
+    }
+
+    .footer-links a {
+        display: block;
+        margin: 5px 0;
+    }
 }
 
-.message {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    background-color: #252525; /* Fundo escuro */
-}
-
-.message strong {
-    color: #4da8da; /* Azul suave */
-}
-
-.message button {
-    margin-left: 10px;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4da8da; /* Azul suave */
-    color: #121212; /* Texto escuro */
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.message button:hover {
-    background-color: #357ba3;
-}
