@@ -1,16 +1,23 @@
 
 /* Reset básico */
 body, html {
+    
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background-color: #121212; /* Fundo escuro */
     color: #e0e0e0; /* Texto claro */
+}
+html {
+    background-image: url('img/img\ de\ fundo.jpg'); /* Caminho da imagem */
+    background-size: cover; /* Faz a imagem cobrir toda a tela */
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Evita que a imagem se repita */
+    background-attachment: fixed; /* Fixa a imagem ao rolar a página */
 }
 
 h1 {
     text-align: center;
-    color: #4da8da; /* Azul suave */
+    color: #020202; /* Azul suave */
 }
 
 /* Container principal */
@@ -198,4 +205,8 @@ text-align: center;
 
 .message button:hover {
     background-color: #357ba3;
+}
+
+p{
+    text-align: center;
 }
