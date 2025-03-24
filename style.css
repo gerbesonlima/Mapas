@@ -2,49 +2,51 @@
 body, html {
     margin: 0;
     padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8f8f8; /* Fundo claro sofisticado */
-    color: #333; /* Texto escuro para contraste */
+    font-family: 'Georgia', serif;
+    background-color: #f5e6ca; /* Papel envelhecido */
+    color: #5a3e1b; /* Marrom clássico */
 }
 
 h1 {
     text-align: center;
-    color: #2c3e50; /* Azul-marinho elegante */
-    font-weight: 600;
+    color: #8b5e3b; /* Tom de couro envelhecido */
+    font-family: 'Playfair Display', serif;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Container principal */
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #ffffff; /* Fundo branco sofisticado */
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    background: rgba(245, 230, 202, 0.9); /* Fundo com transparência */
+    border-radius: 10px;
+    border: 3px solid #d4b886;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Estilo dos grupos */
 .grupo {
     margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 2px solid #c4a484;
     border-radius: 8px;
     overflow: hidden;
-    transition: box-shadow 0.3s ease;
-    background: #fff;
+    background-color: #efe1c6;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .grupo:hover {
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Título do grupo */
 .grupo-titulo {
     padding: 15px;
-    background-color: #2c3e50; /* Azul-marinho elegante */
-    color: #ffffff; /* Texto branco */
+    background: #d4b886;
+    color: #3e2c19;
     font-size: 18px;
-    font-weight: 500;
-    cursor: pointer;
+    font-weight: bold;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,12 +55,12 @@ h1 {
 }
 
 .grupo-titulo:hover {
-    background-color: #1a252f;
+    background: #b59467;
 }
 
 /* Ícone de seta */
 .grupo-titulo::after {
-    content: '▼';
+    content: '\25BC'; /* Seta para baixo */
     font-size: 14px;
     transition: transform 0.3s ease;
 }
@@ -70,7 +72,7 @@ h1 {
 /* Lista de itens */
 .grupo-lista {
     padding: 10px 15px;
-    background-color: #f5f5f5;
+    background: #f5e6ca;
     display: none;
 }
 
@@ -78,16 +80,17 @@ h1 {
     display: block;
     padding: 10px;
     margin: 5px 0;
-    background-color: #ecf0f1;
+    background: #d4b886;
     border-radius: 5px;
     text-decoration: none;
-    color: #2c3e50;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #3e2c19;
+    transition: background 0.3s ease, color 0.3s ease;
+    font-weight: bold;
 }
 
 .grupo-lista a:hover {
-    background-color: #2c3e50;
-    color: #ffffff;
+    background: #b59467;
+    color: #fff;
 }
 
 /* Responsividade */
@@ -110,71 +113,37 @@ h1 {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    background: #efe1c6;
+    border-radius: 10px;
+    border: 3px solid #d4b886;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .message-container h2 {
-    color: #2c3e50;
-}
-
-#messageForm {
-    display: flex;
-    flex-direction: column;
+    color: #8b5e3b;
 }
 
 #messageForm input, #messageForm textarea {
     margin-bottom: 10px;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 2px solid #c4a484;
     border-radius: 5px;
-    background-color: #f5f5f5;
-    color: #333;
+    background: #f5e6ca;
+    color: #5a3e1b;
+    font-family: 'Georgia', serif;
 }
 
 #messageForm button {
     padding: 10px;
     border: none;
     border-radius: 5px;
-    background-color: #2c3e50;
-    color: #ffffff;
+    background: #8b5e3b;
+    color: #fff;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
 }
 
 #messageForm button:hover {
-    background-color: #1a252f;
-}
-
-.message {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f5f5f5;
-}
-
-.message strong {
-    color: #2c3e50;
-}
-
-.message button {
-    margin-left: 10px;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2c3e50;
-    color: #ffffff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.message button:hover {
-    background-color: #1a252f;
-}
-
-p {
-    text-align: center;
-    color: #555;
+    background: #6d4527;
 }
