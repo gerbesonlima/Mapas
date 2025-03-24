@@ -2,176 +2,112 @@
 body, html {
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', sans-serif;
-    background-color: #fff; /* Fundo branco, estilo clean */
-    color: #333; /* Texto escuro para boa legibilidade */
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa; /* Branco suave */
+    color: #333; /* Cor de texto escura */
 }
 
-h1, h2, h3 {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    color: #1a73e8; /* Cor suave do Google */
-    text-align: center;
-}
-
-/* Container principal */
+/* Estilo geral do contêiner */
 .container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #f5f5f5; /* Fundo suave para o container */
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo dos títulos */
+h1, h2, h3 {
+    font-family: 'Arial', sans-serif;
+    color: #1a73e8; /* Azul */
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 /* Estilo dos grupos */
 .grupo {
-    margin-bottom: 20px;
-    border: 1px solid #e0e0e0; /* Borda clara */
+    margin-bottom: 15px;
+    border: 1px solid #d1d3d8; /* Cor de borda suave */
     border-radius: 8px;
-    overflow: hidden;
-    background-color: #fff;
-    transition: box-shadow 0.3s ease;
+    background-color: #f1f3f4; /* Fundo suave */
 }
 
-.grupo:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Título do grupo */
 .grupo-titulo {
-    padding: 15px;
-    background-color: #f1f1f1; /* Fundo leve */
-    color: #1a73e8; /* Cor do título */
+    padding: 12px;
+    background-color: #1a73e8; /* Azul */
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px 8px 0 0;
     font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 8px 8px 0 0;
-    transition: background-color 0.3s ease;
 }
 
-.grupo-titulo:hover {
-    background-color: #e1e1e1;
-}
-
-/* Ícone de seta */
-.grupo-titulo::after {
-    content: '\25BC'; /* Seta para baixo */
-    font-size: 16px;
-    transition: transform 0.3s ease;
-}
-
-.grupo-titulo.active::after {
-    transform: rotate(180deg);
-}
-
-/* Lista de itens */
 .grupo-lista {
-    padding: 10px 15px;
-    background-color: #fff;
+    padding: 10px;
+    background: #f8f9fa;
     display: none;
 }
 
 .grupo-lista a {
     display: block;
-    padding: 12px;
+    padding: 10px;
     margin: 5px 0;
-    background-color: #f9f9f9;
+    background: #fff;
     border-radius: 5px;
     text-decoration: none;
-    color: #1a73e8;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #1a73e8; /* Azul */
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .grupo-lista a:hover {
-    background-color: #1a73e8;
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+footer {
+  
+    text-align: center;
+    padding: 20px;
+    background-color: #4788dd; /* Azul de fundo */
+    color: rgb(10, 9, 9);
+    margin-top: 20px;
+}
+
+footer a{
+color: rgb(8, 8, 8);
+}
+
+/* Estilo dos botões */
+button {
+    padding: 10px;
+    background-color: #1a73e8; /* Azul */
+    border: none;
     color: #fff;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #1767c1; /* Azul mais escuro */
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     .container {
-        padding: 15px;
+        padding: 10px;
     }
     .grupo-titulo {
         font-size: 16px;
-        padding: 12px;
     }
     .grupo-lista a {
         font-size: 14px;
-        padding: 10px;
     }
 }
 
-/* Estilo das mensagens */
-.message-container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.message-container h2 {
-    color: #1a73e8;
-    text-align: center;
-}
-
-#messageForm input, #messageForm textarea {
-    margin-bottom: 10px;
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    background-color: #fff;
-    color: #333;
-    font-family: 'Roboto', sans-serif;
-}
-
-#messageForm button {
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: #1a73e8;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#messageForm button:hover {
-    background-color: #0a58c2;
-}
-
-/* Estilo geral para links */
-a {
-    text-decoration: none;
-    color: #1a73e8;
-}
-
-a:hover {
-    color: #0a58c2;
-}
-
-/* Estilo de rodapé */
-footer {
-    text-align: center;
-    padding: 10px;
-    background-color: #f1f1f1;
-}
-
-footer a {
-    color: #1a73e8;
-    font-weight: 600;
-}
-
-footer a:hover {
-    color: #0a58c2;
-}
 
 
 
