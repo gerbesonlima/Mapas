@@ -2,51 +2,50 @@
 body, html {
     margin: 0;
     padding: 0;
-    font-family: 'Georgia', serif;
-    background-color: #f5e6ca; /* Papel envelhecido */
-    color: #5a3e1b; /* Marrom clássico */
+    font-family: 'Roboto', sans-serif;
+    background-color: #fff; /* Fundo branco, estilo clean */
+    color: #333; /* Texto escuro para boa legibilidade */
 }
 
-h1 {
+h1, h2, h3 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: #1a73e8; /* Cor suave do Google */
     text-align: center;
-    color: #8b5e3b; /* Tom de couro envelhecido */
-    font-family: 'Playfair Display', serif;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Container principal */
 .container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background: rgba(245, 230, 202, 0.9); /* Fundo com transparência */
+    background-color: #f5f5f5; /* Fundo suave para o container */
     border-radius: 10px;
-    border: 3px solid #d4b886;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo dos grupos */
 .grupo {
-    margin-bottom: 15px;
-    border: 2px solid #c4a484;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0; /* Borda clara */
     border-radius: 8px;
     overflow: hidden;
-    background-color: #efe1c6;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    transition: box-shadow 0.3s ease;
 }
 
 .grupo:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Título do grupo */
 .grupo-titulo {
     padding: 15px;
-    background: #d4b886;
-    color: #3e2c19;
+    background-color: #f1f1f1; /* Fundo leve */
+    color: #1a73e8; /* Cor do título */
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,13 +54,13 @@ h1 {
 }
 
 .grupo-titulo:hover {
-    background: #b59467;
+    background-color: #e1e1e1;
 }
 
 /* Ícone de seta */
 .grupo-titulo::after {
     content: '\25BC'; /* Seta para baixo */
-    font-size: 14px;
+    font-size: 16px;
     transition: transform 0.3s ease;
 }
 
@@ -72,31 +71,30 @@ h1 {
 /* Lista de itens */
 .grupo-lista {
     padding: 10px 15px;
-    background: #f5e6ca;
+    background-color: #fff;
     display: none;
 }
 
 .grupo-lista a {
     display: block;
-    padding: 10px;
+    padding: 12px;
     margin: 5px 0;
-    background: #d4b886;
+    background-color: #f9f9f9;
     border-radius: 5px;
     text-decoration: none;
-    color: #3e2c19;
-    transition: background 0.3s ease, color 0.3s ease;
-    font-weight: bold;
+    color: #1a73e8;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .grupo-lista a:hover {
-    background: #b59467;
+    background-color: #1a73e8;
     color: #fff;
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 15px;
     }
     .grupo-titulo {
         font-size: 16px;
@@ -104,46 +102,76 @@ h1 {
     }
     .grupo-lista a {
         font-size: 14px;
-        padding: 8px;
+        padding: 10px;
     }
 }
 
 /* Estilo das mensagens */
 .message-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 20px auto;
     padding: 20px;
-    background: #efe1c6;
+    background-color: #fff;
     border-radius: 10px;
-    border: 3px solid #d4b886;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .message-container h2 {
-    color: #8b5e3b;
+    color: #1a73e8;
+    text-align: center;
 }
 
 #messageForm input, #messageForm textarea {
     margin-bottom: 10px;
-    padding: 10px;
-    border: 2px solid #c4a484;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
     border-radius: 5px;
-    background: #f5e6ca;
-    color: #5a3e1b;
-    font-family: 'Georgia', serif;
+    background-color: #fff;
+    color: #333;
+    font-family: 'Roboto', sans-serif;
 }
 
 #messageForm button {
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 5px;
-    background: #8b5e3b;
+    background-color: #1a73e8;
     color: #fff;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 #messageForm button:hover {
-    background: #6d4527;
+    background-color: #0a58c2;
 }
+
+/* Estilo geral para links */
+a {
+    text-decoration: none;
+    color: #1a73e8;
+}
+
+a:hover {
+    color: #0a58c2;
+}
+
+/* Estilo de rodapé */
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+}
+
+footer a {
+    color: #1a73e8;
+    font-weight: 600;
+}
+
+footer a:hover {
+    color: #0a58c2;
+}
+
+
+
