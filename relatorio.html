@@ -171,26 +171,29 @@
                 num_estudos: document.getElementById('num-estudos').value,
                 horas_trabalhadas: document.getElementById('horas').checked,
                 total_horas: document.getElementById('total-horas').value,
-                observacoes: document.getElementById('observacoes').value,
-                data_envio: new Date().toLocaleString()
+                observacoes: document.getElementById('observacoes').value
             };
             
             // Enviar para o Google Apps Script
-            fetch('https://script.google.com/macros/s/AKfycbww56Oa2uWnSCjqL8NVX_KKM1vW5yubGsaQEHBJMlkSxiUSMKJ5zRvDjZH9RjopjFyA/exec', {
+            fetch('https://script.google.com/macros/s/AKfycbw7lXm9o93s5zT1h2--dJSl1eOsaE7hDhjAoAEC2cM0UjQruLXJaEG6ajNePplVLHWy/exec', {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData)
             })
-            .then(() => {
-                statusMessage.textContent = "Relatório enviado com sucesso!";
-                statusMessage.style.color = "#4CAF50";
-                document.getElementById('relatorio-form').reset();
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusMessage.textContent = "Relatório enviado com sucesso!";
+                    statusMessage.style.color = "#4CAF50";
+                    document.getElementById('relatorio-form').reset();
+                } else {
+                    throw new Error(data.error || 'Erro ao enviar');
+                }
             })
             .catch(error => {
-                statusMessage.textContent = "Erro ao enviar relatório. Tente novamente.";
+                statusMessage.textContent = "Erro: " + error.message;
                 statusMessage.style.color = "#f44336";
                 console.error('Error:', error);
             })
