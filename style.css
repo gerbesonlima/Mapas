@@ -5,7 +5,7 @@ body, html {
     padding: 0;
     font-family: 'Arial', sans-serif;
     color: #333;
-    background: #f8f9fa url('img/Territorio\ .png') no-repeat center center fixed;
+    background: #f8f9fa url('') no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
 }
@@ -25,14 +25,15 @@ body, html {
 
 
 /* Estilo dos títulos com melhor contraste */
-h1, h2, h3 {
+ h1, h2, h3 {
+    
     font-family: 'Arial', sans-serif;
     color: #1a73e8;
     text-align: center;
     margin-bottom: 20px;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    text-shadow: 10px 10px 9px rgba(0, 0, 0, 0.15);
     background-color: rgba(255, 255, 255, 0.4); /* Fundo sutil para títulos */
-    padding: 10px;
+    padding: 1px;
     border-radius: 5px;
     display: inline-block;
     margin-left: auto;
@@ -104,11 +105,12 @@ h1, h2, h3 {
 
 /* Footer redesenhado */
 footer {
+    border-radius: 30px;
     text-align: center;
-    padding: 25px;
+    padding: 2px;
     background-color: rgba(71, 136, 221, 0.82);
     color: #f0f0f0;
-    margin-top: 30px;
+    margin-top: 3px;
     backdrop-filter: blur(3px);
     border-top: 1px solid rgba(251, 250, 250, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -116,14 +118,12 @@ footer {
 
 footer a {
     display: inline-block;
-    padding: 12px 24px;
-    margin: 8px 12px;
     background-color: rgba(51, 51, 51, 0.85);
-    border-radius: 30px;
+    border-radius: 3px;
     text-decoration: none;
     color: #f4f5f6;
     transition: all 0.4s ease;
-    font-weight: 500;
+    font-weight: 50;
 }
 
 footer a:hover {
