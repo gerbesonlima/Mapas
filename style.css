@@ -62,7 +62,7 @@ body, html {
     color: #fff;
     font-weight: bold;
     border-radius: 8px 8px 0 0;
-    font-size: 18px;
+    font-size: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -102,6 +102,24 @@ body, html {
     box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
     border-left: 3px solid rgba(26, 115, 232, 0.9);
 }
+.mapa{
+    border: 3px solid #000;
+    top: 20px;
+    width: 50%;
+    max-width: 450px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+.mapa img {
+    width: 100%; /* Faz a imagem ocupar toda a largura da div */
+    max-width: 64px; /* Define um tamanho máximo */
+    height: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove espaços extras abaixo da imagem */
+    margin: 0 auto; /* Centraliza a imagem */
+   
+}
+
 
 /* Footer redesenhado */
 footer {
