@@ -1,201 +1,330 @@
-/* Reset básico com imagem de fundo */
-body, html {
-    text-align: center;
+/* Reset básico e fundo */
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
     color: #333;
-    background: #f8f9fa url('') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Container principal com transparência ajustada */
-.container {
-    text-align: left;
-    max-width: 1000px;
+/* Barra de progresso */
+.barra-progresso {
     margin: 20px auto;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.0); /* Reduzi para 78% de opacidade */
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(0px); /* Aumentei ligeiramente o desfoque */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Borda sutil */
+    text-align: center;
+    max-width: 90%;
 }
 
+progress {
+    width: 100%;
+    height: 24px;
+    border-radius: 12px;
+    background: #e9ecef;
+}
 
-/* Estilo dos títulos com melhor contraste */
- h1, h2, h3 {
-    
+span {
+    font-weight: bold;
+    margin-left: 12px;
+    font-size: 1rem;
+}
+
+/* Container principal */
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Títulos */
+h1,
+h2,
+h3 {
     font-family: 'Arial', sans-serif;
     color: #1a73e8;
     text-align: center;
-    margin-bottom: 20px;
-    text-shadow: 10px 10px 9px rgba(0, 0, 0, 0.15);
-    background-color: rgba(255, 255, 255, 0.4); /* Fundo sutil para títulos */
-    padding: 1px;
-    border-radius: 5px;
-    display: inline-block;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 20px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-weight: 600;
 }
 
-/* Grupos com transparência ajustada */
+/* Grupos */
 .grupo {
-    margin-bottom: 18px;
-    border: 1px solid rgba(209, 211, 216, 0.6);
-    border-radius: 8px;
-    background-color: rgba(241, 243, 244, 0.75); /* 75% de opacidade */
-    backdrop-filter: blur(3px);
-    transition: all 0.4s ease;
+    margin: 20px 0;
+    border: 1px solid rgba(209, 211, 216, 0.5);
+    border-radius: 10px;
+    background: rgba(241, 243, 244, 0.8);
+    transition: all 0.3s ease;
 }
 
 .grupo:hover {
-    background-color: rgba(241, 243, 244, 0.85);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    background: rgba(241, 243, 244, 0.9);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
 }
 
 .grupo-titulo {
-    padding: 14px;
-    background-color: rgba(26, 115, 232, 0.88); /* 88% de opacidade */
+    padding: 16px;
+    background: rgba(26, 115, 232, 0.9);
     color: #fff;
     font-weight: bold;
-    border-radius: 8px 8px 0 0;
-    font-size: 16px;
+    border-radius: 10px 10px 0 0;
+    font-size: 1.1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s ease;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .grupo-titulo:hover {
-    background-color: rgba(26, 115, 232, 0.95);
+    background: rgba(26, 115, 232, 1);
 }
 
 .grupo-lista {
-    padding: 12px;
-    background: rgba(248, 249, 250, 0.65); /* 65% de opacidade */
+    padding: 15px;
+    background: rgba(248, 249, 250, 0.7);
+    border-radius: 0 0 10px 10px;
     display: none;
-    border-radius: 0 0 8px 8px;
 }
 
-/* Links melhorados */
+/* Mapa item */
+.mapa-item {
+    margin: 12px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border-left: 4px solid rgba(26, 115, 232, 0.6);
+}
+
+/* Links */
 .grupo-lista a {
     display: block;
-    padding: 12px;
-    margin: 6px 0;
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 6px;
+    padding: 10px;
+    margin: 8px 0;
     text-decoration: none;
     color: #1a73e8;
+    font-weight: 500;
+    border-radius: 6px;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    border-left: 3px solid rgba(26, 115, 232, 0.5);
 }
 
 .grupo-lista a:hover {
-    background: rgba(232, 240, 254, 0.9);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
-    border-left: 3px solid rgba(26, 115, 232, 0.9);
+    background: rgba(232, 240, 254, 0.95);
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(26, 115, 232, 0.2);
 }
-.mapa{
-    border: 3px solid #000;
-    top: 20px;
-    width: 50%;
-    max-width: 450px;
-    height: auto;
+
+/* Campos de data e info */
+.datas,
+.info {
+    margin: 12px 0;
+}
+
+.datas label,
+.info label {
     display: block;
-    margin: 0 auto;
-}
-.mapa img {
-    width: 100%; /* Faz a imagem ocupar toda a largura da div */
-    max-width: 64px; /* Define um tamanho máximo */
-    height: auto; /* Mantém a proporção da imagem */
-    display: block; /* Remove espaços extras abaixo da imagem */
-    margin: 0 auto; /* Centraliza a imagem */
-   
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #1a73e8;
 }
 
-
-/* Footer redesenhado */
+/* Footer */
 footer {
-    border-radius: 30px;
     text-align: center;
-    padding: 2px;
-    background-color: rgba(71, 136, 221, 0.82);
-    color: #f0f0f0;
-    margin-top: 3px;
-    backdrop-filter: blur(3px);
-    border-top: 1px solid rgba(251, 250, 250, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 25px;
+    background: rgba(71, 136, 221, 0.9);
+    color: #fff;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
 }
 
 footer a {
-    padding: 10px 15px;
-    margin: 5px 8px;
+    padding: 10px 20px;
+    margin: 8px;
     display: inline-block;
-    background-color: rgba(243, 236, 236, 0.85);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
     text-decoration: none;
-    color: #030303;
-    transition: all 0.4s ease;
-    font-weight: 500px;
+    color: #1a73e8;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 footer a:hover {
-    background-color: rgba(26, 115, 232, 0.9);
-    color: #ffffff;
+    background: rgba(26, 115, 232, 0.95);
+    color: #fff;
     transform: scale(1.05);
 }
 
-/* Botões aprimorados */
+/* Botões */
 button {
-    padding: 12px 24px;
-    background-color: rgba(26, 115, 232, 0.88);
+    padding: 12px 25px;
+    background: rgba(26, 115, 232, 0.9);
     border: none;
     color: #fff;
     font-weight: bold;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+    margin: 8px;
 }
 
 button:hover {
-    background-color: rgba(23, 103, 193, 0.92);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(23, 103, 193, 0.4);
+    background: rgba(23, 103, 193, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 103, 193, 0.3);
 }
 
-/* Responsividade melhorada */
-@media (max-width: 600px) {
+/* Container de senha */
+#password-container {
+    text-align: center;
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Inputs e textarea */
+input[type="date"],
+input[type="text"],
+input[type="password"],
+textarea {
+    width: 100%;
+    max-width: 400px;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(209, 211, 216, 0.7);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+input[type="password"] {
+    max-width: 250px;
+}
+
+input[type="date"]:hover,
+input[type="text"]:hover,
+input[type="password"]:hover,
+textarea:hover {
+    background: rgba(241, 243, 244, 1);
+    box-shadow: 0 3px 8px rgba(209, 211, 216, 0.2);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Status */
+a span {
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
     .container {
+        margin: 15px;
         padding: 15px;
-        background: rgba(255, 255, 255, 0.88);
-        margin: 10px;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.95);
     }
-    
-    .grupo {
-        background-color: rgba(241, 243, 244, 0.85);
-        margin-bottom: 15px;
+
+    h1,
+    h2,
+    h3 {
+        font-size: 1.3rem;
+        padding: 10px;
     }
-    
-    h1, h2, h3 {
-        font-size: 1.2rem;
-        padding: 8px;
+
+    .grupo-titulo {
+        font-size: 1rem;
+        padding: 14px;
     }
-    
-    footer a {
-        padding: 10px 15px;
-        margin: 5px 8px;
+
+    .mapa-item {
+        padding: 12px;
     }
-    
+
     button {
         padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    input[type="date"],
+    input[type="text"],
+    input[type="password"],
+    textarea {
+        max-width: 100%;
+    }
+
+    #password-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    footer {
+        padding: 20px;
+    }
+
+    footer a {
+        padding: 8px 15px;
+        margin: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1,
+    h2,
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    .grupo-titulo {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+
+    .mapa-item {
+        padding: 10px;
+    }
+
+    .barra-progresso {
+        margin: 15px auto;
+    }
+
+    progress {
+        height: 20px;
+    }
+
+    button {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+
+    footer {
+        padding: 15px;
+    }
+
+    footer a {
+        padding: 6px 12px;
+        font-size: 0.85rem;
     }
 }
