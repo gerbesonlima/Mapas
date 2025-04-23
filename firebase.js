@@ -16,9 +16,10 @@ const database = firebase.database();
 const senhaCorreta = "1234";
 const totalMapas = 38;
 
-// Oculta apenas os campos de data inicialmente
+// Oculta apenas os campos de data e botões de designar inicialmente
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
+    document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
     carregarDados();
 });
 
@@ -38,11 +39,13 @@ function verificarSenha() {
     const senha = document.getElementById("senha").value.trim();
     if (senha === senhaCorreta) {
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "block");
+        document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "inline");
         document.getElementById("sair-btn").style.display = "inline";
         document.getElementById("limpar-tudo-btn").style.display = "inline";
         alert("Senha correta! Campos de edição liberados.");
     } else {
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
+        document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
         document.getElementById("sair-btn").style.display = "none";
         document.getElementById("limpar-tudo-btn").style.display = "none";
         alert("Senha incorreta!");
@@ -51,6 +54,7 @@ function verificarSenha() {
 
 function sair() {
     document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
+    document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("senha").value = "";
@@ -145,4 +149,29 @@ function carregarDados() {
             document.getElementById("percentual-geral").textContent = `${Math.round(dados.progresso || 0)}%`;
         }
     });
+}
+
+function designarMapa(id, link, nome) {
+    const observacao = document.getElementById(`observacao-${id}`).value;
+    database.ref(`mapasDesignados/${id}`).set({
+        link,
+        nome,
+        observacao
+    }).then(() => {
+        alert(`Mapa ${nome} designado com sucesso!`);
+    }).catch(error => {
+        console.error("Erro ao designar mapa:", error);
+        alert("Erro ao designar mapa: " + error.message);
+    });
+}
+
+function enviarMapa(id) {
+    if (confirm("Tem certeza que deseja enviar este mapa? Ele será removido da lista.")) {
+        database.ref(`mapasDesignados/${id}`).remove().then(() => {
+            alert("Mapa enviado e removido com sucesso!");
+        }).catch(error => {
+            console.error("Erro ao enviar mapa:", error);
+            alert("Erro ao enviar mapa: " + error.message);
+        });
+    }
 }

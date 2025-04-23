@@ -328,3 +328,106 @@ a span {
         font-size: 0.85rem;
     }
 }
+
+/* Estilos base (mobile-first) */
+body {
+    margin: 0;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 20px 0;
+}
+
+#data-atual {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 1rem;
+    margin: 10px 0;
+}
+
+.mapa-item {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.mapa-item a {
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: bold;
+    word-break: break-word;
+}
+
+.mapa-item a:hover {
+    text-decoration: underline;
+}
+
+.mapa-item label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.mapa-item textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.enviar-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.enviar-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Responsividade para tablets */
+@media (min-width: 600px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    #data-atual {
+        font-size: 1.2rem;
+    }
+
+    .mapa-item {
+        padding: 20px;
+        margin: 15px auto;
+        max-width: 600px;
+    }
+
+    .enviar-btn {
+        width: auto;
+    }
+}
+
+/* Responsividade para desktops */
+@media (min-width: 900px) {
+    body {
+        padding: 20px;
+    }
+
+    .mapa-item {
+        max-width: 800px;
+    }
+}
