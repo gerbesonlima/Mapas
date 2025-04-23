@@ -20,6 +20,9 @@ const totalMapas = 38;
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
     document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
+    document.getElementById("sair-btn").style.display = "none";
+    document.getElementById("limpar-tudo-btn").style.display = "none";
+    document.getElementById("relatorio-btn").style.display = "none";
     carregarDados();
 });
 
@@ -42,12 +45,14 @@ function verificarSenha() {
         document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "inline");
         document.getElementById("sair-btn").style.display = "inline";
         document.getElementById("limpar-tudo-btn").style.display = "inline";
+        document.getElementById("relatorio-btn").style.display = "inline";
         alert("Senha correta! Campos de edição liberados.");
     } else {
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
         document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
         document.getElementById("sair-btn").style.display = "none";
         document.getElementById("limpar-tudo-btn").style.display = "none";
+        document.getElementById("relatorio-btn").style.display = "none";
         alert("Senha incorreta!");
     }
 }
@@ -57,6 +62,7 @@ function sair() {
     document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
+    document.getElementById("relatorio-btn").style.display = "none";
     document.getElementById("senha").value = "";
     alert("Sessão encerrada. Dados permanecem salvos.");
 }

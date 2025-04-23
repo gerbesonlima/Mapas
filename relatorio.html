@@ -1,0 +1,180 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Mapas Trabalhados</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .no-data {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            padding: 20px;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Mapas Trabalhados</h1>
+    <table id="relatorio-table">
+        <thead>
+            <tr>
+                <th>Número do Mapa</th>
+                <th>Data de Início</th>
+                <th>Data de Fim</th>
+            </tr>
+        </thead>
+        <tbody id="relatorio-body"></tbody>
+    </table>
+
+    <script>
+        // Firebase configuration (same as in firebase.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Function to format date to Brazilian format (DD/MM/YYYY)
+        function formatarData(data) {
+            if (!data) return "Não definida";
+            const [ano, mes, dia] = data.split("-");
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // Function to load and display report
+        function carregarRelatorio() {
+            const tbody = document.getElementById("relatorio-body");
+            tbody.innerHTML = ""; // Clear existing content
+
+            database.ref("mapas").once("value", snapshot => {
+                const mapas = snapshot.val();
+                let hasData = false;
+
+                if (mapas) {
+                    // Get map IDs and sort them numerically
+                    const sortedIds = Object.keys(mapas).sort((a, b) => parseInt(a) - parseInt(b));
+
+                    // Iterate over sorted IDs
+                    sortedIds.forEach(id => {
+                        const mapa = mapas[id];
+                        // Only include maps with a start date or end date
+                        if (mapa.dataInicio || mapa.dataFim) {
+                            hasData = true;
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${id}</td>
+                                <td>${formatarData(mapa.dataInicio)}</td>
+                                <td>${formatarData(mapa.dataFim)}</td>
+                            `;
+                            tbody.appendChild(row);
+                        }
+                    });
+                }
+
+                // If no data is found, display a message
+                if (!hasData) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td colspan="3" class="no-data">Nenhum mapa trabalhado encontrado.</td>`;
+                    tbody.appendChild(row);
+                }
+            }).catch(error => {
+                console.error("Erro ao carregar relatório:", error);
+                const row = document.createElement("tr");
+                row.innerHTML = `<td colspan="3" class="no-data">Erro ao carregar dados: ${error.message}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load report when the page is ready
+        document.addEventListener("DOMContentLoaded", carregarRelatorio);
+    </script>
+</body>
+</html>

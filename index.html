@@ -48,54 +48,52 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
-
     <div>
-
         <h1>Mapas para Trabalhar</h1>
-        <p>Clique no botão 'Enviar' somente após concluir o trabalho. Se possível, atualize ate aonde foi trabalhado em observações.</p>
-    <div id="data-atual"></div>
-    <div id="mapas-container"></div>
+        <p>Clique no botão 'Enviar' somente após concluir o trabalho. Por favor coloque em observações o nome de quem dirigiu o campo e ate onde o territorio foi trabalhado .</p>
+        <div id="data-atual"></div>
+        <div id="mapas-container"></div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            displayDate();
-            carregarMapasDesignados();
-        });
-
-        function displayDate() {
-            const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-            const hoje = new Date();
-            const diaSemana = diasDaSemana[hoje.getDay()];
-            const dia = hoje.getDate().toString().padStart(2, "0");
-            const mes = (hoje.getMonth() + 1).toString().padStart(2, "0");
-            const ano = hoje.getFullYear();
-            const dataFormatada = `${diaSemana}, ${dia}/${mes}/${ano}`;
-            document.getElementById("data-atual").textContent = dataFormatada;
-        }
-
-        function carregarMapasDesignados() {
-            const container = document.getElementById("mapas-container");
-            database.ref("mapasDesignados").on("value", snapshot => {
-                container.innerHTML = "";
-                const mapas = snapshot.val();
-                if (mapas) {
-                    Object.keys(mapas).forEach(id => {
-                        const mapa = mapas[id];
-                        const mapaDiv = document.createElement("div");
-                        mapaDiv.className = "mapa-item";
-                        mapaDiv.id = `mapa-designado-${id}`;
-                        mapaDiv.innerHTML = `
-                            <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
-                            <label for="observacao-designado-${id}">Observações:</label>
-                            <textarea id="observacao-designado-${id}" placeholder="Escreva suas observações aqui">${mapa.observacao || ""}</textarea>
-                            <button class="enviar-btn" onclick="enviarMapa(${id})">Enviar</button>
-                        `;
-                        container.appendChild(mapaDiv);
-                    });
-                }
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                displayDate();
+                carregarMapasDesignados();
             });
-        }
-    </script>
+
+            function displayDate() {
+                const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+                const hoje = new Date();
+                const diaSemana = diasDaSemana[hoje.getDay()];
+                const dia = hoje.getDate().toString().padStart(2, "0");
+                const mes = (hoje.getMonth() + 1).toString().padStart(2, "0");
+                const ano = hoje.getFullYear();
+                const dataFormatada = `${diaSemana}, ${dia}/${mes}/${ano}`;
+                document.getElementById("data-atual").textContent = dataFormatada;
+            }
+
+            function carregarMapasDesignados() {
+                const container = document.getElementById("mapas-container");
+                database.ref("mapasDesignados").on("value", snapshot => {
+                    container.innerHTML = "";
+                    const mapas = snapshot.val();
+                    if (mapas) {
+                        Object.keys(mapas).forEach(id => {
+                            const mapa = mapas[id];
+                            const mapaDiv = document.createElement("div");
+                            mapaDiv.className = "mapa-item";
+                            mapaDiv.id = `mapa-designado-${id}`;
+                            mapaDiv.innerHTML = `
+                                <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
+                                <label for="observacao-designado-${id}">Observações:</label>
+                                <textarea id="observacao-designado-${id}" placeholder="Escreva suas observações aqui">${mapa.observacao || ""}</textarea>
+                                <button class="enviar-btn" onclick="enviarMapa(${id})">Enviar</button>
+                            `;
+                            container.appendChild(mapaDiv);
+                        });
+                    }
+                });
+            }
+        </script>
     </div>
 
     <h1>Mapas dos Territórios</h1>
@@ -137,7 +135,7 @@
                 </div>
                 <div class="mapa-item">
                     <a href="https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing">3 Vila Beira Rio <span id="status-3">Status: Não iniciado</span></a>
-                    <label for="observacao-3">Observações:</label>
+                    <label for=" Observation-3">Observações:</label>
                     <textarea id="observacao-3" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(3)"></textarea>
                     <div class="info">
                         <label for="data-inicio-3">Aberto em:</label>
@@ -290,7 +288,7 @@
                         <input type="date" id="data-inicio-14" onchange="atualizarStatus(14)">
                         <label for="data-fim-14">Fechado em:</label>
                         <input type="date" id="data-fim-14" onchange="atualizarStatus(14)">
-                        <button class="designar-btn" style="display: none;" onclick="designarMapa(14, 'https://www.google.com/maps/d/edit?mid=19nBg9H9jwTf3bDDtOLTaAd2K3l_KWG0&usp=sharing', '14 Cidade Nova')">Designar</button>
+                        <button class="designar-btn" style="display: none;" onclick="designarMapa(14, 'https://www.google.com/maps/d/edit?mid=19nBg9H9jwTf3bDDtOLTaAd2K3l_KWGKAR&usp=sharing', '14 Cidade Nova')">Designar</button>
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -482,7 +480,7 @@
                     <div class="info">
                         <label for="data-inicio-29">Aberto em:</label>
                         <input type="date" id="data-inicio-29" onchange="atualizarStatus(29)">
-                        <label for="data-fim-29">Fechado em:</label>
+                        <label for="data-fRecognition-29">Fechado em:</label>
                         <input type="date" id="data-fim-29" onchange="atualizarStatus(29)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(29, 'https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing', '29 Canaxuê')">Designar</button>
                     </div>
@@ -587,11 +585,11 @@
                         <input type="date" id="data-inicio-37" onchange="atualizarStatus(37)">
                         <label for="data-fim-37">Fechado em:</label>
                         <input type="date" id="data-fim-37" onchange="atualizarStatus(37)">
-                        <button class="designar-btn" style="display: none;" onclick="designarMapa(37, 'https://www.google.com/maps/d/edit?mid=1U3TgYkyojIu1TMzdcsdz5ykKL1xiTpo&usp=sharing', '37 Pedro Balzi - Frente para o Conjunto')">Designar</button>
+                        <button class="designar-btn" style="display: none;" onclick="designarMapa(37, 'https://www.google.com/maps/d/edit?mid=1U3TgYkyojI preparesu1TMzdcsdz5ykKL1xiTpo&usp=sharing', '37 Pedro Balzi - Frente para o Conjunto')">Designar</button>
                     </div>
                 </div>
                 <div class="mapa-item">
-                    <a href="https://www.google.com/maps/d/edit?mid=1hosg_pJqzj_2GK2pgJEI6xl5nX_RnPU&usp=sharing">38 Pedro Balzi - Parte de Cima do Morro <span id="status-38">Status: Não iniciado</span></a>
+                    <a href="https://www.google.com/maps/d/edit?mid=1hosg_p adjustsJqzj_2GK2pgJEI6xl5nX_RnPU&usp=sharing">38 Pedro Balzi - Parte de Cima do Morro <span id="status-38">Status: Não iniciado</span></a>
                     <label for="observacao-38">Observações:</label>
                     <textarea id="observacao-38" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(38)"></textarea>
                     <div class="info">
@@ -612,6 +610,7 @@
         <button onclick="verificarSenha()">Entrar</button>
         <button id="sair-btn" style="display: none;" onclick="sair()">Salvar e Sair</button>
         <button id="limpar-tudo-btn" style="display: none;" onclick="limparTudo()">Limpar Tudo</button>
+        <button id="relatorio-btn" style="display: none;" onclick="window.location.href='relatorio.html'">Ver Relatório</button>
     </div>
     <footer>
         <div class="footer-links">
