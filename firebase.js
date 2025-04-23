@@ -16,7 +16,7 @@ const database = firebase.database();
 const senhaCorreta = "1234";
 const totalMapas = 38;
 
-// Oculta campos de edição inicialmente
+// Oculta apenas os campos de data inicialmente
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
     carregarDados();
