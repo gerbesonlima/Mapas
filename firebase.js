@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarDados();
 });
 
+//Expandir Lista
 function toggleList(id) {
     const lista = document.getElementById(id);
     const titulo = lista.previousElementSibling;
@@ -172,9 +173,9 @@ function designarMapa(id, link, nome) {
 }
 
 function enviarMapa(id) {
-    if (confirm("Tem certeza que deseja enviar este mapa? Ele será removido da lista.")) {
+    if (confirm("Tem certeza que deseja remover este mapa?")) {
         database.ref(`mapasDesignados/${id}`).remove().then(() => {
-            alert("Mapa enviado e removido com sucesso!");
+            alert("Mapa removido com sucesso!");
         }).catch(error => {
             console.error("Erro ao enviar mapa:", error);
             alert("Erro ao enviar mapa: " + error.message);
