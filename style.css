@@ -435,3 +435,67 @@ h1 {
 p{
     text-align: center;
 }
+
+<style>
+    div > h1 {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .destaque-principal {
+        background-color: #f9f9f9;
+        border-left: 5px solid #3498db;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+    }
+
+    .destaque-principal:hover {
+        background-color: #eef7ff;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .mapa-item {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+    .mapa-item a {
+        font-weight: bold;
+        color: #2980b9;
+        text-decoration: none;
+    }
+
+    .mapa-item a:hover {
+        text-decoration: underline;
+    }
+
+    .enviar-btn {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .enviar-btn:hover {
+        background-color: #219150;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 60px;
+        margin-top: 5px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
