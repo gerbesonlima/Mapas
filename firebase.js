@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("relatorio-btn").style.display = "none";
+    
+    
     carregarDados();
 });
 
@@ -47,6 +49,8 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "inline";
         document.getElementById("limpar-tudo-btn").style.display = "inline";
         document.getElementById("relatorio-btn").style.display = "inline";
+        document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
+        document.getElementById("remover-designado-btn").style.display = "inline-block"; // Exibe o botão "Remover"
         alert("Senha correta! Campos de edição liberados.");
     } else {
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
@@ -54,6 +58,8 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "none";
         document.getElementById("limpar-tudo-btn").style.display = "none";
         document.getElementById("relatorio-btn").style.display = "none";
+        document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "none");
+        document.getElementById("remover-designado-btn").style.display = "none"; // Garante que o botão "Remover" está oculto
         alert("Senha incorreta!");
     }
 }
@@ -173,9 +179,9 @@ function designarMapa(id, link, nome) {
 }
 
 function enviarMapa(id) {
-    if (confirm("Tem certeza que deseja remover este mapa?")) {
+    if (confirm("Tem certeza que deseja remover cartão?")) {
         database.ref(`mapasDesignados/${id}`).remove().then(() => {
-            alert("Mapa removido com sucesso!");
+            alert("Cartão removido com sucesso!");
         }).catch(error => {
             console.error("Erro ao enviar mapa:", error);
             alert("Erro ao enviar mapa: " + error.message);

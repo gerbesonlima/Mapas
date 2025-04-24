@@ -126,8 +126,8 @@
                             mapaDiv.innerHTML = `
                                 <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
                                 <label for="observacao-designado-${id}">Observações:</label>
-                                <textarea id="observacao-designado-${id}" placeholder="Escreva suas observações aqui">${mapa.observacao || ""}</textarea>
-                                <button class="enviar-btn" onclick="enviarMapa(${id})">Enviar</button>
+                                <textarea.addEventListener("input", ajustarAltura); id="observacao-designado-${id}" placeholder="Escreva suas observações aqui" disabled>${mapa.observacao || ""}</textarea>
+                                <button  class="enviar-btn" onclick="enviarMapa(${id})">Remover</button>
                             `;
                             container.appendChild(mapaDiv);
                         });
