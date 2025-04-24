@@ -188,3 +188,24 @@ function enviarMapa(id) {
         });
     }
 }
+
+function compartilharLink() {
+    const url = "https://gerbesonlima.github.io/Mapas/designados.html";
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mapas Designados',
+            text: 'Confira os mapas designados para trabalhar!',
+            url: url
+        }).catch(error => {
+            console.error('Erro ao compartilhar:', error);
+            alert('Erro ao compartilhar o link.');
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Link copiado para a área de transferência: ' + url);
+        }).catch(error => {
+            console.error('Erro ao copiar:', error);
+            alert('Erro ao copiar o link.');
+        });
+    }
+}
