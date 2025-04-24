@@ -93,7 +93,7 @@
         
         <div id="data-atual"></div>
         <div id="mapas-container"></div>
-        <a href="index.html" class="back-link">Voltar para Mapas dos Territórios</a>
+       
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -127,7 +127,7 @@
                                 <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
                                 <label for="observacao-designado-${id}">Observações:</label>
                                 <textarea.addEventListener("input", ajustarAltura); id="observacao-designado-${id}" placeholder="Escreva suas observações aqui" disabled>${mapa.observacao || ""}</textarea>
-                                <button  class="enviar-btn" onclick="enviarMapa(${id})">Remover</button>
+                                <button style="display: none;"  class="enviar-btn" onclick="enviarMapa(${id})">Remover</button>
                             `;
                             container.appendChild(mapaDiv);
                         });
