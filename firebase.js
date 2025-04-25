@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("relatorio-btn").style.display = "none";
-    
+    document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão de recuperar inicialmente
     
     carregarDados();
 });
@@ -50,7 +50,7 @@ function verificarSenha() {
         document.getElementById("limpar-tudo-btn").style.display = "inline";
         document.getElementById("relatorio-btn").style.display = "inline";
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
-        document.getElementById("remover-designado-btn").style.display = "inline-block"; // Exibe o botão "Remover"
+        document.getElementById("remover-designado-btn").style.display = "inline-block";
         alert("Senha correta! Campos de edição liberados.");
     } else {
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
@@ -58,8 +58,9 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "none";
         document.getElementById("limpar-tudo-btn").style.display = "none";
         document.getElementById("relatorio-btn").style.display = "none";
+        document.getElementById("recuperar-dados-btn").style.display = "none"; // Garante que o botão de recuperar está oculto
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "none");
-        document.getElementById("remover-designado-btn").style.display = "none"; // Garante que o botão "Remover" está oculto
+        document.getElementById("remover-designado-btn").style.display = "none";
         alert("Senha incorreta!");
     }
 }
@@ -70,21 +71,74 @@ function sair() {
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("relatorio-btn").style.display = "none";
+    document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão de recuperar ao sair
     document.getElementById("senha").value = "";
     alert("Sessão encerrada. Dados permanecem salvos.");
 }
 
 function limparTudo() {
-    if (confirm("Tem certeza que deseja limpar TODOS os dados de datas e observações? Esta ação não pode ser desfeita.")) {
-        for (let i = 1; i <= totalMapas; i++) {
-            document.getElementById(`data-inicio-${i}`).value = "";
-            document.getElementById(`data-fim-${i}`).value = "";
-            document.getElementById(`observacao-${i}`).value = "";
-            document.getElementById(`status-${i}`).textContent = "Status: Não iniciado";
-            database.ref(`mapas/${i}`).remove();
-        }
-        atualizarProgressoGeral();
-        alert("Todos os dados foram limpos com sucesso!");
+    if (confirm("Tem certeza que deseja limpar TODOS os dados de datas e observações? Esta ação não pode ser desfeita, mas você poderá recuperar os dados com o botão 'Recuperar Dados'.")) {
+        // Fazer backup dos dados antes de limpar
+        database.ref("mapas").once("value", snapshot => {
+            const mapas = snapshot.val();
+            database.ref("progressoGeral").once("value", progressoSnapshot => {
+                const progresso = progressoSnapshot.val();
+                database.ref("backup").set({
+                    mapas: mapas || {},
+                    progressoGeral: progresso || { progresso: 0 }
+                }).then(() => {
+                    // Limpar os dados após o backup
+                    for (let i = 1; i <= totalMapas; i++) {
+                        document.getElementById(`data-inicio-${i}`).value = "";
+                        document.getElementById(`data-fim-${i}`).value = "";
+                        document.getElementById(`observacao-${i}`).value = "";
+                        document.getElementById(`status-${i}`).textContent = "Status: Não iniciado";
+                        database.ref(`mapas/${i}`).remove();
+                    }
+                    atualizarProgressoGeral();
+                    document.getElementById("recuperar-dados-btn").style.display = "inline"; // Exibe o botão de recuperar
+                    alert("Todos os dados foram limpos com sucesso! Use o botão 'Recuperar Dados' para restaurar, se necessário.");
+                }).catch(error => {
+                    console.error("Erro ao fazer backup:", error);
+                    alert("Erro ao fazer backup: " + error.message);
+                });
+            });
+        }).catch(error => {
+            console.error("Erro ao acessar dados para backup:", error);
+            alert("Erro ao acessar dados para backup: " + error.message);
+        });
+    }
+}
+
+function recuperarDados() {
+    if (confirm("Tem certeza que deseja recuperar os dados salvos? Isso substituirá os dados atuais.")) {
+        database.ref("backup").once("value", snapshot => {
+            const backup = snapshot.val();
+            if (backup && backup.mapas) {
+                // Restaurar mapas
+                Object.keys(backup.mapas).forEach(id => {
+                    const dados = backup.mapas[id];
+                    document.getElementById(`data-inicio-${id}`).value = dados.dataInicio || "";
+                    document.getElementById(`data-fim-${id}`).value = dados.dataFim || "";
+                    document.getElementById(`observacao-${id}`).value = dados.observacao || "";
+                    document.getElementById(`status-${id}`).textContent = dados.status || "Status: Não iniciado";
+                    database.ref(`mapas/${id}`).set(dados);
+                });
+                // Restaurar progresso geral
+                if (backup.progressoGeral) {
+                    document.getElementById("barra-geral").value = backup.progressoGeral.progresso || 0;
+                    document.getElementById("percentual-geral").textContent = `${Math.round(backup.progressoGeral.progresso || 0)}%`;
+                    database.ref("progressoGeral").set(backup.progressoGeral);
+                }
+                alert("Dados recuperados com sucesso!");
+                document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão após recuperação
+            } else {
+                alert("Nenhum backup disponível para recuperação.");
+            }
+        }).catch(error => {
+            console.error("Erro ao recuperar dados:", error);
+            alert("Erro ao recuperar dados: " + error.message);
+        });
     }
 }
 
@@ -194,7 +248,7 @@ function compartilharLink() {
     if (navigator.share) {
         navigator.share({
             title: 'Mapas Designados',
-            text: 'Confira os mapas designados para trabalhar!',
+            text: 'Confira o território a ser trabalhado!',
             url: url
         }).catch(error => {
             console.error('Erro ao compartilhar:', error);
