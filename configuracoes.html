@@ -1,0 +1,550 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <div id="login" class="bg-white p-4 rounded shadow mb-4">
+            <input type="password" id="password" class="w-full p-2 border rounded" placeholder="Digite sua senha para editar">
+            <button onclick="verifyPassword()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Entrar</button>
+        </div>
+
+        <div id="content" class="hidden">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">Programação de Limpeza</h2>
+                <button onclick="editTable('cleaning')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="saveTable('cleaning')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
+                <button onclick="downloadPDF('cleaning')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Baixar PDF</button>
+                <button onclick="addRow('cleaning')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Adicionar Linha</button>
+                <table id="cleaning-table" class="w-full border-collapse mt-2">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border p-2">Semana</th>
+                            <th class="border p-2">Grupo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border p-2">21 a 27 de Abril</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">28 de Abril a 4 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">5 a 11 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">12 a 18 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">19 a 25 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">Programação de Saída de Campo</h2>
+                <button onclick="editTable('field')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="saveTable('field')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
+                <button onclick="downloadPDF('field')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Baixar PDF</button>
+                <button onclick="addRow('field')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Adicionar Linha</button>
+                <table id="field-table" class="w-full border-collapse mt-2">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border p-2">Dia</th>
+                            <th class="border p-2">Local de Saída</th>
+                            <th class="border p-2">Horário da Consideração</th>
+                            <th class="border p-2">Dirigente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border p-2">Terça-Feira</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">Quarta-Feira</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">Quinta-Feira</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">Sexta-Feira</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">Sábado</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">Domingo</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-bold">Programação Congregação São Paulo</h2>
+                <button onclick="editTable('congregation')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="saveTable('congregation')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
+                <button onclick="downloadPDF('congregation')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Baixar PDF</button>
+                <button onclick="addRow('congregation')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Adicionar Linha</button>
+                <table id="congregation-table" class="w-full border-collapse mt-2">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border p-2">Semana</th>
+                            <th challenger_id="c1" class="border p-2">Presidente</th>
+                            <th challenger_id="c2" class="border p-2">Leitor</th>
+                            <th challenger_id="c3" class="border p-2">Indicador</th>
+                            <th challenger_id="c4" class="border p-2">Volante</th>
+                            <th challenger_id="c5" class="border p-2">Palco</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border p-2">21 a 27 de Abril</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">28 de Abril a 4 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">5 a 11 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="border p-2">12 a 18 de Maio</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+            return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                        row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                        headerRowIndex = 0;
+                    }
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+    </script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const senhaCorreta = "1234";
+        const { jsPDF } = window.jspdf;
+
+        function verifyPassword() {
+            const password = document.getElementById('password').value.trim();
+            if (password === senhaCorreta) {
+                document.getElementById('login').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+                loadData();
+                alert('Senha correta! Campos de edição liberados.');
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        function editTable(tableId) {
+            const textareas = document.querySelectorAll(`#${tableId}-table textarea`);
+            textareas.forEach(textarea => textarea.disabled = false);
+        }
+
+        function addRow(tableId) {
+            const table = document.getElementById(`${tableId}-table`).querySelector('tbody');
+            let newRow = document.createElement('tr');
+
+            if (tableId === 'cleaning') {
+                const week = prompt('Digite a semana (ex: 26 de Maio a 1 de Junho):');
+                if (!week) return;
+                newRow.innerHTML = `
+                    <td class="border p-2">${week}</td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                `;
+            } else if (tableId === 'field') {
+                const day = prompt('Digite o dia da semana (ex: Segunda-Feira):');
+                if (!day) return;
+                newRow.innerHTML = `
+                    <td class="border p-2">${day}</td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                `;
+            } else if (tableId === 'congregation') {
+                const week = prompt('Digite a semana (ex: 19 a 25 de Maio):');
+                if (!week) return;
+                newRow.innerHTML = `
+                    <td class="border p-2">${week}</td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                    <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                `;
+            }
+
+            table.appendChild(newRow);
+        }
+
+        function saveTable(tableId) {
+            const textareas = document.querySelectorAll(`#${tableId}-table textarea`);
+            textareas.forEach(textarea => textarea.disabled = true);
+
+            const table = document.getElementById(`${tableId}-table`);
+            const data = [];
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                const textareas = row.querySelectorAll('textarea');
+                if (tableId === 'cleaning') {
+                    data.push({
+                        week: cells[0].textContent,
+                        group: textareas[0].value
+                    });
+                } else if (tableId === 'field') {
+                    data.push({
+                        day: cells[0].textContent,
+                        location: textareas[0].value,
+                        time: textareas[1].value,
+                        leader: textareas[2].value
+                    });
+                } else if (tableId === 'congregation') {
+                    data.push({
+                        week: cells[0].textContent,
+                        president: textareas[0].value,
+                        reader: textareas[1].value,
+                        indicator: textareas[2].value,
+                        volante: textareas[3].value,
+                        stage: textareas[4].value
+                    });
+                }
+            });
+
+            database.ref(`schedules/${tableId}`).set(data).then(() => {
+                alert('Dados salvos com sucesso!');
+            }).catch(error => {
+                alert('Erro ao salvar dados: ' + error.message);
+            });
+        }
+
+        function loadData() {
+            database.ref('schedules/cleaning').once('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const table = document.getElementById('cleaning-table').querySelector('tbody');
+                table.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="border p-2">${item.week}</td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.group || ''}</textarea></td>
+                    `;
+                    table.appendChild(row);
+                });
+                if (data.length === 0) {
+                    const defaultWeeks = [
+                        '21 a 27 de Abril',
+                        '28 de Abril a 4 de Maio',
+                        '5 a 11 de Maio',
+                        '12 a 18 de Maio',
+                        '19 a 25 de Maio'
+                    ];
+                    defaultWeeks.forEach(week => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="border p-2">${week}</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        `;
+                        table.appendChild(row);
+                    });
+                }
+            });
+
+            database.ref('schedules/field').once('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const table = document.getElementById('field-table').querySelector('tbody');
+                table.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="border p-2">${item.day}</td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.location || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.time || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.leader || ''}</textarea></td>
+                    `;
+                    table.appendChild(row);
+                });
+                if (data.length === 0) {
+                    const defaultDays = [
+                        'Terça-Feira',
+                        'Quarta-Feira',
+                        'Quinta-Feira',
+                        'Sexta-Feira',
+                        'Sábado',
+                        'Domingo'
+                    ];
+                    defaultDays.forEach(day => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="border p-2">${day}</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        `;
+                        table.appendChild(row);
+                    });
+                }
+            });
+
+            database.ref('schedules/congregation').once('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const table = document.getElementById('congregation-table').querySelector('tbody');
+                table.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="border p-2">${item.week}</td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.president || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.reader || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.indicator || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.volante || ''}</textarea></td>
+                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.stage || ''}</textarea></td>
+                    `;
+                    table.appendChild(row);
+                });
+                if (data.length === 0) {
+                    const defaultWeeks = [
+                        '21 a 27 de Abril',
+                        '28 de Abril a 4 de Maio',
+                        '5 a 11 de Maio',
+                        '12 a 18 de Maio'
+                    ];
+                    defaultWeeks.forEach(week => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="border p-2">${week}</td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                        `;
+                        table.appendChild(row);
+                    });
+                }
+            });
+        }
+
+        function downloadPDF(tableId) {
+            try {
+                const doc = new jsPDF();
+                doc.setFontSize(12);
+
+                if (tableId === 'cleaning') {
+                    doc.text('Programação de Limpeza', 10, 10);
+                    const table = document.getElementById('cleaning-table');
+                    const data = [];
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const textareas = row.querySelectorAll('textarea');
+                        data.push([cells[0].textContent, textareas[0].value || '']);
+                    });
+
+                    // Extend to 20 weeks
+                    const weeks = [];
+                    const startDate = new Date('2025-04-21');
+                    for (let i = 0; i < 20; i++) {
+                        const weekStart = new Date(startDate.getTime() + i * 7 * 24 * 60 * 60 * 1000);
+                        const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+                        const formatDate = (date) => `${date.getDate()} de ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][date.getMonth()]}`;
+                        const week = `${formatDate(weekStart)} a ${formatDate(weekEnd)}`;
+                        const group = data[i % data.length][1];
+                        weeks.push([week, group]);
+                    }
+
+                    doc.autoTable({
+                        head: [['Semana', 'Grupo']],
+                        body: weeks,
+                        startY: 20
+                    });
+                    doc.save('Programacao_Limpeza.pdf');
+                } else if (tableId === 'field') {
+                    doc.text('Programação de Saída de Campo', 10, 10);
+                    const table = document.getElementById('field-table');
+                    const data = [];
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const textareas = row.querySelectorAll('textarea');
+                        data.push([
+                            cells[0].textContent,
+                            textareas[0].value || '',
+                            textareas[1].value || '',
+                            textareas[2].value || ''
+                        ]);
+                    });
+
+                    doc.autoTable({
+                        head: [['Dia', 'Local de Saída', 'Horário da Consideração', 'Dirigente']],
+                        body: data,
+                        startY: 20
+                    });
+                    doc.save('Programacao_Saida_Campo.pdf');
+                } else if (tableId === 'congregation') {
+                    doc.text('Programação Congregação São Paulo', 10, 10);
+                    const table = document.getElementById('congregation-table');
+                    const data = [];
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const textareas = row.querySelectorAll('textarea');
+                        data.push([
+                            cells[0].textContent,
+                            textareas[0].value || '',
+                            textareas[1].value || '',
+                            textareas[2].value || '',
+                            textareas[3].value || '',
+                            textareas[4].value || ''
+                        ]);
+                    });
+
+                    doc.autoTable({
+                        head: [['Semana', 'Presidente', 'Leitor', 'Indicador', 'Volante', 'Palco']],
+                        body: data,
+                        startY: 20
+                    });
+                    doc.save('Programacao_Congregacao_Sao_Paulo.pdf');
+                }
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF: ' + error.message);
+            }
+        }
+    </script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'935b7c6becba53be',t:'MTc0NTU1OTQyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>

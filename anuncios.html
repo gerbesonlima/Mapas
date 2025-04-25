@@ -1,0 +1,155 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anúncios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <button onclick="window.location.href='configuracoes.html'" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4">Configurações</button>
+
+        <div id="semana" class="bg-white p-4 rounded shadow mb-4">
+            <h1 class="text-xl font-bold">Semana de <span id="current-week"></span></h1>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-4">Programação da Semana</h1>
+
+        <div id="limpeza" class="bg-white p-4 rounded shadow mb-4">
+            <p class="font-semibold">Programação de Limpeza</p>
+            <p>Grupo responsável: <span id="cleaning-group"></span></p>
+        </div>
+
+        <div id="campo" class="bg-white p-4 rounded shadow mb-4">
+            <p class="font-semibold">Programação de Saída de Campo</p>
+            <p>Dia: <span id="current-day"></span></p>
+            <p>Local de saída: <span id="field-location"></span></p>
+            <p>Horário da consideração: <span id="field-time"></span></p>
+            <p>Dirigente: <span id="field-leader"></span></p>
+        </div>
+
+        <div id="escala" class="bg-white p-4 rounded shadow">
+            <p class="font-semibold">Programação Congregação São Paulo</p>
+            <p>Presidente: <span id="president"></span></p>
+            <p>Leitor: <span id="reader"></span></p>
+            <p>Indicador: <span id="indicator"></span></p>
+            <p>Volante: <span id="volante"></span></p>
+            <p>Palco: <span id="stage"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function getCurrentWeek() {
+            const today = new Date('2025-04-25'); // Fixed date for consistency
+            const startDate = new Date('2025-04-21'); // Start of first week
+            const diffTime = today - startDate;
+            const diffWeeks = Math.floor(diffTime / (7 * 24 * 60 * 60 * 1000));
+            const weekStart = new Date(startDate.getTime() + diffWeeks * 7 * 24 * 60 * 60 * 1000);
+            const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+            const formatDate = (date) => `${date.getDate()} de ${['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][date.getMonth()]}`;
+            return `${formatDate(weekStart)} a ${formatDate(weekEnd)}`;
+        }
+
+        function getCurrentDay() {
+            const today = new Date('2025-04-25');
+            const days = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'];
+            return days[today.getDay()];
+        }
+
+        function loadData() {
+            const currentWeek = getCurrentWeek();
+            document.getElementById('current-week').textContent = currentWeek;
+            document.getElementById('current-day').textContent = getCurrentDay();
+
+            // Load cleaning schedule
+            database.ref('schedules/cleaning').once('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const weeks = Object.values(data);
+                const weekIndex = Math.floor((new Date('2025-04-25') - new Date('2025-04-21')) / (7 * 24 * 60 * 60 * 1000)) % weeks.length;
+                document.getElementById('cleaning-group').textContent = weeks[weekIndex]?.group || 'Não definido';
+            });
+
+            // Load field service schedule
+            database.ref('schedules/field').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                const currentDay = getCurrentDay();
+                const dayData = Object.values(data).find(d => d.day === currentDay);
+                document.getElementById('field-location').textContent = dayData?.location || 'Não definido';
+                document.getElementById('field-time').textContent = dayData?.time || 'Não definido';
+                document.getElementById('field-leader').textContent = dayData?.leader || 'Não definido';
+            });
+
+            // Load congregation schedule
+            database.ref('schedules/congregation').once('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const weeks = Object.values(data);
+                const weekIndex = Math.floor((new Date('2025-04-25') - new Date('2025-04-21')) / (7 * 24 * 60 * 60 * 1000)) % weeks.length;
+                const weekData = weeks[weekIndex] || {};
+                document.getElementById('president').textContent = weekData.president || 'Não definido';
+                document.getElementById('reader').textContent = weekData.reader || 'Não definido';
+                document.getElementById('indicator').textContent = weekData.indicator || 'Não definido';
+                document.getElementById('volante').textContent = weekData.volante || 'Não definido';
+                document.getElementById('stage').textContent = weekData.stage || 'Não definido';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

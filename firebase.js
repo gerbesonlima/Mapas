@@ -23,12 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("relatorio-btn").style.display = "none";
-    document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão de recuperar inicialmente
+    document.getElementById("recuperar-dados-btn").style.display = "none";
     
     carregarDados();
 });
 
-//Expandir Lista
+// Expandir Lista
 function toggleList(id) {
     const lista = document.getElementById(id);
     const titulo = lista.previousElementSibling;
@@ -58,7 +58,7 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "none";
         document.getElementById("limpar-tudo-btn").style.display = "none";
         document.getElementById("relatorio-btn").style.display = "none";
-        document.getElementById("recuperar-dados-btn").style.display = "none"; // Garante que o botão de recuperar está oculto
+        document.getElementById("recuperar-dados-btn").style.display = "none";
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "none");
         document.getElementById("remover-designado-btn").style.display = "none";
         alert("Senha incorreta!");
@@ -71,14 +71,13 @@ function sair() {
     document.getElementById("sair-btn").style.display = "none";
     document.getElementById("limpar-tudo-btn").style.display = "none";
     document.getElementById("relatorio-btn").style.display = "none";
-    document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão de recuperar ao sair
+    document.getElementById("recuperar-dados-btn").style.display = "none";
     document.getElementById("senha").value = "";
     alert("Sessão encerrada. Dados permanecem salvos.");
 }
 
 function limparTudo() {
     if (confirm("Tem certeza que deseja limpar TODOS os dados de datas e observações? Esta ação não pode ser desfeita, mas você poderá recuperar os dados com o botão 'Recuperar Dados'.")) {
-        // Fazer backup dos dados antes de limpar
         database.ref("mapas").once("value", snapshot => {
             const mapas = snapshot.val();
             database.ref("progressoGeral").once("value", progressoSnapshot => {
@@ -87,7 +86,6 @@ function limparTudo() {
                     mapas: mapas || {},
                     progressoGeral: progresso || { progresso: 0 }
                 }).then(() => {
-                    // Limpar os dados após o backup
                     for (let i = 1; i <= totalMapas; i++) {
                         document.getElementById(`data-inicio-${i}`).value = "";
                         document.getElementById(`data-fim-${i}`).value = "";
@@ -96,7 +94,7 @@ function limparTudo() {
                         database.ref(`mapas/${i}`).remove();
                     }
                     atualizarProgressoGeral();
-                    document.getElementById("recuperar-dados-btn").style.display = "inline"; // Exibe o botão de recuperar
+                    document.getElementById("recuperar-dados-btn").style.display = "inline";
                     alert("Todos os dados foram limpos com sucesso! Use o botão 'Recuperar Dados' para restaurar, se necessário.");
                 }).catch(error => {
                     console.error("Erro ao fazer backup:", error);
@@ -115,7 +113,6 @@ function recuperarDados() {
         database.ref("backup").once("value", snapshot => {
             const backup = snapshot.val();
             if (backup && backup.mapas) {
-                // Restaurar mapas
                 Object.keys(backup.mapas).forEach(id => {
                     const dados = backup.mapas[id];
                     document.getElementById(`data-inicio-${id}`).value = dados.dataInicio || "";
@@ -124,20 +121,40 @@ function recuperarDados() {
                     document.getElementById(`status-${id}`).textContent = dados.status || "Status: Não iniciado";
                     database.ref(`mapas/${id}`).set(dados);
                 });
-                // Restaurar progresso geral
                 if (backup.progressoGeral) {
                     document.getElementById("barra-geral").value = backup.progressoGeral.progresso || 0;
                     document.getElementById("percentual-geral").textContent = `${Math.round(backup.progressoGeral.progresso || 0)}%`;
                     database.ref("progressoGeral").set(backup.progressoGeral);
                 }
                 alert("Dados recuperados com sucesso!");
-                document.getElementById("recuperar-dados-btn").style.display = "none"; // Oculta o botão após recuperação
+                document.getElementById("recuperar-dados-btn").style.display = "none";
             } else {
                 alert("Nenhum backup disponível para recuperação.");
             }
         }).catch(error => {
             console.error("Erro ao recuperar dados:", error);
             alert("Erro ao recuperar dados: " + error.message);
+        });
+    }
+}
+
+function limparHistorico() {
+    const senha = document.getElementById("senha-historico")?.value.trim();
+    if (!senha) {
+        alert("Por favor, digite a senha!");
+        return;
+    }
+    if (senha !== senhaCorreta) {
+        alert("Senha incorreta!");
+        return;
+    }
+    if (confirm("Tem certeza que deseja limpar TODO o histórico de designações? Esta ação não pode ser desfeita.")) {
+        database.ref("historicoDesignacoes").remove().then(() => {
+            alert("Histórico limpo com sucesso!");
+            document.getElementById("senha-historico").value = "";
+        }).catch(error => {
+            console.error("Erro ao limpar histórico:", error);
+            alert("Erro ao limpar histórico: " + error.message);
         });
     }
 }
@@ -218,6 +235,21 @@ function carregarDados() {
     });
 }
 
+function salvarNoHistorico(id, link, nome, observacao, acao) {
+    const timestamp = new Date().toISOString();
+    database.ref("historicoDesignacoes").push({
+        mapaId: id,
+        link: link || "",
+        nome: nome || "",
+        observacao: observacao || "",
+        acao: acao,
+        timestamp: timestamp
+    }).catch(error => {
+        console.error("Erro ao salvar no histórico:", error);
+        alert("Erro ao salvar no histórico: " + error.message);
+    });
+}
+
 function designarMapa(id, link, nome) {
     const observacao = document.getElementById(`observacao-${id}`).value;
     database.ref(`mapasDesignados/${id}`).set({
@@ -225,6 +257,7 @@ function designarMapa(id, link, nome) {
         nome,
         observacao
     }).then(() => {
+        salvarNoHistorico(id, link, nome, observacao, "designado");
         alert(`Mapa ${nome} designado com sucesso!`);
     }).catch(error => {
         console.error("Erro ao designar mapa:", error);
@@ -234,11 +267,23 @@ function designarMapa(id, link, nome) {
 
 function enviarMapa(id) {
     if (confirm("Tem certeza que deseja remover cartão?")) {
-        database.ref(`mapasDesignados/${id}`).remove().then(() => {
-            alert("Cartão removido com sucesso!");
+        database.ref(`mapasDesignados/${id}`).once("value", snapshot => {
+            const mapa = snapshot.val();
+            if (mapa) {
+                const { link, nome, observacao } = mapa;
+                database.ref(`mapasDesignados/${id}`).remove().then(() => {
+                    salvarNoHistorico(id, link, nome, observacao, "removido");
+                    alert("Cartão removido com sucesso!");
+                }).catch(error => {
+                    console.error("Erro ao remover mapa:", error);
+                    alert("Erro ao remover mapa: " + error.message);
+                });
+            } else {
+                alert("Mapa não encontrado!");
+            }
         }).catch(error => {
-            console.error("Erro ao enviar mapa:", error);
-            alert("Erro ao enviar mapa: " + error.message);
+            console.error("Erro ao acessar mapa:", error);
+            alert("Erro ao acessar mapa: " + error.message);
         });
     }
 }
