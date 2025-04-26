@@ -129,7 +129,7 @@ function getNextDay(date) {
     const nextDate = new Date(date);
 
     // Só avança o dia se ainda for antes de sábado às 12h
-    if (!(date.getDay() === 6 && date.getHours() >= 12)) {
+    if (!(date.getDay() === 6 && date.getHours() >=12 )) {
         nextDate.setDate(date.getDate() + 0);
     }
 
