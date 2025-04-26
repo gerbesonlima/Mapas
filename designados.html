@@ -140,7 +140,6 @@ function getNextDay(date) {
 function checkTimeAndUpdateDate() {
     const now = new Date();
     const currentDateString = now.toDateString();
-
     // Verifica se é após 12:00h e se a data ainda não foi atualizada hoje
     if (now.getHours() >= 12 && lastUpdatedDate !== currentDateString) {
         currentDate = new Date(now.setDate(now.getDate() + 1)); // Avança para o dia seguinte

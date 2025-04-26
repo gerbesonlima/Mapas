@@ -48,7 +48,7 @@ function getNextDay(date) {
 
     // Só avança o dia se ainda for antes de sábado às 12h
     if (!(date.getDay() === 6 && date.getHours() >= 12)) {
-        nextDate.setDate(date.getDate() + 1);
+        nextDate.setDate(date.getDate() + 0);
     }
 
     return getCurrentDay(nextDate);
