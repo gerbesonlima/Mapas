@@ -208,7 +208,7 @@ function carregarMapasDesignados() {
                     <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
                     <label for="observacao-designado-${id}">Observações:</label>
                     <p id="observacao-designado-${id}" class="observacao-designada">${mapa.observacao || ""}</p>
-                    <button class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
+                    <button style="display: none; class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
                 container.appendChild(mapaDiv);
             });
         } else {
