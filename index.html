@@ -8,9 +8,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body class="container">
-    <div class="destaque-principal">
-       
 
+    <div class="destaque-principal">
         <div id="campo" class="bg-white p-4 rounded shadow mb-4">
             <p class="font-semibold">Programação de Saída de Campo</p>
             <p>Dia: <span id="current-day"></span></p>
@@ -28,158 +27,225 @@
         <button> 📤Compartilhar mapa </button> 
     </div>
 
-    
-
     <script>
-        let currentDate = new Date();
-        let backupMapas = null;
+    let currentDate = new Date();
+let backupMapas = null;
+let lastUpdatedDate = null; // Rastreia a última data atualizada
 
-        document.addEventListener("DOMContentLoaded", () => {
-            loadFieldServiceData();
-            carregarMapasDesignados();
+document.addEventListener("DOMContentLoaded", () => {
+    loadFieldServiceData();
+    carregarMapasDesignados();
+    checkTimeAndUpdateDate(); // Inicia a verificação de horário
+});
+
+function getCurrentDay(date) {
+    const days = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'];
+    return days[date.getDay()];
+}
+
+function getNextDay(date) {
+    const nextDate = new Date(date);
+
+    // Só avança o dia se ainda for antes de sábado às 12h
+    if (!(date.getDay() === 6 && date.getHours() >= 12)) {
+        nextDate.setDate(date.getDate() + 1);
+    }
+
+    return getCurrentDay(nextDate);
+}
+
+
+function checkTimeAndUpdateDate() {
+    const now = new Date();
+    const currentDateString = now.toDateString();
+
+    // Verifica se é após 12:00h e se a data ainda não foi atualizada hoje
+    if (now.getHours() >= 12 && lastUpdatedDate !== currentDateString) {
+        currentDate = new Date(now.setDate(now.getDate() + 1)); // Avança para o dia seguinte
+        lastUpdatedDate = currentDate.toDateString(); // Marca a data como atualizada
+        console.log("Data atualizada para:", currentDate.toDateString());
+        loadFieldServiceData(); // Carrega os dados do DIA SEGUINTE ao currentDate
+    }
+
+    // Verifica novamente a cada minuto (60000ms)
+    setTimeout(checkTimeAndUpdateDate, 60000);
+}
+
+function loadFieldServiceData() {
+    const now = new Date();
+    let displayDay;
+
+    if (now.getHours() < 12) {
+        // Antes das 12:00h, exibe o próximo dia em relação à data atual
+        displayDay = getNextDay(new Date()); // Usa data atual, não currentDate
+    } else {
+        // Após 12:00h, exibe o próximo dia em relação ao currentDate avançado
+        displayDay = getNextDay(currentDate);
+    }
+
+    console.log("Carregando dados para o dia:", displayDay, "com currentDate:", currentDate.toDateString(), "e hora atual:", now.getHours());
+    console.log("Dia da semana a exibir:", displayDay);
+    document.getElementById('current-day').textContent = displayDay;
+
+    // Limpa os campos antes de carregar novos dados
+    document.getElementById('field-location').textContent = 'Carregando...';
+    document.getElementById('field-time').textContent = 'Carregando...';
+    document.getElementById('field-leader').textContent = 'Carregando...';
+
+    database.ref('schedules/field').once('value', (snapshot) => {
+        const data = snapshot.val() || [];
+        console.log("Dados brutos do Firebase:", data);
+        const dayData = data.find(d => d.day === displayDay) || {};
+        console.log("Dados do dia encontrados:", dayData);
+
+        // Atualiza os campos com os dados do dia ou exibe 'Não definido'
+        document.getElementById('field-location').textContent = dayData.location || 'Não definido';
+        document.getElementById('field-time').textContent = dayData.time || 'Não definido';
+        document.getElementById('field-leader').textContent = dayData.leader || 'Não definido';
+    }).catch(error => {
+        console.error("Erro ao carregar dados de saída de campo:", error);
+        alert("Erro ao carregar dados de saída de campo: " + error.message);
+        // Em caso de erro, exibe 'Não definido'
+        document.getElementById('field-location').textContent = 'Não definido';
+        document.getElementById('field-time').textContent = 'Não definido';
+        document.getElementById('field-leader').textContent = 'Não definido';
+    });
+
+    // Opcional: Controlar visibilidade do campo (descomentar se quiser ocultar após 12:00h)
+    /*
+    const campoDiv = document.getElementById('campo');
+    if (now.getHours() >= 12) {
+        campoDiv.classList.add('hidden');
+    } else {
+        campoDiv.classList.remove('hidden');
+    }
+    */
+}
+
+function carregarMapasDesignados() {
+    const container = document.getElementById("mapas-container");
+    database.ref("mapasDesignados").on("value", snapshot => {
+        container.innerHTML = "";
+        const mapas = snapshot.val();
+        if (mapas) {
+            Object.keys(mapas).forEach(id => {
+                const mapa = mapas[id];
+                const mapaDiv = document.createElement("div");
+                mapaDiv.className = "mapa-item";
+                mapaDiv.id = `mapa-designado-${id}`;
+                mapaDiv.innerHTML = `
+                    <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
+                    <label for="observacao-designado-${id}">Observações:</label>
+                    <p id="observacao-designado-${id}" class="observacao-designada">${mapa.observacao || ""}</p>
+                    <button class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
+                container.appendChild(mapaDiv);
+            });
+        } else {
+            console.log("Nenhum mapa designado encontrado.");
+        }
+    }, error => {
+        console.error("Erro ao carregar mapas designados:", error);
+        alert("Erro ao carregar mapas designados: " + error.message);
+    });
+}
+
+function enviarMapa(id) {
+    if (confirm("Tem certeza que deseja remover cartão?")) {
+        console.log("Removendo mapa ID:", id);
+        database.ref(`mapasDesignados/${id}`).once("value", snapshot => {
+            const mapa = snapshot.val();
+            if (mapa) {
+                backupMapas = { id, link: mapa.link, nome: mapa.nome, observacao: mapa.observacao || "" };
+                console.log("Backup criado:", backupMapas);
+                database.ref(`mapasDesignados/${id}`).remove().then(() => {
+                    salvarNoHistorico(id, mapa.link, mapa.nome, mapa.observacao, "removido");
+                    document.getElementById("restaurar-btn").style.display = "inline";
+                    currentDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+                    lastUpdatedDate = currentDate.toDateString(); // Atualiza a data rastreada
+                    console.log("Data avançada para:", currentDate.toDateString());
+                    loadFieldServiceData(); // Carrega os dados do DIA SEGUINTE ao novo currentDate
+                    alert("Cartão removido com sucesso! Exibindo saída de campo do próximo dia.");
+                }).catch(error => {
+                    console.error("Erro ao remover mapa:", error);
+                    alert("Erro ao remover mapa: " + error.message);
+                    backupMapas = null;
+                });
+            } else {
+                console.warn("Mapa não encontrado para ID:", id);
+                alert("Mapa não encontrado!");
+            }
+        }).catch(error => {
+            console.error("Erro ao acessar mapa:", error);
+            alert("Erro ao acessar mapa: " + error.message);
         });
+    }
+}
 
-        function getCurrentDay(date) {
-            const days = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'];
-            return days[date.getDay()];
-        }
-
-        function loadFieldServiceData() {
-            console.log("Carregando dados para o dia:", currentDate.toDateString());
-            const currentDay = getCurrentDay(currentDate);
-            document.getElementById('current-day').textContent = currentDay;
-            database.ref('schedules/field').once('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                const dayData = Object.values(data).find(d => d.day === currentDay) || {};
-                console.log("Dados do dia encontrados:", dayData);
-                document.getElementById('field-location').textContent = dayData.location || 'Não definido';
-                document.getElementById('field-time').textContent = dayData.time || 'Não definido';
-                document.getElementById('field-leader').textContent = dayData.leader || 'Não definido';
+function restaurarMapa() {
+    console.log("Tentando restaurar mapa:", backupMapas);
+    if (backupMapas && backupMapas.id) {
+        if (confirm("Tem certeza que deseja restaurar o último mapa removido?")) {
+            const { id, link, nome, observacao } = backupMapas;
+            console.log("Restaurando mapa ID:", id, "com dados:", { link, nome, observacao });
+            database.ref(`mapasDesignados/${id}`).set({
+                link,
+                nome,
+                observacao
+            }).then(() => {
+                salvarNoHistorico(id, link, nome, observacao, "restaurado");
+                currentDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
+                lastUpdatedDate = currentDate.toDateString(); // Atualiza a data rastreada
+                console.log("Data revertida para:", currentDate.toDateString());
+                loadFieldServiceData(); // Carrega os dados do DIA SEGUINTE ao novo currentDate
+                document.getElementById("restaurar-btn").style.display = "none";
+                backupMapas = null;
+                alert("Mapa restaurado com sucesso!");
             }).catch(error => {
-                console.error("Erro ao carregar dados de saída de campo:", error);
-                alert("Erro ao carregar dados de saída de campo: " + error.message);
+                console.error("Erro ao restaurar mapa:", error);
+                alert("Erro ao restaurar mapa: " + error.message);
             });
         }
+    } else {
+        console.warn("Nenhum mapa disponível para restauração:", backupMapas);
+        alert("Nenhum mapa disponível para restauração.");
+    }
+}
 
-        function carregarMapasDesignados() {
-            const container = document.getElementById("mapas-container");
-            database.ref("mapasDesignados").on("value", snapshot => {
-                container.innerHTML = "";
-                const mapas = snapshot.val();
-                if (mapas) {
-                    Object.keys(mapas).forEach(id => {
-                        const mapa = mapas[id];
-                        const mapaDiv = document.createElement("div");
-                        mapaDiv.className = "mapa-item";
-                        mapaDiv.id = `mapa-designado-${id}`;
-                        mapaDiv.innerHTML = `
-                            <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
-                            <label for="observacao-designado-${id}">Observações:</label>
-                            <p id="observacao-designado-${id}" class="observacao-designada">${mapa.observacao || ""}</p>
-                            <button class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
-                        container.appendChild(mapaDiv);
-                    });
-                } else {
-                    console.log("Nenhum mapa designado encontrado.");
-                }
-            }, error => {
-                console.error("Erro ao carregar mapas designados:", error);
-                alert("Erro ao carregar mapas designados: " + error.message);
-            });
-        }
-
-        function enviarMapa(id) {
-            if (confirm("Tem certeza que deseja remover cartão?")) {
-                console.log("Removendo mapa ID:", id);
-                database.ref(`mapasDesignados/${id}`).once("value", snapshot => {
-                    const mapa = snapshot.val();
-                    if (mapa) {
-                        backupMapas = { id, link: mapa.link, nome: mapa.nome, observacao: mapa.observacao || "" };
-                        console.log("Backup criado:", backupMapas);
-                        database.ref(`mapasDesignados/${id}`).remove().then(() => {
-                            salvarNoHistorico(id, mapa.link, mapa.nome, mapa.observacao, "removido");
-                            document.getElementById("restaurar-btn").style.display = "inline";
-                            currentDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
-                            console.log("Data avançada para:", currentDate.toDateString());
-                            loadFieldServiceData();
-                            alert("Cartão removido com sucesso! Exibindo saída de campo do próximo dia.");
-                        }).catch(error => {
-                            console.error("Erro ao remover mapa:", error);
-                            alert("Erro ao remover mapa: " + error.message);
-                            backupMapas = null; // Clear backup on failure
-                        });
-                    } else {
-                        console.warn("Mapa não encontrado para ID:", id);
-                        alert("Mapa não encontrado!");
-                    }
-                }).catch(error => {
-                    console.error("Erro ao acessar mapa:", error);
-                    alert("Erro ao acessar mapa: " + error.message);
-                });
-            }
-        }
-
-        function restaurarMapa() {
-            console.log("Tentando restaurar mapa:", backupMapas);
-            if (backupMapas && backupMapas.id) {
-                if (confirm("Tem certeza que deseja restaurar o último mapa removido?")) {
-                    const { id, link, nome, observacao } = backupMapas;
-                    console.log("Restaurando mapa ID:", id, "com dados:", { link, nome, observacao });
-                    database.ref(`mapasDesignados/${id}`).set({
-                        link,
-                        nome,
-                        observacao
-                    }).then(() => {
-                        salvarNoHistorico(id, link, nome, observacao, "restaurado");
-                        currentDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
-                        console.log("Data revertida para:", currentDate.toDateString());
-                        loadFieldServiceData();
-                        document.getElementById("restaurar-btn").style.display = "none";
-                        backupMapas = null;
-                        alert("Mapa restaurado com sucesso!");
-                    }).catch(error => {
-                        console.error("Erro ao restaurar mapa:", error);
-                        alert("Erro ao restaurar mapa: " + error.message);
-                    });
-                }
-            } else {
-                console.warn("Nenhum mapa disponível para restauração:", backupMapas);
-                alert("Nenhum mapa disponível para restauração.");
-            }
-        }
-
-        function compartilharDesignados() {
-            const url = "https://gerbesonlima.github.io/Mapas/designados.html";
-            const observacoes = Array.from(document.querySelectorAll('[id^="observacao-designado-"]'))
-                .map(el => {
-                    const id = el.id.replace("observacao-designado-", "");
-                    const nome = document.querySelector(`#mapa-designado-${id} a`)?.textContent || `Mapa ${id}`;
-                    const texto = el.textContent.trim();
-                    return texto ? `${nome}: ${texto}` : null;
-                })
-                .filter(Boolean)
-                .join('\n\n');
-            const textoCompartilhamento = observacoes || "Confira o território a ser trabalhado!";
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Mapas Designados',
-                    text: textoCompartilhamento,
-                    url: url
-                }).catch(error => {
-                    console.error("Erro ao compartilhar:", error);
-                    alert("Erro ao compartilhar o link.");
-                });
-            } else {
-                const mensagemCompleta = `${textoCompartilhamento}\n\n${url}`;
-                navigator.clipboard.writeText(mensagemCompleta).then(() => {
-                    alert("Texto e link copiados para a área de transferência!");
-                }).catch(error => {
-                    console.error("Erro ao copiar:", error);
-                    alert("Erro ao copiar o conteúdo.");
-                });
-            }
-        }
+function compartilharDesignados() {
+    const url = "https://gerbesonlima.github.io/Mapas/designados.html";
+    const observacoes = Array.from(document.querySelectorAll('[id^="observacao-designado-"]'))
+        .map(el => {
+            const id = el.id.replace("observacao-designado-", "");
+            const nome = document.querySelector(`#mapa-designado-${id} a`)?.textContent || `Mapa ${id}`;
+            const texto = el.textContent.trim();
+            return texto ? `${nome}: ${texto}` : null;
+        })
+        .filter(Boolean)
+        .join('\n\n');
+    const textoCompartilhamento = observacoes || "Confira o território a ser trabalhado!";
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mapas Designados',
+            text: textoCompartilhamento,
+            url: url
+        }).catch(error => {
+            console.error("Erro ao compartilhar:", error);
+            alert("Erro ao compartilhar o link.");
+        });
+    } else {
+        const mensagemCompleta = `${textoCompartilhamento}\n\n${url}`;
+        navigator.clipboard.writeText(mensagemCompleta).then(() => {
+            alert("Texto e link copiados para a área de transferência!");
+        }).catch(error => {
+            console.error("Erro ao copiar:", error);
+            alert("Erro ao copiar o conteúdo.");
+        });
+    }
+}
     </script>
+
+    <script src="firebase.js"></script>
+
 
     <script src="firebase.js"></script>
     <h1>Mapas dos Territórios</h1>
