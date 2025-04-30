@@ -181,90 +181,79 @@ function atualizarStatus(id) {
         }
         status.textContent = "Status: Concluído";
     } else if (dataInicio) {
-        status.textContent = "Status: Aberto";
+        status.textContent = "Status: Em andamento";
     } else {
         status.textContent = "Status: Não iniciado";
     }
 
-    salvarNoFirebase(id, dataInicio, dataFim, observacao, status.textContent);
+    database.ref(`mapas/${id}`).set({
+        dataInicio: dataInicio,
+        dataFim: dataFim,
+        observacao: observacao,
+        status: status.textContent
+    }).catch(error => {
+        console.error("Erro ao salvar dados:", error);
+        alert("Erro ao salvar dados: " + error.message);
+    });
+
     atualizarProgressoGeral();
 }
 
 function atualizarProgressoGeral() {
     let mapasConcluidos = 0;
     for (let i = 1; i <= totalMapas; i++) {
-        const status = document.getElementById(`status-${i}`);
-        if (status && status.textContent.includes("Concluído")) {
+        const dataFim = document.getElementById(`data-fim-${i}`).value;
+        if (dataFim) {
             mapasConcluidos++;
         }
     }
-    const progressoGeral = (mapasConcluidos / totalMapas) * 100;
-    document.getElementById("barra-geral").value = progressoGeral;
-    document.getElementById("percentual-geral").textContent = `${Math.round(progressoGeral)}%`;
-    database.ref("progressoGeral").set({ progresso: progressoGeral });
-}
-
-function salvarNoFirebase(id, dataInicio, dataFim, observacao, status) {
-    database.ref(`mapas/${id}`).set({
-        dataInicio,
-        dataFim,
-        observacao,
-        status
-    }).catch(error => {
-        console.error("Erro ao salvar no Firebase:", error);
-        alert("Erro ao salvar dados: " + error.message);
+    const progresso = (mapasConcluidos / totalMapas) * 100;
+    document.getElementById("barra-geral").value = progresso;
+    document.getElementById("percentual-geral").textContent = `${Math.round(progresso)}%`;
+    database.ref("progressoGeral").set({ progresso: progresso }).catch(error => {
+        console.error("Erro ao salvar progresso geral:", error);
+        alert("Erro ao salvar progresso geral: " + error.message);
     });
 }
 
 function carregarDados() {
-    for (let i = 1; i <= totalMapas; i++) {
-        database.ref(`mapas/${i}`).on("value", snapshot => {
-            const dados = snapshot.val();
-            if (dados) {
-                const inputInicio = document.getElementById(`data-inicio-${i}`);
-                const inputFim = document.getElementById(`data-fim-${i}`);
-                const inputObservacao = document.getElementById(`observacao-${i}`);
-                const status = document.getElementById(`status-${i}`);
-                if (inputInicio) inputInicio.value = dados.dataInicio || "";
-                if (inputFim) inputFim.value = dados.dataFim || "";
-                if (inputObservacao) inputObservacao.value = dados.observacao || "";
-                if (status) status.textContent = dados.status || "Status: Não iniciado";
-            }
-        });
-    }
-    database.ref("progressoGeral").on("value", snapshot => {
-        const dados = snapshot.val();
-        if (dados) {
-            document.getElementById("barra-geral").value = dados.progresso || 0;
-            document.getElementById("percentual-geral").textContent = `${Math.round(dados.progresso || 0)}%`;
+    database.ref("mapas").on("value", snapshot => {
+        const mapas = snapshot.val();
+        if (mapas) {
+            Object.keys(mapas).forEach(id => {
+                const dados = mapas[id];
+                document.getElementById(`data-inicio-${id}`).value = dados.dataInicio || "";
+                document.getElementById(`data-fim-${id}`).value = dados.dataFim || "";
+                document.getElementById(`observacao-${id}`).value = dados.observacao || "";
+                document.getElementById(`status-${id}`).textContent = dados.status || "Status: Não iniciado";
+            });
         }
-    });
-}
-
-function salvarNoHistorico(id, link, nome, observacao, acao) {
-    const timestamp = new Date().toISOString();
-    database.ref("historicoDesignacoes").push({
-        mapaId: id,
-        link: link || "",
-        nome: nome || "",
-        observacao: observacao || "",
-        acao: acao,
-        timestamp: timestamp
-    }).catch(error => {
-        console.error("Erro ao salvar no histórico:", error);
-        alert("Erro ao salvar no histórico: " + error.message);
+        atualizarProgressoGeral();
+    }, error => {
+        console.error("Erro ao carregar dados:", error);
+        alert("Erro ao carregar dados: " + error.message);
     });
 }
 
 function designarMapa(id, link, nome) {
     const observacao = document.getElementById(`observacao-${id}`).value;
     database.ref(`mapasDesignados/${id}`).set({
-        link,
-        nome,
-        observacao
+        nome: nome,
+        link: link,
+        observacao: observacao
     }).then(() => {
-        salvarNoHistorico(id, link, nome, observacao, "designado");
         alert(`Mapa ${nome} designado com sucesso!`);
+        const dataAtual = new Date().toISOString().slice(0, 10);
+        database.ref("historicoDesignacoes").push({
+            mapaId: id,
+            nome: nome,
+            link: link,
+            observacao: observacao,
+            dataDesignacao: dataAtual
+        }).catch(error => {
+            console.error("Erro ao salvar no histórico:", error);
+            alert("Erro ao salvar no histórico: " + error.message);
+        });
     }).catch(error => {
         console.error("Erro ao designar mapa:", error);
         alert("Erro ao designar mapa: " + error.message);
@@ -272,45 +261,65 @@ function designarMapa(id, link, nome) {
 }
 
 function enviarMapa(id) {
-    if (confirm("Tem certeza que deseja remover cartão?")) {
-        database.ref(`mapasDesignados/${id}`).once("value", snapshot => {
-            const mapa = snapshot.val();
-            if (mapa) {
-                const { link, nome, observacao } = mapa;
-                database.ref(`mapasDesignados/${id}`).remove().then(() => {
-                    salvarNoHistorico(id, link, nome, observacao, "removido");
-                    alert("Cartão removido com sucesso!");
-                }).catch(error => {
-                    console.error("Erro ao remover mapa:", error);
-                    alert("Erro ao remover mapa: " + error.message);
-                });
-            } else {
-                alert("Mapa não encontrado!");
-            }
+    if (confirm("Tem certeza que deseja remover este mapa designado?")) {
+        database.ref(`mapasDesignados/${id}`).remove().then(() => {
+            alert("Mapa removido com sucesso!");
         }).catch(error => {
-            console.error("Erro ao acessar mapa:", error);
-            alert("Erro ao acessar mapa: " + error.message);
+            console.error("Erro ao remover mapa:", error);
+            alert("Erro ao remover mapa: " + error.message);
         });
     }
 }
 
 function compartilharLink() {
     const url = "https://gerbesonlima.github.io/Mapas/designados.html";
-    if (navigator.share) {
-        navigator.share({
-            title: 'Mapas Designados',
-            text: 'Confira o território a ser trabalhado!',
-            url: url
-        }).catch(error => {
-            console.error('Erro ao compartilhar:', error);
-            alert('Erro ao compartilhar o link.');
-        });
-    } else {
-        navigator.clipboard.writeText(url).then(() => {
-            alert('Link copiado para a área de transferência: ' + url);
-        }).catch(error => {
-            console.error('Erro ao copiar:', error);
-            alert('Erro ao copiar o link.');
-        });
-    }
+    const button = document.querySelector('#botao-compartilhar-independente button');
+
+    // Recuperar os mapas designados do Firebase
+    database.ref("mapasDesignados").once("value", snapshot => {
+        const mapas = snapshot.val();
+        let shareText = "Confira os territórios a serem trabalhados!\n\nLink: " + url + "\n\nMapas Designados:\n";
+
+        if (mapas) {
+            Object.keys(mapas).forEach(id => {
+                const mapa = mapas[id];
+                shareText += `- ${mapa.nome}\n  Link: ${mapa.link}\n`;
+                if (mapa.observacao) {
+                    shareText += `  Observações: ${mapa.observacao}\n`;
+                }
+                shareText += "\n";
+            });
+        } else {
+            shareText += "Nenhum mapa designado no momento.\n";
+        }
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Mapas Designados',
+                text: shareText
+            }).then(() => {
+                if (button) {
+                    button.classList.add('success');
+                    setTimeout(() => button.classList.remove('success'), 1000);
+                }
+            }).catch(error => {
+                console.error('Erro ao compartilhar:', error);
+                alert('Erro ao compartilhar o link: ' + error.message);
+            });
+        } else {
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('Informações copiadas para a área de transferência!');
+                if (button) {
+                    button.classList.add('success');
+                    setTimeout(() => button.classList.remove('success'), 1000);
+                }
+            }).catch(error => {
+                console.error('Erro ao copiar:', error);
+                alert('Erro ao copiar as informações: ' + error.message);
+            });
+        }
+    }).catch(error => {
+        console.error('Erro ao recuperar mapas designados:', error);
+        alert('Erro ao recuperar mapas designados: ' + error.message);
+    });
 }

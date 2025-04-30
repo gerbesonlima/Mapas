@@ -90,27 +90,49 @@
 
     <div class="destaque-principal">
        
-
-        <div id="campo" class="bg-white p-4 rounded shadow mb-4">
-            <p class="font-semibold">Programação de Saída de Campo</p>
-            <p>Dia: <span id="current-day"></span></p>
-            <p>Local de saída: <span id="field-location"></span></p>
-            <p>Horário da consideração: <span id="field-time"></span></p>
-            <p>Dirigente: <span id="field-leader"></span></p>
+<!-- Substituir a seção .destaque-principal existente -->
+<div class="destaque-principal">
+    <div class="card field-schedule">
+        <h2 class="card-title">Programação de Saída de Campo</h2>
+        <div class="info-item">
+            <span class="info-label">Dia:</span>
+            <span class="info-value" id="current-day">Carregando...</span>
         </div>
-
-        <div id="mapas-container"></div>
-
-        <button id="restaurar-btn" style="display: none; margin-top: 10px; padding: 5px 10px;" onclick="restaurarMapa()">Restaurar</button>
+        <div class="info-item">
+            <span class="info-label">Local de saída:</span>
+            <span class="info-value" id="field-location">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Horário da consideração:</span>
+            <span class="info-value" id="field-time">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Dirigente:</span>
+            <span class="info-value" id="field-leader">Carregando...</span>
+        </div>
     </div>
 
-    <div id="botao-compartilhar-independente" onclick="compartilharDesignados()"> 
+    <div class="card afternoon-schedule">
+        <h2 class="card-title">Horários de Saída à Tarde</h2>
+        <div class="schedule-item">
+            <span class="schedule-day">Quarta-feira e Quinta-Feira</span>
+            <span class="schedule-time"> 15:30h 🕒- </span>
+            <span class="schedule-location">Saída do Salão do Reino</span>
+        </div>
+        
+    </div>
+
+    <div id="mapas-container"></div>
+
+    <button id="restaurar-btn" class="button button-secondary hidden" onclick="restaurarMapa()">Restaurar</button>
+</div>
+
+    <div id="botao-compartilhar-independente" onclick="compartilharLink()"> 
         <button> 📤Compartilhar mapa </button> 
     </div>
 
-   
     <script>
-          let currentDate = new Date();
+let currentDate = new Date();
 let backupMapas = null;
 let lastUpdatedDate = null; // Rastreia a última data atualizada
 
@@ -219,9 +241,6 @@ function carregarMapasDesignados() {
         alert("Erro ao carregar mapas designados: " + error.message);
     });
 }
-
-// (...continua igual para enviarMapa, restaurarMapa e compartilharDesignados, sem alterações)
-
     </script>
 
     <script src="firebase.js"></script>

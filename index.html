@@ -4,35 +4,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Territórios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body class="container">
-
-    <h1>Semana especial da visita</h1>
-
-    <div class="destaque-principal">
-        <div id="campo" class="bg-white p-4 rounded shadow mb-4">
-            <p class="font-semibold">Programação de Saída de Campo</p>
-            <p>Dia: <span id="current-day"></span></p>
-            <p>Local de saída: <span id="field-location"></span></p>
-            <p>Horário da consideração: <span id="field-time"></span></p>
-            <p>Dirigente: <span id="field-leader"></span></p>
+<!-- Substituir a seção .destaque-principal existente -->
+<div class="destaque-principal">
+    <div class="card field-schedule">
+        <h2 class="card-title">Programação de Saída de Campo</h2>
+        <div class="info-item">
+            <span class="info-label">Dia:</span>
+            <span class="info-value" id="current-day">Carregando...</span>
         </div>
-
-        <span>
-            <p>---------------</p>
-            <p>Campo a tarde</p>
-            <p>Quarta e Quinta as 15:30h saida do salão do Reino</p>
-        </span>
-
-                   
-        <div id="mapas-container"></div>
-
-        <button id="restaurar-btn" style="display: none; margin-top: 10px; padding: 5px 10px;" onclick="restaurarMapa()">Restaurar</button>
+        <div class="info-item">
+            <span class="info-label">Local de saída:</span>
+            <span class="info-value" id="field-location">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Horário da consideração:</span>
+            <span class="info-value" id="field-time">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Dirigente:</span>
+            <span class="info-value" id="field-leader">Carregando...</span>
+        </div>
     </div>
 
-    <div id="botao-compartilhar-independente" onclick="compartilharDesignados()"> 
+    <div class="card afternoon-schedule">
+        <h2 class="card-title">Horários de Saída à Tarde</h2>
+        <div class="schedule-item">
+            <span class="schedule-day">Quarta-feira e Quinta-Feira</span>
+            <span class="schedule-time"> 15:30h 🕒- </span>
+            <span class="schedule-location">Saída do Salão do Reino</span>
+        </div>
+        
+    </div>
+
+    <div id="mapas-container"></div>
+
+    <button id="restaurar-btn" class="button button-secondary hidden" onclick="restaurarMapa()">Restaurar</button>
+</div>
+
+    <div id="botao-compartilhar-independente" onclick="compartilharLink()"> 
         <button> 📤Compartilhar mapa </button> 
     </div>
 
@@ -146,15 +160,10 @@ function carregarMapasDesignados() {
         alert("Erro ao carregar mapas designados: " + error.message);
     });
 }
-
-// (...continua igual para enviarMapa, restaurarMapa e compartilharDesignados, sem alterações)
-
     </script>
 
     <script src="firebase.js"></script>
 
-
-    <script src="firebase.js"></script>
     <h1>Mapas dos Territórios</h1>
 
     <div class="container">
@@ -167,9 +176,7 @@ function carregarMapasDesignados() {
             <button id="recuperar-dados-btn" style="display: none;" onclick="recuperarDados()">Recuperar Dados</button>
             <button id="relatorio-btn" style="display: none;" onclick="window.location.href='relatorio.html'">Ver Relatório</button>
             <button id="editar-campo-btn" style="display: none;" onclick="window.location.href='configcampo.html'">Editar Campo</button>
-           
         </div>
-        
     </div>
         <div id="container">
             <p>Mapas concluídos</p>
@@ -191,7 +198,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-1">Fechado em:</label>
                         <input type="date" id="data-fim-1" onchange="atualizarStatus(1)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(1, 'https://goo.gl/maps/Md49jEyZRj3EvN6v9', '1 Conjunto São Paulo')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -204,7 +210,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-2">Fechado em:</label>
                         <input type="date" id="data-fim-2" onchange="atualizarStatus(2)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(2, 'https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing', '2 Curva São Paulo')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -217,20 +222,18 @@ function carregarMapasDesignados() {
                         <label for="data-fim-3">Fechado em:</label>
                         <input type="date" id="data-fim-3" onchange="atualizarStatus(3)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(3, 'https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing', '3 Vila Beira Rio')">Designar</button>
-              
                     </div>
                 </div>
                 <div class="mapa-item">
                     <a href="https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing">4 Res Araguaia (parte A) <span id="status-4">Status: Não iniciado</span></a>
                     <label for="observacao-4">Observações:</label>
-                    <textarea  id="observacao-4" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(4)"></textarea>
+                    <textarea id="observacao-4" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(4)"></textarea>
                     <div class="info">
                         <label for="data-inicio-4">Aberto em:</label>
                         <input type="date" id="data-inicio-4" onchange="atualizarStatus(4)">
                         <label for="data-fim-4">Fechado em:</label>
                         <input type="date" id="data-fim-4" onchange="atualizarStatus(4)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(4, 'https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing', '4 Res Araguaia (parte A)')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -243,7 +246,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-5">Fechado em:</label>
                         <input type="date" id="data-fim-5" onchange="atualizarStatus(5)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(5, 'https://www.google.com/maps/d/edit?mid=12gcziapB8ifTF4qB0JIERIbZO1dNKIw&usp=sharing', '5 Res Araguaia (parte B)')">Designar</button>
-                
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -256,7 +258,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-6">Fechado em:</label>
                         <input type="date" id="data-fim-6" onchange="atualizarStatus(6)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(6, 'https://www.google.com/maps/d/edit?mid=1MYrUYQJ1id99b_MZ7-xi5hrfKlyMAKE&usp=sharing', '6 Vila Bagda')">Designar</button>
-                       
                     </div>
                 </div>
             </div>
@@ -276,7 +277,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-7">Fechado em:</label>
                         <input type="date" id="data-fim-7" onchange="atualizarStatus(7)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(7, 'https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing', '7 Vila Firmino (parte A)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -289,7 +289,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-8">Fechado em:</label>
                         <input type="date" id="data-fim-8" onchange="atualizarStatus(8)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(8, 'https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing', '8 Vila Firmino (parte B)')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -302,7 +301,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-9">Fechado em:</label>
                         <input type="date" id="data-fim-9" onchange="atualizarStatus(9)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(9, 'https://www.google.com/maps/d/edit?mid=19ZUY-pf4uECpRL1FVBb7QEpJTBCyZ4k&usp=sharing', '9 Parque Poty (parte A)')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -315,7 +313,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-10">Fechado em:</label>
                         <input type="date" id="data-fim-10" onchange="atualizarStatus(10)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(10, 'https://www.google.com/maps/d/edit?mid=1ghYlY5uOxIulSEhXv8EasZ8WYd7M_z0&usp=sharing', '10 Parque Poty (parte B)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -328,7 +325,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-11">Fechado em:</label>
                         <input type="date" id="data-fim-11" onchange="atualizarStatus(11)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(11, 'https://www.google.com/maps/d/edit?mid=1u5nwR0cBiF3FK23HfZKwMqHjBO6SgZk&usp=sharing', '11 Parque Poty (parte C)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -341,7 +337,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-12">Fechado em:</label>
                         <input type="date" id="data-fim-12" onchange="atualizarStatus(12)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(12, 'https://www.google.com/maps/d/edit?mid=1o7VZi5ay3WxZ9NOn--yQTeJwmpAnbc8&usp=sharing', '12 Vila Poty')">Designar</button>
-                        
                     </div>
                 </div>
             </div>
@@ -361,7 +356,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-13">Fechado em:</label>
                         <input type="date" id="data-fim-13" onchange="atualizarStatus(13)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(13, 'https://www.google.com/maps/d/edit?mid=10O9KCa9g8fKSbOwHPP8OY414bXSo-m8&usp=sharing', '13 Sales')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -374,7 +368,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-14">Fechado em:</label>
                         <input type="date" id="data-fim-14" onchange="atualizarStatus(14)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(14, 'https://www.google.com/maps/d/edit?mid=19nBg9H9jwTf3bDDtOLTaAd2K3l_KWG0&usp=sharing', '14 Cidade Nova')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -387,7 +380,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-15">Fechado em:</label>
                         <input type="date" id="data-fim-15" onchange="atualizarStatus(15)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(15, 'https://www.google.com/maps/d/edit?mid=1cydoQcQmHEk-1R95mH0ez_Fbt3m3vek&usp=sharing', '15 Porto Rico')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -400,7 +392,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-16">Fechado em:</label>
                         <input type="date" id="data-fim-16" onchange="atualizarStatus(16)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(16, 'https://www.google.com/maps/d/edit?mid=1rAwcQRSe44yrG_ZLlQzrXmDvF8-yMfw&usp=sharing', '16 Renascença I (parte A)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -413,7 +404,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-17">Fechado em:</label>
                         <input type="date" id="data-fim-17" onchange="atualizarStatus(17)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(17, 'https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing', '17 Renascença I (parte B)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -426,7 +416,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-18">Fechado em:</label>
                         <input type="date" id="data-fim-18" onchange="atualizarStatus(18)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(18, 'https://www.google.com/maps/d/edit?mid=1IJ26ZGFo4xZ9WmYLXXJhOkRssvn2JXk&usp=sharing', '18 Renascença I (parte C)')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -439,7 +428,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-19">Fechado em:</label>
                         <input type="date" id="data-fim-19" onchange="atualizarStatus(19)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(19, 'https://www.google.com/maps/d/edit?mid=1EIREpoiY8jwoNDiS3TLWOSxiYnIOjSc&usp=sharing', '19 Renascença I (parte D)')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -452,7 +440,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-20">Fechado em:</label>
                         <input type="date" id="data-fim-20" onchange="atualizarStatus(20)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(20, 'https://www.google.com/maps/d/edit?mid=14yxkw5es33dESFQOouLKK3ds_Wdl_u8&usp=sharing', '20 Renascença III')">Designar</button>
-                        
                     </div>
                 </div>
             </div>
@@ -472,7 +459,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-21">Fechado em:</label>
                         <input type="date" id="data-fim-21" onchange="atualizarStatus(21)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(21, 'https://www.google.com/maps/d/edit?mid=19iTJEvALPSSiz2sk2PZTdq0Gx8rddeY&usp=sharing', '21 Loteamento Renascença')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -485,7 +471,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-22">Fechado em:</label>
                         <input type="date" id="data-fim-22" onchange="atualizarStatus(22)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(22, 'https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing', '22 Renascença III 3⁰ Etapa')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -498,7 +483,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-23">Fechado em:</label>
                         <input type="date" id="data-fim-23" onchange="atualizarStatus(23)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(23, 'https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing', '23 Porto Rico II')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -511,7 +495,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-24">Fechado em:</label>
                         <input type="date" id="data-fim-24" onchange="atualizarStatus(24)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(24, 'https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing', '24 Andaraí')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -524,7 +507,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-25">Fechado em:</label>
                         <input type="date" id="data-fim-25" onchange="atualizarStatus(25)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(25, 'https://www.google.com/maps/d/edit?mid=1aw4myYx_sUH76nCOY8bUfZxbf3j-R-I&usp=sharing', '25 Jardim dos Pássaros')">Designar</button>
-                        
                     </div>
                 </div>
             </div>
@@ -544,7 +526,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-26">Fechado em:</label>
                         <input type="date" id="data-fim-26" onchange="atualizarStatus(26)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(26, 'https://www.google.com/maps/d/edit?mid=1xY6AlAJwHOR1VW_ekWPu9M3v2_7npYI&usp=sharing', '26 Washington')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -557,7 +538,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-27">Fechado em:</label>
                         <input type="date" id="data-fim-27" onchange="atualizarStatus(27)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(27, 'https://www.google.com/maps/d/edit?mid=117QRT5AACiwZ-tNsqOq0sSU3n5mEdLE&usp=sharing', '27 Vitória Régia')">Designar</button>
-                
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -570,7 +550,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-28">Fechado em:</label>
                         <input type="date" id="data-fim-28" onchange="atualizarStatus(28)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(28, 'https://www.google.com/maps/d/edit?mid=1quh983OQt37GZs5RahXmJyeIfMBOis0&usp=sharing', '28 Sertãozinho')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -583,7 +562,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-29">Fechado em:</label>
                         <input type="date" id="data-fim-29" onchange="atualizarStatus(29)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(29, 'https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing', '29 Canaxuê')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -596,7 +574,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-30">Fechado em:</label>
                         <input type="date" id="data-fim-30" onchange="atualizarStatus(30)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(30, 'https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing', '30 Conj Novo Milênio')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -609,7 +586,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-31">Fechado em:</label>
                         <input type="date" id="data-fim-31" onchange="atualizarStatus(31)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(31, 'https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing', '31 Conj Todos os Santos (parte A)')">Designar</button>
-                  
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -622,7 +598,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-32">Fechado em:</label>
                         <input type="date" id="data-fim-32" onchange="atualizarStatus(32)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(32, 'https://www.google.com/maps/d/edit?mid=1B6-oEvxA5OFqWjx76mHH-43f70xCG84&usp=sharing', '32 Conj Todos os Santos (parte B)')">Designar</button>
-                       
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -635,7 +610,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-33">Fechado em:</label>
                         <input type="date" id="data-fim-33" onchange="atualizarStatus(33)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(33, 'https://www.google.com/maps/d/edit?mid=1mtWN7CxW5O4rAff2zKvBcg61HWs_ZN4&usp=sharing', '33 Deus Proverá')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -648,7 +622,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-34">Fechado em:</label>
                         <input type="date" id="data-fim-34" onchange="atualizarStatus(34)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(34, 'https://www.google.com/maps/d/edit?mid=1jLQTSHKy-5v8P2QwKl3lY1ioduf4omg&usp=sharing', '34 Loteamento Todos os Santos Lado Direito')">Designar</button>
-                        
                     </div>
                 </div>
             </div>
@@ -668,7 +641,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-35">Fechado em:</label>
                         <input type="date" id="data-fim-35" onchange="atualizarStatus(35)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(35, 'https://www.google.com/maps/d/edit?mid=1leexMDhfwg5Cc6GuNkcteXCfXVHz-g8&usp=sharing', '35 Povoado Jumento - Continuação')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -681,7 +653,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-36">Fechado em:</label>
                         <input type="date" id="data-fim-36" onchange="atualizarStatus(36)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(36, 'https://www.google.com/maps/d/edit?mid=1rKdGXPe1SY79wpA-MCY8xkmck6_cjuI&usp=sharing', '36 Pedro Balzi - Vila Nova Esperança')">Designar</button>
-                     
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -694,7 +665,6 @@ function carregarMapasDesignados() {
                         <label for="data-fim-37">Fechado em:</label>
                         <input type="date" id="data-fim-37" onchange="atualizarStatus(37)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(37, 'https://www.google.com/maps/d/edit?mid=1U3TgYkyojIu1TMzdcsdz5ykKL1xiTpo&usp=sharing', '37 Pedro Balzi - Frente para o Conjunto')">Designar</button>
-                        
                     </div>
                 </div>
                 <div class="mapa-item">
@@ -707,14 +677,12 @@ function carregarMapasDesignados() {
                         <label for="data-fim-38">Fechado em:</label>
                         <input type="date" id="data-fim-38" onchange="atualizarStatus(38)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(38, 'https://www.google.com/maps/d/edit?mid=1hosg_pJqzj_2GK2pgJEI6xl5nX_RnPU&usp=sharing', '38 Pedro Balzi - Parte de Cima do Morro')">Designar</button>
-                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    
     <footer>
         <div class="footer-links">
             <a href="instrucoes.html">Instruções de uso</a>
@@ -724,6 +692,5 @@ function carregarMapasDesignados() {
         <p>© 2025 Mapas dos Territórios</p>
     </footer>
 
-    <script src="firebase.js"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'934ddb02ee97b010',t:'MTc0NTQxNjQ5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
