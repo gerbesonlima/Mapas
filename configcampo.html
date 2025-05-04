@@ -10,63 +10,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-4">
+<body class="bg-gray-100 font-sans min-h-screen">
+    <div class="container mx-auto p-2 sm:p-4">
         <div id="content">
             <div class="mb-4">
-                <h2 class="text-xl font-bold">Programação de Saída de Campo</h2>
-                <button onclick="editTable('field')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</button>
-                <button onclick="saveTable('field')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
-                <button onclick="downloadPDF('field')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Baixar PDF</button>
-                <button onclick="addRow('field')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Adicionar Linha</button>
-                <table id="field-table" class="w-full border-collapse mt-2">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border p-2">Dia</th>
-                            <th class="border p-2">Local de Saída</th>
-                            <th class="border p-2">Horário da Consideração</th>
-                            <th class="border p-2">Dirigente</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border p-2">Terça-Feira</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="border p-2">Quarta-Feira</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="border p-2">Quinta-Feira</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="border p-2">Sexta-Feira</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="border p-2">Sábado</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                        <tr>
-                            <td class="border p-2">Domingo</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h2 class="text-lg sm:text-xl font-bold mb-2">Programação de Saída de Campo</h2>
+                <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                    <button onclick="editTable('field')" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-sm sm:text-base">Editar</button>
+                    <button onclick="saveTable('field')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm sm:text-base">Salvar</button>
+                    <button onclick="downloadPDF('field')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm sm:text-base">Baixar PDF</button>
+                    <button onclick="addRow('field')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-sm sm:text-base">Adicionar Linha</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="field-table" class="w-full border-collapse text-sm sm:text-base">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border p-1 sm:p-2 text-xs sm:text-sm">Dia</th>
+                                <th class="border p-1 sm:p-2 text-xs sm:text-sm">Local de Saída</th>
+                                <th class="border p-1 sm:p-2 text-xs sm:text-sm">Horário da Consideração</th>
+                                <th class="border p-1 sm:p-2 text-xs sm:text-sm">Dirigente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Terça-Feira</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Quarta-Feira</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Quinta-Feira</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Sexta-Feira</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Sábado</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="border p-1 sm:p-2 text-xs sm:text-sm">Domingo</td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -103,10 +107,10 @@
             if (!day) return;
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td class="border p-2">${day}</td>
-                <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                <td class="border p-1 sm:p-2 text-xs sm:text-sm">${day}</td>
+                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
             `;
             table.appendChild(newRow);
         }
@@ -144,10 +148,10 @@
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="border p-2">${item.day}</td>
-                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.location || ''}</textarea></td>
-                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.time || ''}</textarea></td>
-                        <td class="border p-2"><textarea class="w-full p-1" disabled>${item.leader || ''}</textarea></td>
+                        <td class="border p-1 sm:p-2 text-xs sm:text-sm">${item.day}</td>
+                        <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled>${item.location || ''}</textarea></td>
+                        <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled>${item.time || ''}</textarea></td>
+                        <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled>${item.leader || ''}</textarea></td>
                     `;
                     table.appendChild(row);
                 });
@@ -163,10 +167,10 @@
                     defaultDays.forEach(day => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="border p-2">${day}</td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
-                            <td class="border p-2"><textarea class="w-full p-1" disabled></textarea></td>
+                            <td class="border p-1 sm:p-2 text-xs sm:text-sm">${day}</td>
+                            <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
+                            <td class="border p-1 sm:p-2"><textarea class="w-full p-1 text-xs sm:text-sm h-12 sm:h-16 resize-none" disabled></textarea></td>
                         `;
                         table.appendChild(row);
                     });
@@ -196,7 +200,14 @@
                 doc.autoTable({
                     head: [['Dia', 'Local de Saída', 'Horário da Consideração', 'Dirigente']],
                     body: data,
-                    startY: 20
+                    startY: 20,
+                    styles: { fontSize: 8 },
+                    columnStyles: {
+                        0: { cellWidth: 30 },
+                        1: { cellWidth: 50 },
+                        2: { cellWidth: 50 },
+                        3: { cellWidth: 50 }
+                    }
                 });
                 doc.save('Programacao_Saida_Campo.pdf');
             } catch (error) {
@@ -204,6 +215,9 @@
                 alert('Erro ao gerar PDF: ' + error.message);
             }
         }
+    </script>
+    <script>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93a85d07aa5badc6',t:'MTc0NjM2NTUzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
     </script>
 </body>
 </html>
