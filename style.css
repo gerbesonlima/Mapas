@@ -390,3 +390,56 @@ progress::-moz-progress-bar {
         padding: 20px; /* Novo: mais espaço em desktops */
     }
 }
+
+
+/*Animação do botao ver territorios abertos*/
+/* Styling for the button container */
+#open-territories-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Styling for the button */
+.animated-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    background-color: #007bff; /* Blue color, adjust to match your theme */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    animation: pulse 2s infinite; /* Apply pulsating animation */
+}
+
+/* Pulsating animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px 5px rgba(0, 123, 255, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+}
+
+/* Hover effect */
+.animated-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Optional: Adjust for mobile */
+@media (max-width: 600px) {
+    .animated-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}

@@ -26,8 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("recuperar-dados-btn").style.display = "none";
     document.getElementById("editar-campo-btn").style.display = "none";
     
+    // Adicionar auto-resize para todas as textareas
+    document.querySelectorAll("textarea").forEach(textarea => {
+        textarea.addEventListener("input", autoResizeTextarea);
+    });
+    
     carregarDados();
 });
+
+// Função para redimensionar automaticamente o textarea
+function autoResizeTextarea() {
+    this.style.height = "auto"; // Reseta a altura para recalcular
+    this.style.height = `${this.scrollHeight}px`; // Define a altura com base no conteúdo
+}
 
 // Expandir Lista
 function toggleList(id) {
@@ -50,7 +61,7 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "inline";
         document.getElementById("limpar-tudo-btn").style.display = "inline";
         document.getElementById("relatorio-btn").style.display = "inline";
-        document.getElementById("editar-campo-btn").style.display = "inline";
+        document.getElementById("editar-campo-btn").style.display = "inline:";
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
         document.getElementById("remover-designado-btn").style.display = "inline-block";
        

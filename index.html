@@ -11,7 +11,7 @@
 <body class="container">
 <!-- Substituir a seção .destaque-principal existente -->
 <div class="destaque-principal">
-      <h1 >  Saída de Campo (Semana da Visita)</h1>
+      <h1 >Saída de Campo</h1>
     <div class="card field-schedule">
        
        <div class="info-item">
@@ -29,6 +29,10 @@
         <div class="info-item">
             <span class="info-label">Dirigente:</span>
             <span class="info-value" id="field-leader">Carregando...</span>
+        </div>
+
+        <div id="open-territories-container">
+            <button id="open-territories-btn" class="animated-btn" onclick="window.location.href='open_territories.html'">Ver onde trabalhar</button>
         </div>
     </div>
 
@@ -193,6 +197,8 @@ function carregarMapasDesignados() {
                         <input type="date" id="data-fim-1" onchange="atualizarStatus(1)">
                         <button class="designar-btn" style="display: none;" onclick="designarMapa(1, 'https://goo.gl/maps/Md49jEyZRj3EvN6v9', '1 Conjunto São Paulo')">Designar</button>
                     </div>
+
+                  
                 </div>
                 <div class="mapa-item">
                     <a href="https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing">2 Curva São Paulo <span id="status-2">Status: Não iniciado</span></a>
