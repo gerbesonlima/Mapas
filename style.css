@@ -23,6 +23,16 @@
     --transition: all 0.3s ease;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #121212;
+        --surface: #1e1e1e;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --divider-color: #424242;
+    }
+}
+
 body, html {
     font-family: 'Roboto', sans-serif;
     background: var(--background);
@@ -519,4 +529,4 @@ footer p {
         transition: none;
     }
 }
-
+  

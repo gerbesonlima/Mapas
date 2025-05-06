@@ -61,7 +61,7 @@ function verificarSenha() {
         document.getElementById("sair-btn").style.display = "inline";
         document.getElementById("limpar-tudo-btn").style.display = "inline";
         document.getElementById("relatorio-btn").style.display = "inline";
-        document.getElementById("editar-campo-btn").style.display = "inline:";
+        document.getElementById("editar-campo-btn").style.display = "inline"; // Corrigido: removido o ":"
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
         document.getElementById("remover-designado-btn").style.display = "inline-block";
        
@@ -73,6 +73,7 @@ function verificarSenha() {
         document.getElementById("limpar-tudo-btn").style.display = "none";
         document.getElementById("relatorio-btn").style.display = "none";
         document.getElementById("recuperar-dados-btn").style.display = "none";
+        document.getElementById("editar-campo-btn").style.display = "none"; // Corrigido: usar "none" para ocultar
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "none");
         document.getElementById("remover-designado-btn").style.display = "none";
         
