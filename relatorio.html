@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Relatório de Mapas Trabalhados</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -39,12 +39,6 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    .no-data {
-      text-align: center;
-      font-style: italic;
-      color: #666;
-      padding: 20px;
-    }
     .progress-container {
       width: 100%;
       max-width: 800px;
@@ -60,6 +54,19 @@
       color: white;
       line-height: 30px;
       width: 0%;
+      transition: width 0.4s ease;
+      font-weight: bold;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #388E3C;
     }
   </style>
 </head>
@@ -73,23 +80,23 @@
   <table id="relatorio-table">
     <thead>
       <tr>
-        <th>Número do Mapa</th>
+        <th>Nº do Mapa</th>
         <th>Data de Início</th>
         <th>Data de Fim</th>
+        <th>Ação</th>
       </tr>
     </thead>
     <tbody id="relatorio-body"></tbody>
   </table>
 
-  <h2>Histórico de Mapas Concluídos</h2>
-
-  
+  <h2>Histórico de Mapas</h2>
   <table id="historico-table">
     <thead>
       <tr>
-        <th>Número do Mapa</th>
+        <th>Nº do Mapa</th>
         <th>Data de Início</th>
         <th>Data de Fim</th>
+        <th>Ciclo</th>
       </tr>
     </thead>
     <tbody id="historico-body"></tbody>
@@ -108,116 +115,104 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
+
+    let currentCycle = 1;
 
     function formatarData(data) {
-      if (!data) return "Não definida";
+      if (!data) return "—";
       const [ano, mes, dia] = data.split("-");
       return `${dia}/${mes}/${ano}`;
     }
 
-    async function carregarRelatorio() {
-      const tbody = document.getElementById("relatorio-body");
-      tbody.innerHTML = "";
+    async function carregarCicloAtual() {
+      const snap = await db.ref("cicloAtual").once("value");
+      const ciclo = snap.val();
+      if (ciclo) currentCycle = ciclo;
+    }
 
-      const historicoBody = document.getElementById("historico-body");
-      historicoBody.innerHTML = "";
+    function atualizarBarraProgresso() {
+      db.ref("historicoMapas").once("value").then(snapshot => {
+        const historico = snapshot.val() || {};
+        const finalizados = Object.values(historico).filter(m => m.ciclo === currentCycle);
+        const percent = Math.round((finalizados.length / 38) * 100);
+        const bar = document.getElementById("progress-bar");
+        bar.style.width = percent + "%";
+        bar.textContent = `Ciclo ${currentCycle} — ${percent}%`;
 
-      try {
-        const snapshot = await database.ref("mapas").once("value");
-        const mapas = snapshot.val();
+        if (finalizados.length >= 38) {
+          currentCycle++;
+          db.ref("cicloAtual").set(currentCycle);
+        }
+      });
+    }
 
-        const ids = Object.keys(mapas).sort((a, b) => parseInt(a) - parseInt(b));
-        let finalizados = 0;
-        const totalMapas = 38;
+    async function salvarNoHistorico(id, inicio, fim) {
+      const ref = db.ref("historicoMapas");
 
-        ids.forEach(id => {
-          const mapa = mapas[id];
-          const row = document.createElement("tr");
-          row.innerHTML = `
+      // Evita duplicatas
+      const snap = await ref.orderByChild("mapa").equalTo(id).once("value");
+      const jaExiste = Object.values(snap.val() || {}).some(
+        m => m.dataInicio === inicio && m.dataFim === fim && m.ciclo === currentCycle
+      );
+      if (jaExiste) return;
+
+      await ref.push({
+        mapa: id,
+        dataInicio: inicio,
+        dataFim: fim,
+        ciclo: currentCycle
+      });
+      await db.ref("mapas/" + id).remove();
+      carregarDados();
+    }
+
+    function carregarDados() {
+      db.ref("mapas").once("value").then(snap => {
+        const tbody = document.getElementById("relatorio-body");
+        tbody.innerHTML = "";
+        const mapas = snap.val() || {};
+        Object.entries(mapas).forEach(([id, dados]) => {
+          const tr = document.createElement("tr");
+          const temFim = dados.dataFim && dados.dataFim.trim() !== "";
+          const botao = temFim ? `<button onclick="salvarNoHistorico('${id}', '${dados.dataInicio}', '${dados.dataFim}')">Salvar</button>` : "";
+          tr.innerHTML = `
             <td>${id}</td>
-            <td>${formatarData(mapa.dataInicio)}</td>
-            <td>${formatarData(mapa.dataFim)}</td>
+            <td>${formatarData(dados.dataInicio)}</td>
+            <td>${formatarData(dados.dataFim)}</td>
+            <td>${botao}</td>
           `;
-          tbody.appendChild(row);
+          tbody.appendChild(tr);
+        });
+        atualizarBarraProgresso();
+      });
 
-          // Se foi finalizado
-          if (mapa.dataFim) {
-            finalizados++;
+      db.ref("historicoMapas").once("value").then(snap => {
+        const tbody = document.getElementById("historico-body");
+        tbody.innerHTML = "";
+        const historico = snap.val() || {};
+        const chavesUnicas = new Set();
+        Object.values(historico).forEach(reg => {
+          const chave = `${reg.mapa}-${reg.dataInicio}-${reg.dataFim}-${reg.ciclo}`;
+          if (!chavesUnicas.has(chave)) {
+            chavesUnicas.add(chave);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${reg.mapa}</td>
+              <td>${formatarData(reg.dataInicio)}</td>
+              <td>${formatarData(reg.dataFim)}</td>
+              <td>${reg.ciclo}</td>
+            `;
+            tbody.appendChild(tr);
           }
         });
-
-        const percent = Math.round((finalizados / totalMapas) * 100);
-        const progressBar = document.getElementById("progress-bar");
-        progressBar.style.width = percent + "%";
-        progressBar.textContent = percent + "%";
-
-        const historicoSnapshot = await database.ref("historico").once("value");
-const historico = historicoSnapshot.val() || {};
-const historicoIds = Object.keys(historico);
-
-historicoIds.forEach(id => {
-  const entradas = Object.values(historico[id]);
-  entradas.forEach(entrada => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${id}</td>
-      <td>${formatarData(entrada.dataInicio)}</td>
-      <td>${formatarData(entrada.dataFim)}</td>
-    `;
-    historicoBody.appendChild(row);
-  });
-});
-
-        
-
-      } catch (error) {
-        console.error("Erro ao carregar relatório:", error);
-      }
+      });
     }
 
-    
-    document.addEventListener("DOMContentLoaded", carregarRelatorio);
-
-    async function removerDuplicatasDoHistorico() {
-  const historicoRef = database.ref("historico");
-
-  try {
-    const snapshot = await historicoRef.once("value");
-    const historico = snapshot.val();
-
-    if (!historico) return;
-
-    for (const idMapa in historico) {
-      const entradas = historico[idMapa];
-
-      const vistos = new Set();
-      const duplicatas = [];
-
-      for (const chave in entradas) {
-        const entrada = entradas[chave];
-        const identificador = `${entrada.dataInicio}-${entrada.dataFim}`;
-
-        if (vistos.has(identificador)) {
-          duplicatas.push(chave);
-        } else {
-          vistos.add(identificador);
-        }
-      }
-
-      // Remove duplicatas de verdade
-      for (const chave of duplicatas) {
-        await historicoRef.child(`${idMapa}/${chave}`).remove();
-        console.log(`Duplicata removida: historico/${idMapa}/${chave}`);
-      }
-    }
-
-    console.log("Remoção de duplicatas finalizada.");
-  } catch (error) {
-    console.error("Erro ao remover duplicatas:", error);
-  }
-}
-
+    document.addEventListener("DOMContentLoaded", async () => {
+      await carregarCicloAtual();
+      carregarDados();
+    });
   </script>
 </body>
 </html>

@@ -95,29 +95,60 @@
 </head>
 <body>
     <h1>Histórico de Designações de Territórios</h1>
-    <table id="historico-table">
-        <thead>
+    <table id="historico-table">  
+        <thead >
+            
             <tr>
+              
                 <th rowspan="2">Terr. n.º</th>
-                <th rowspan="2">Última data concluída</th>
-                <th colspan="2">Designado para</th>
-                <th colspan="2">Designado para</th>
-                <th colspan="2">Designado para</th>
-                <th colspan="2">Designado para</th>
+                <th colspan="2">Ciclo atual <br><button>Fechar Ciclo</button> </th>
+                <th rowspan="2">Terr. n.º</th>
+                <th colspan="2">Novo Ciclo </th>
+                
             </tr>
             <tr>
+                
                 <th>Data da designação</th>
                 <th>Data da conclusão</th>
                 <th>Data da designação</th>
                 <th>Data da conclusão</th>
-                <th>Data da designação</th>
-                <th>Data da conclusão</th>
-                <th>Data da designação</th>
-                <th>Data da conclusão</th>
+                
+                
             </tr>
         </thead>
         <tbody id="historico-body"></tbody>
     </table>
+
+
+   
+
+
+<div>
+    <h1>Historico de Ciclos Fechados</h1>
+
+     <table id="historico-table">
+        <thead>
+            
+            <tr>
+                <th rowspan="2">Terr. n.º</th>
+                <th colspan="2">Ciclo finalizado em: </th>
+                <th rowspan="2">Terr. n.º</th>
+                <th colspan="2">Ciclo finalizado em:</th>
+                
+            </tr>
+            <tr>
+                
+                <th>Data da designação</th>
+                <th>Data da conclusão</th>
+                <th>Data da designação</th>
+                <th>Data da conclusão</th>
+                
+            </tr>
+        </thead>
+        <tbody id="historico-body"></tbody>
+    </table>
+</div>
+
 
     <script>
         const firebaseConfig = {

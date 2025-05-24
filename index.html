@@ -172,15 +172,40 @@ function carregarMapasDesignados() {
             <button id="sair-btn" style="display: none;" onclick="sair()">Salvar e Sair</button>
             <button id="limpar-tudo-btn" style="display: none;" onclick="limparTudo()">Limpar Tudo</button>
             <button id="recuperar-dados-btn" style="display: none;" onclick="recuperarDados()">Recuperar Dados</button>
-            <button id="relatorio-btn" style="display: none;" onclick="window.location.href='https://map-cycle-tracker.lovable.app/'">Ver Relatório</button>
+            <button id="relatorio-btn" style="display: none;" onclick="window.location.href='relatorio.html'">Ver Relatório</button>
             <button id="editar-campo-btn" style="display: none;" onclick="window.location.href='configcampo.html'">Editar Campo</button>
+        
+<!--Barra de prgresso-->
+<div class="progress-container">
+    <div class="progress-header">
+        <span class="progress-title">Progresso do Território</span>
+        <span class="progress-percentage">0%</span>
+    </div>
+    <div class="progress-track">
+        <div class="progress-bar" style="width: 65%">
+            <div class="progress-tooltip" style="--tooltip-pos: 65%">65% completo</div>
         </div>
     </div>
-        <div id="container">
-            <p>Mapas concluídos</p>
-            <progress id="barra-geral" value="0" max="100"></progress>
-            <span id="percentual-geral">0%</span>
-        </div>
+    <div class="progress-markers">
+        <div class="progress-marker active" data-label="Início"></div>
+        <div class="progress-marker active" data-label="25%"></div>
+        <div class="progress-marker" data-label="50%"></div>
+        <div class="progress-marker" data-label="75%"></div>
+        <div class="progress-marker" data-label="Concluído"></div>
+    </div>
+</div>
+
+<!-- Versão circular (opcional) -->
+<div class="progress-container dual-style">
+    <!-- Conteúdo da barra linear (como acima) -->
+    <div class="progress-circle-container">
+        <svg class="progress-circle" viewBox="0 0 100 100">
+            <circle class="progress-circle-bg" cx="50" cy="50" r="45"/>
+            <circle class="progress-circle-fill" cx="50" cy="50" r="45" style="stroke-dashoffset: 110;"/>
+        </svg>
+        <div class="progress-circle-text">65%</div>
+    </div>
+</div>
 
         <!-- Grupo 02 -->
         <div class="grupo"> 
@@ -705,6 +730,33 @@ function carregarMapasDesignados() {
         
 
     </footer>
+
+    <script>
+  const db = firebase.database(); // você já tem firebase inicializado
+
+  async function carregarProgresso() {
+    const cicloSnap = await db.ref("cicloAtual").once("value");
+    const ciclo = cicloSnap.val() || 1;
+
+    const histSnap = await db.ref("historicoMapas").once("value");
+    const historico = histSnap.val() || {};
+
+    const finalizados = Object.values(historico).filter(h => h.ciclo === ciclo).length;
+    const percent = Math.round((finalizados / 38) * 100);
+
+    const bar = document.getElementById("progress-bar");
+    bar.style.width = percent + "%";
+    bar.textContent = `Mapas ${ciclo} — ${percent}%`;
+
+    // Avança para o próximo ciclo automaticamente se 38 forem finalizados
+    if (finalizados >= 38) {
+      await db.ref("cicloAtual").set(ciclo + 1);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", carregarProgresso);
+</script>
+
 
 </body>
 </html>
