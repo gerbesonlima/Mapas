@@ -147,25 +147,36 @@
       });
     }
 
-    async function salvarNoHistorico(id, inicio, fim) {
-      const ref = db.ref("historicoMapas");
+   async function salvarNoHistorico(id, inicio, fim) {
+  const ref = db.ref("historicoMapas");
 
-      // Evita duplicatas
-      const snap = await ref.orderByChild("mapa").equalTo(id).once("value");
-      const jaExiste = Object.values(snap.val() || {}).some(
-        m => m.dataInicio === inicio && m.dataFim === fim && m.ciclo === currentCycle
-      );
-      if (jaExiste) return;
+  // Verifica se já existe um registro do mesmo mapa no ciclo atual
+  const snap = await ref.orderByChild("mapa").equalTo(id).once("value");
+  const registros = snap.val() || {};
 
-      await ref.push({
-        mapa: id,
-        dataInicio: inicio,
-        dataFim: fim,
-        ciclo: currentCycle
-      });
-      await db.ref("mapas/" + id).remove();
-      carregarDados();
+  for (const key in registros) {
+    const registro = registros[key];
+    if (registro.ciclo === currentCycle) {
+      // Remove o registro antigo do mesmo mapa no mesmo ciclo
+      await db.ref("historicoMapas/" + key).remove();
     }
+  }
+
+  // Salva o novo registro corrigido
+  await ref.push({
+    mapa: id,
+    dataInicio: inicio,
+    dataFim: fim,
+    ciclo: currentCycle
+  });
+
+  // Remove o mapa da lista de mapas em andamento
+  await db.ref("mapas/" + id).remove();
+
+  // Recarrega os dados
+  carregarDados();
+}
+
 
     function carregarDados() {
       db.ref("mapas").once("value").then(snap => {
@@ -192,20 +203,24 @@
         tbody.innerHTML = "";
         const historico = snap.val() || {};
         const chavesUnicas = new Set();
-        Object.values(historico).forEach(reg => {
-          const chave = `${reg.mapa}-${reg.dataInicio}-${reg.dataFim}-${reg.ciclo}`;
-          if (!chavesUnicas.has(chave)) {
-            chavesUnicas.add(chave);
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${reg.mapa}</td>
-              <td>${formatarData(reg.dataInicio)}</td>
-              <td>${formatarData(reg.dataFim)}</td>
-              <td>${reg.ciclo}</td>
-            `;
-            tbody.appendChild(tr);
-          }
-        });
+
+        // ✅ Correção aplicada aqui: ordenar por número do mapa
+        Object.values(historico)
+          .sort((a, b) => Number(a.mapa) - Number(b.mapa))
+          .forEach(reg => {
+            const chave = `${reg.mapa}-${reg.dataInicio}-${reg.dataFim}-${reg.ciclo}`;
+            if (!chavesUnicas.has(chave)) {
+              chavesUnicas.add(chave);
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${reg.mapa}</td>
+                <td>${formatarData(reg.dataInicio)}</td>
+                <td>${formatarData(reg.dataFim)}</td>
+                <td>${reg.ciclo}</td>
+              `;
+              tbody.appendChild(tr);
+            }
+          });
       });
     }
 
