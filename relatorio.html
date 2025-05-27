@@ -731,7 +731,7 @@
         const percent = totalMapasNoCiclo > 0 ? Math.round((finalizadosNoCicloAtual.length / totalMapasNoCiclo) * 100) : 0;
         
         bar.style.width = percent + "%";
-        bar.textContent = `Ciclo Nº ${activeCycleData.numero} (${activeCycleData.nome || ''}): ${percent}% (${finalizadosNoCicloAtual.length}/${totalMapasNoCiclo})`;
+        bar.textContent = `${percent}% (${finalizadosNoCicloAtual.length}/${totalMapasNoCiclo})`;
       }).catch(error => {
           console.error("Erro ao atualizar barra de progresso:", error);
           bar.style.width = "0%";

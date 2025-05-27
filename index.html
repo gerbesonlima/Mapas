@@ -41,13 +41,6 @@
 
     <div id="mapas-container"></div>
 
-  
-</div>
-
-    <div id="botao-compartilhar-independente" onclick="compartilharLink()"> 
-        <button> 📤Compartilhar mapa </button> 
-    </div>
-<br>
     <script>
 let currentDate = new Date();
 let backupMapas = null;
@@ -177,10 +170,12 @@ function carregarMapasDesignados() {
         </div>
     <!-- Barra de progresso dos ciclos -->
    
-<div class="progress-container">
-      <p>Mapas Concluidos</p>
-  <div class="progress-bar" id="progress-bar">0%</div>
-</div>
+<div id="cycle-selection-area" style="margin-top: 10px;"></div>
+     <div class="progress-container">
+        <p>Mapas concluidos</p>
+      <div class="progress-bar" id="progress-bar">0%</div>
+    </div>
+  </div>
 
 
         <!-- Grupo 02 -->
