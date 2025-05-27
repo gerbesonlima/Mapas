@@ -379,12 +379,12 @@
     let allCyclesMap = {}; // To map cycle IDs/numbers to names for display
 
     function formatarData(data) {
-      if (!data || data.trim() === "") return "—";
-      const parts = data.split("-");
+      if (!data || String(data).trim() === "") return "—"; // Ensure data is treated as string for trim
+      const parts = String(data).split("-");
       if (parts.length === 3) {
         const [ano, mes, dia] = parts;
         if (ano && mes && dia && !isNaN(parseInt(dia)) && !isNaN(parseInt(mes)) && !isNaN(parseInt(ano))) {
-             return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${ano}`;
+             return `${String(dia).padStart(2,'0')}/${String(mes).padStart(2,'0')}/${ano}`;
         }
       }
       return "—"; // Return "—" if date format is unexpected or invalid
@@ -438,7 +438,7 @@
                     cycleData.numero = 1; // Default for old "ciclo_1" or if somehow missing
                     needsUpdateInDB = true;
                 }
-                if (typeof cycleData.nome === 'undefined' || cycleData.nome.trim() === '') {
+                if (typeof cycleData.nome === 'undefined' || String(cycleData.nome).trim() === '') {
                     cycleData.nome = (activeCycleId === 'ciclo_1' && cycleData.numero === 1) ? "Ciclo 1 (Importado)" : `Ciclo ${cycleData.numero}`;
                     needsUpdateInDB = true;
                 }
@@ -724,14 +724,26 @@
         bar.textContent = "Nenhum ciclo ativo";
         return;
       }
-      // Query for maps in the current cycle by its NUMBER
+      
       db.ref("historicoMapas").orderByChild("ciclo").equalTo(activeCycleData.numero).once("value").then(snapshot => {
-        const finalizadosNoCicloAtual = snapshot.exists() ? Object.values(snapshot.val()) : [];
+        let mapasComDataFim = 0;
+        if (snapshot.exists()) {
+            const historicoDoCiclo = snapshot.val();
+            for (const key in historicoDoCiclo) {
+                const registro = historicoDoCiclo[key];
+                // Verifica se o registro existe, possui dataFim e se dataFim não é vazia/espaços
+                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "") {
+                    mapasComDataFim++;
+                }
+            }
+        }
+        
         const totalMapasNoCiclo = 38; 
-        const percent = totalMapasNoCiclo > 0 ? Math.round((finalizadosNoCicloAtual.length / totalMapasNoCiclo) * 100) : 0;
+        const percent = totalMapasNoCiclo > 0 ? Math.round((mapasComDataFim / totalMapasNoCiclo) * 100) : 0;
         
         bar.style.width = percent + "%";
-        bar.textContent = `${percent}% (${finalizadosNoCicloAtual.length}/${totalMapasNoCiclo})`;
+        bar.textContent = `${percent}% (${mapasComDataFim}/${totalMapasNoCiclo})`;
+
       }).catch(error => {
           console.error("Erro ao atualizar barra de progresso:", error);
           bar.style.width = "0%";
@@ -752,6 +764,11 @@
 
       for (const key in registros) {
         const registro = registros[key];
+        // Consider removing only if it's for the *same cycle and map* to avoid deleting history from other cycles
+        // For now, assuming map ID is unique enough across history entries that need this specific update logic.
+        // If a map can be worked multiple times and saved to history under different cycle numbers, this is fine.
+        // The original logic was: if (registro.ciclo === cicloNumeroParaSalvar && registro.mapa === id)
+        // This seems correct to only remove prior entry of the same map for the *same* cycle.
         if (registro.ciclo === cicloNumeroParaSalvar && registro.mapa === id) { 
           await db.ref("historicoMapas/" + key).remove();
         }
@@ -759,13 +776,13 @@
 
       await ref.push({
         mapa: id,
-        nome: nome || "", // Ensure nome is saved, even if empty string
+        nome: nome || "", 
         dataInicio: inicio,
         dataFim: fim,
         ciclo: cicloNumeroParaSalvar 
       });
 
-      await db.ref(`mapas/${id}`).remove(); // Assuming mapas are stored directly by ID/Number under /mapas
+      await db.ref(`mapas/${id}`).remove(); 
       carregarDados(); 
     }
     
@@ -823,33 +840,34 @@
     function carregarDados() {
       console.log("Carregando dados dos mapas...");
       // Carregar Mapas em Andamento
-      // Assuming 'mapas' are stored in an array-like object where index is map number
       db.ref("mapas").once("value").then(snap => {
         const tbody = document.getElementById("relatorio-body");
         tbody.innerHTML = "";
-        const mapasData = snap.val(); // This might be an array or object
+        const mapasData = snap.val();
         if (mapasData) {
-            // Handle if mapasData is an array (often from Firebase when keys are numeric)
-            // or an object. Object.entries works for both if array indices are treated as keys.
             Object.entries(mapasData).forEach(([id, dados]) => {
-              if (!dados) return; // Skip null entries if it's an array with gaps
+              if (!dados || typeof dados !== 'object') {
+                  return; 
+              }
 
-              // Ensure 'id' is treated as the map number, which might be the array index
               const mapId = id; 
-              const hasDataInicio = dados.dataInicio && dados.dataInicio.trim() !== "";
-              const hasDataFim = dados.dataFim && dados.dataFim.trim() !== "";
+              
+              const nomePreenchido = dados.nome && String(dados.nome).trim() !== "";
+              const dataInicioPreenchida = dados.dataInicio && String(dados.dataInicio).trim() !== "";
+              const dataFimPreenchida = dados.dataFim && String(dados.dataFim).trim() !== "";
 
-              if (hasDataInicio || hasDataFim) {
+              if (nomePreenchido || dataInicioPreenchida || dataFimPreenchida) {
                 const tr = document.createElement("tr");
                 const nomeInputId = `nome-input-${mapId}`;
                 const saveButtonDisabled = (!activeCycleData || activeCycleData.status !== 'ativo');
-                const botao = hasDataFim ? `<button ${saveButtonDisabled ? 'disabled title="Inicie ou continue um ciclo para salvar."' : ''} onclick="salvarNoHistorico('${mapId}', document.getElementById('${nomeInputId}').value, '${dados.dataInicio || ''}', '${dados.dataFim}')">Salvar</button>` : "";
                 
+                const botao = `<button ${saveButtonDisabled ? 'disabled title="Inicie ou continue um ciclo para salvar."' : ''} onclick="salvarNoHistorico('${mapId}', document.getElementById('${nomeInputId}').value, '${dados.dataInicio || ''}', '${dados.dataFim || ''}')">Salvar</button>`;
+                  
                 tr.innerHTML = `
                   <td>${mapId}</td>
                   <td><input type="text" id="${nomeInputId}" class="edit-input" value="${dados.nome || ''}" placeholder="Designado para"></td>
-                  <td>${formatarData(dados.dataInicio)}</td>
-                  <td>${formatarData(dados.dataFim)}</td>
+                  <td>${formatarData(dados.dataInicio || '')}</td> 
+                  <td>${formatarData(dados.dataFim || '')}</td>   
                   <td>${botao}</td>
                 `;
                 tbody.appendChild(tr);
@@ -873,9 +891,7 @@
             return Number(a.mapa) - Number(b.mapa);
           })
           .forEach(([key, reg]) => {
-            // Skip entries that don't look like our target history items
-            if (typeof reg.mapa === 'undefined' || (typeof reg.ciclo === 'undefined' && reg.ciclo !== null) ) { // Allow ciclo to be null if not set, but not completely undefined property
-                // console.warn("Entrada de histórico ignorada (estrutura inválida ou incompleta):", key, reg);
+            if (typeof reg.mapa === 'undefined' || (typeof reg.ciclo === 'undefined' && reg.ciclo !== null) ) {
                 return; 
             }
 
@@ -883,14 +899,26 @@
             tr.setAttribute('data-key', key);
             
             let cicloDisplay = 'N/A';
-            if (reg.ciclo === 1 || reg.ciclo === 'ciclo_1') { // Check for both migrated numeric 1 and legacy string "ciclo_1"
-                cicloDisplay = '1'; // Display as number 1
-            } else if (typeof reg.ciclo === 'number') {
-                cicloDisplay = reg.ciclo;
-            } else if (reg.ciclo) { // Other string cycle IDs if any (though current logic aims for numeric)
-                cicloDisplay = reg.ciclo; 
-            }
+            const cicloValor = reg.ciclo; 
 
+            if (cicloValor === 'ciclo_1' && allCyclesMap[1]) { 
+                const cicloInfo = allCyclesMap[1];
+                cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
+            } else if (typeof cicloValor === 'number' && allCyclesMap[cicloValor]) {
+                const cicloInfo = allCyclesMap[cicloValor]; 
+                cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
+            } else if (typeof cicloValor === 'number') { 
+                cicloDisplay = `Nº ${cicloValor}`;
+            } else if (cicloValor === 'ciclo_1') { 
+                cicloDisplay = `Nº 1`;
+            } else if (cicloValor) { 
+                if(allCyclesMap[cicloValor] && typeof allCyclesMap[cicloValor] === 'object' && allCyclesMap[cicloValor].numero !== undefined){ 
+                     const cicloInfo = allCyclesMap[cicloValor];
+                     cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
+                } else {
+                    cicloDisplay = String(cicloValor); 
+                }
+            }
 
             if (isHistoricoEditingGlobal) {
                 tr.innerHTML = `
