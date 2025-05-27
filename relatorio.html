@@ -288,6 +288,22 @@
         margin-bottom: 16px; /* Espaço abaixo do botão de edição geral */
     }
 
+    @media (max-width: 767px) { /* Ajuste este valor conforme necessário para o seu "ponto de quebra" móvel */
+    #historico-table th:nth-child(5),
+    #historico-table td:nth-child(5) {
+        display: none; /* Esconde a 5ª coluna (Ciclo (Nº)) */
+    }
+
+    /* Se a tabela de "Mapas em Andamento" também estiver causando problemas,
+       e você quiser esconder, por exemplo, a coluna "Ação" (que também é a 5ª): */
+    /*
+    #relatorio-table th:nth-child(5),
+    #relatorio-table td:nth-child(5) {
+        display: none;
+    }
+    */
+}
+
 </style>
 </head>
 <body>
@@ -316,7 +332,7 @@
       <thead>
         <tr>
           <th>Nº do Mapa</th>
-          <th>Nome</th>
+          <th>Designado para</th>
           <th>Data de Início</th>
           <th>Data de Fim</th>
           <th>Ação</th>
@@ -333,7 +349,7 @@
       <thead>
         <tr>
           <th>Nº do Mapa</th>
-          <th>Nome</th>
+          <th>Designado para</th>
           <th>Data de Início</th>
           <th>Data de Fim</th>
           <th>Ciclo (Nº)</th>
