@@ -9,43 +9,67 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f4f4f4;
-    }
-    h1, h2 {
-      text-align: center;
+      margin: 0;
+      background-color: #ECEFF1;
       color: #333;
+      padding-bottom: 50px; /* Space for new buttons */
+    }
+    h1 {
+      background-color: #4CAF50;
+      color: white;
+      padding: 18px 20px;
+      margin: 0 0 20px 0;
+      text-align: left;
+      font-size: 1.5em;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    h2 {
+      text-align: center;
+      color: #4CAF50;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    h3 {
+        text-align: center;
+        color: #555;
+        margin-top:20px;
     }
     table {
       width: 100%;
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       border-collapse: collapse;
       background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      border-radius: 4px;
+      overflow: hidden;
     }
     th, td {
-      padding: 12px;
+      padding: 12px 15px;
       text-align: left;
-      border: 1px solid #ddd;
+      border: none;
     }
     th {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #f5f5f5;
+      color: #555;
+      font-weight: bold;
+      border-bottom: 2px solid #4CAF50;
     }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
+    td {
+      border-bottom: 1px solid #e0e0e0;
     }
-    tr:hover {
-      background-color: #f1f1f1;
+    tr:last-child td {
+      border-bottom: none;
     }
     .progress-container {
       width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
+      max-width: 900px;
+      margin: 10px auto 20px auto;
       background-color: #ddd;
-      border-radius: 5px;
+      border-radius: 4px;
       overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     }
     .progress-bar {
       height: 30px;
@@ -56,55 +80,137 @@
       width: 0%;
       transition: width 0.4s ease;
       font-weight: bold;
+      border-radius: 4px 0 0 4px;
     }
     button {
       background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 6px 10px;
+      padding: 10px 15px;
       cursor: pointer;
       border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      margin: 5px;
     }
     button:hover {
       background-color: #388E3C;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    button.secondary-action {
+        background-color: #007bff;
+    }
+    button.secondary-action:hover{
+        background-color: #0056b3;
+    }
+    button.warning-action {
+        background-color: #ffc107;
+        color: #333;
+    }
+    button.warning-action:hover {
+        background-color: #d39e00;
+    }
+    button.danger-action {
+        background-color: #f44336;
+    }
+    button.danger-action:hover {
+        background-color: #d32f2f;
+    }
+    .content-wrapper, .controls-wrapper {
+      padding: 0 20px;
+      max-width: 900px;
+      margin: 0 auto 20px auto;
+      text-align: center;
+    }
+    input[type="text"], input[type="date"], select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      width: 100%;
+      margin: 2px 0;
+    }
+    select {
+        width: auto;
+        min-width: 200px;
+        margin-right: 10px;
+    }
+    td input[type="text"], td input[type="date"]{
+        padding: 6px;
+        font-size: 0.95em;
+    }
+    #current-cycle-info {
+        font-weight: bold;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #e9e9e9;
+        border-radius: 4px;
+        display: inline-block;
     }
   </style>
 </head>
 <body>
-  <h1>Mapas em andamento</h1>
+  <h1>Relatório de Mapas Trabalhados</h1>
 
-  <div class="progress-container">
-    <div class="progress-bar" id="progress-bar">0%</div>
+  <div class="controls-wrapper">
+    <h3>Gerenciamento de Ciclos</h3>
+    <div id="current-cycle-info">
+      Ciclo Atual: <span id="current-cycle-display">Carregando...</span>
+    </div>
+    <div id="cycle-actions">
+      <button onclick="startNewCyclePrompt()" class="secondary-action">Começar Novo Ciclo</button>
+      <button id="pause-cycle-btn" onclick="pauseActiveCycle()" style="display:none;">Pausar Ciclo Atual</button>
+      <button id="continue-cycle-btn" onclick="continueCyclePrompt()" style="display:none;">Continuar Ciclo</button>
+      <button id="exclude-cycle-btn" onclick="excludeCyclePrompt()" class="danger-action">Excluir Ciclo</button>
+    </div>
+    <div id="cycle-selection-area" style="margin-top: 10px;"></div>
+     <div class="progress-container">
+      <div class="progress-bar" id="progress-bar">0%</div>
+    </div>
   </div>
 
-  <table id="relatorio-table">
-    <thead>
-      <tr>
-        <th>Nº do Mapa</th>
-        <th>Data de Início</th>
-        <th>Data de Fim</th>
-        <th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="relatorio-body"></tbody>
-  </table>
+  <div class="content-wrapper">
+    <h2>Mapas em Andamento</h2>
+    <table id="relatorio-table">
+      <thead>
+        <tr>
+          <th>Nº do Mapa</th>
+          <th>Nome</th>
+          <th>Data de Início</th>
+          <th>Data de Fim</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="relatorio-body"></tbody>
+    </table>
 
-  <h2>Histórico de Mapas concluidos</h2>
-  <table id="historico-table">
-    <thead>
-      <tr>
-        <th>Nº do Mapa</th>
-        <th>Data de Início</th>
-        <th>Data de Fim</th>
-        <th>Ciclo</th>
-      </tr>
-    </thead>
-    <tbody id="historico-body"></tbody>
-  </table>
+    <h2>Histórico de Mapas Concluídos</h2>
+    <div id="historico-edit-controls" style="text-align:center; margin-bottom:10px;">
+        <button id="toggle-historico-edit-btn" onclick="toggleGlobalHistoricoEdit()">Habilitar Edição Geral</button>
+    </div>
+    <table id="historico-table">
+      <thead>
+        <tr>
+          <th>Nº do Mapa</th>
+          <th>Nome</th>
+          <th>Data de Início</th>
+          <th>Data de Fim</th>
+          <th>Ciclo (Nº)</th>
+        </tr>
+      </thead>
+      <tbody id="historico-body"></tbody>
+    </table>
+  </div>
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+      apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY", // Replace with your actual Firebase config
       authDomain: "territorios-3d0bb.firebaseapp.com",
       projectId: "territorios-3d0bb",
       storageBucket: "territorios-3d0bb.appspot.com",
@@ -117,116 +223,549 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentCycle = 1;
+    let activeCycleData = null; 
+    let isHistoricoEditingGlobal = false;
+    let allCyclesMap = {}; // To map cycle IDs/numbers to names for display
 
     function formatarData(data) {
-      if (!data) return "—";
-      const [ano, mes, dia] = data.split("-");
-      return `${dia}/${mes}/${ano}`;
+      if (!data || data.trim() === "") return "—";
+      const parts = data.split("-");
+      if (parts.length === 3) {
+        const [ano, mes, dia] = parts;
+        if (ano && mes && dia && !isNaN(parseInt(dia)) && !isNaN(parseInt(mes)) && !isNaN(parseInt(ano))) {
+             return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${ano}`;
+        }
+      }
+      return "—"; // Return "—" if date format is unexpected or invalid
+    }
+    
+    function getTodayDateString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
-    async function carregarCicloAtual() {
-      const snap = await db.ref("cicloAtual").once("value");
-      const ciclo = snap.val();
-      if (ciclo) currentCycle = ciclo;
+    async function loadActiveCycleDetails() {
+        console.log("Iniciando loadActiveCycleDetails...");
+        let activeCycleId = null;
+        activeCycleData = null; // Reset before loading
+
+        const activeCycleIdSnap = await db.ref("cicloAtualId").once("value");
+        activeCycleId = activeCycleIdSnap.val();
+
+        if (activeCycleId) {
+            console.log(`Encontrado cicloAtualId: ${activeCycleId}`);
+        } else {
+            console.log("Nenhum cicloAtualId encontrado. Verificando 'cicloAtual' legado...");
+            const legacyCicloAtualSnap = await db.ref("cicloAtual").once("value");
+            const legacyCicloKey = legacyCicloAtualSnap.val();
+            if (legacyCicloKey && typeof legacyCicloKey === 'string') {
+                console.log("Legacy 'cicloAtual' encontrado:", legacyCicloKey);
+                const legacyCycleSnap = await db.ref(`ciclos/${legacyCicloKey}`).once("value");
+                if (legacyCycleSnap.exists()) {
+                    activeCycleId = legacyCicloKey;
+                    console.log(`Ciclo legado '${legacyCicloKey}' existe. Migrando para 'cicloAtualId'.`);
+                    await db.ref('cicloAtualId').set(legacyCicloKey);
+                    await db.ref('cicloAtual').remove(); // Remove old path
+                    console.log(`Migrado para 'cicloAtualId': ${legacyCicloKey}`);
+                } else {
+                     console.log(`Ciclo legado '${legacyCicloKey}' não encontrado em /ciclos.`);
+                }
+            }
+        }
+
+        if (activeCycleId) {
+            const cycleSnap = await db.ref(`ciclos/${activeCycleId}`).once("value");
+            if (cycleSnap.exists()) {
+                let cycleData = cycleSnap.val();
+                let needsUpdateInDB = false; // Flag to update Firebase only if necessary
+
+                // Ensure essential fields exist for the loaded cycle
+                if (typeof cycleData.numero === 'undefined') {
+                    cycleData.numero = 1; // Default for old "ciclo_1" or if somehow missing
+                    needsUpdateInDB = true;
+                }
+                if (typeof cycleData.nome === 'undefined' || cycleData.nome.trim() === '') {
+                    cycleData.nome = (activeCycleId === 'ciclo_1' && cycleData.numero === 1) ? "Ciclo 1 (Importado)" : `Ciclo ${cycleData.numero}`;
+                    needsUpdateInDB = true;
+                }
+                if (typeof cycleData.status === 'undefined') {
+                    cycleData.status = 'ativo'; 
+                    needsUpdateInDB = true;
+                }
+                if (typeof cycleData.dataInicio === 'undefined') {
+                    cycleData.dataInicio = "2023-01-01"; 
+                    needsUpdateInDB = true;
+                }
+
+                if (needsUpdateInDB) {
+                    console.log(`Atualizando dados do ciclo '${activeCycleId}' no Firebase com padrões.`);
+                    await db.ref(`ciclos/${activeCycleId}`).update({
+                        nome: cycleData.nome,
+                        numero: cycleData.numero,
+                        status: cycleData.status,
+                        dataInicio: cycleData.dataInicio
+                    });
+                }
+                activeCycleData = { id: activeCycleId, ...cycleData };
+                console.log("Ciclo ativo carregado:", activeCycleData);
+
+                // One-time migration for historicoMapas entries from "ciclo_1" string to numeric cycle
+                if (activeCycleId === 'ciclo_1' && activeCycleData.numero === 1) {
+                    console.log("Verificando migração para historicoMapas com 'ciclo_1'...");
+                    const historicoRef = db.ref('historicoMapas');
+                    const snapshot = await historicoRef.orderByChild('ciclo').equalTo('ciclo_1').once('value');
+                    if (snapshot.exists()) {
+                        const updates = {};
+                        snapshot.forEach(childSnap => {
+                            updates[`${childSnap.key}/ciclo`] = 1; // Update to numeric 1
+                        });
+                        if (Object.keys(updates).length > 0) {
+                            console.log(`Migrando ${Object.keys(updates).length} entradas do histórico de 'ciclo_1' para ciclo: 1...`);
+                            await historicoRef.update(updates);
+                            console.log("Migração do campo 'ciclo' em historicoMapas concluída.");
+                        }
+                    }
+                }
+            } else {
+                console.log(`cicloAtualId '${activeCycleId}' não aponta para um ciclo existente. Removendo.`);
+                await db.ref("cicloAtualId").remove();
+                activeCycleData = null;
+            }
+        } else {
+             // No active cycle ID found through new or legacy paths.
+             console.log("Nenhum cicloAtualId definido. Verificando se é necessário criar ciclo padrão...");
+            const todosCiclosSnap = await db.ref('ciclos').once('value');
+            if (!todosCiclosSnap.exists()) { 
+                const historicoSnap = await db.ref('historicoMapas').limitToFirst(1).once('value');
+                if (historicoSnap.exists()) {
+                    console.log("Dados históricos encontrados e nenhum ciclo em /ciclos. Criando 'Ciclo Inicial Padrão'.");
+                    const nomePrimeiroCiclo = "Ciclo Inicial Padrão"; 
+                    const numeroPrimeiroCiclo = 1;
+                    const dataInicioPrimeiroCiclo = "2023-01-01"; 
+
+                    const novoCicloRef = db.ref('ciclos').push(); 
+                    const primeiroCicloData = {
+                        nome: nomePrimeiroCiclo,
+                        numero: numeroPrimeiroCiclo,
+                        status: 'ativo', 
+                        dataInicio: dataInicioPrimeiroCiclo,
+                        dataFim: null 
+                    };
+                    await novoCicloRef.set(primeiroCicloData);
+                    await db.ref('cicloAtualId').set(novoCicloRef.key); 
+                    activeCycleData = { id: novoCicloRef.key, ...primeiroCicloData }; 
+                    console.log(`'${nomePrimeiroCiclo}' (Nº ${numeroPrimeiroCiclo}) criado com ID ${novoCicloRef.key} e definido como ativo.`);
+                } else {
+                    console.log("Nenhum ciclo em /ciclos e nenhum dado histórico. Sistema aguardando criação do primeiro ciclo.");
+                    activeCycleData = null;
+                }
+            } else {
+                console.log("/ciclos existe, mas nenhum ciclo ativo está definido via cicloAtualId.");
+                activeCycleData = null; 
+            }
+        }
+        // Load all cycle names for display purposes
+        const allCyclesSnap = await db.ref('ciclos').once('value');
+        allCyclesMap = {};
+        if(allCyclesSnap.exists()){
+            allCyclesSnap.forEach(snap => {
+                allCyclesMap[snap.key] = snap.val(); // Store by ID
+                if(snap.val().numero) allCyclesMap[snap.val().numero] = snap.val(); // Also store by number if distinct
+            });
+        }
+
+        updateCycleUI();
+        carregarDados(); 
+    }
+
+    function updateCycleUI() {
+        const display = document.getElementById('current-cycle-display');
+        const pauseBtn = document.getElementById('pause-cycle-btn');
+        const continueBtn = document.getElementById('continue-cycle-btn');
+        
+        if (activeCycleData) {
+            display.innerHTML = `Nº ${activeCycleData.numero}: ${activeCycleData.nome} <br>(Status: ${activeCycleData.status})`;
+            pauseBtn.style.display = activeCycleData.status === 'ativo' ? 'inline-block' : 'none';
+        } else {
+            display.textContent = "Nenhum ciclo ativo";
+            pauseBtn.style.display = 'none';
+        }
+        
+        db.ref('ciclos').orderByChild('status').equalTo('pausado').once('value', snap => {
+            continueBtn.style.display = snap.exists() ? 'inline-block' : 'none';
+        });
+        atualizarBarraProgresso();
+    }
+    
+    async function startNewCyclePrompt() {
+        const nomeNovoCiclo = prompt("Digite o nome para o novo ciclo:");
+        if (!nomeNovoCiclo || nomeNovoCiclo.trim() === "") {
+            alert("Nome do ciclo não pode ser vazio.");
+            return;
+        }
+
+        try {
+            if (activeCycleData && activeCycleData.id && activeCycleData.status === 'ativo') {
+                console.log(`Marcando ciclo atual '${activeCycleData.nome}' como concluído.`);
+                await db.ref(`ciclos/${activeCycleData.id}`).update({ 
+                    status: 'concluido',
+                    dataFim: getTodayDateString()
+                });
+            }
+
+            const allCiclosSnap = await db.ref('ciclos').once('value');
+            let novoNumeroCiclo = 1; 
+            if (allCiclosSnap.exists()) {
+                let maxNumero = 0;
+                allCiclosSnap.forEach(childSnap => {
+                    const cycle = childSnap.val();
+                    if (cycle && typeof cycle.numero !== 'undefined' && cycle.numero > maxNumero) {
+                        maxNumero = cycle.numero;
+                    }
+                });
+                novoNumeroCiclo = maxNumero + 1;
+            }
+            console.log(`Novo número do ciclo será: ${novoNumeroCiclo}`);
+            
+            const novoCicloRef = db.ref('ciclos').push();
+            const novoCiclo = {
+                nome: nomeNovoCiclo.trim(),
+                numero: novoNumeroCiclo,
+                status: 'ativo',
+                dataInicio: getTodayDateString(),
+                dataFim: null
+            };
+            await novoCicloRef.set(novoCiclo);
+            await db.ref('cicloAtualId').set(novoCicloRef.key);
+            
+            alert(`Novo ciclo "${novoCiclo.nome}" (Nº ${novoCiclo.numero}) iniciado!`);
+            await loadActiveCycleDetails();
+        } catch (error) {
+            console.error("Erro ao iniciar novo ciclo: ", error);
+            alert("Falha ao iniciar novo ciclo. Verifique o console para detalhes.");
+        }
+    }
+
+    async function pauseActiveCycle() {
+        if (!activeCycleData || activeCycleData.status !== 'ativo') {
+            alert("Nenhum ciclo ativo para pausar.");
+            return;
+        }
+        if (!confirm(`Tem certeza que deseja pausar o ciclo "${activeCycleData.nome}" (Nº ${activeCycleData.numero})?`)) return;
+
+        try {
+            await db.ref(`ciclos/${activeCycleData.id}`).update({ status: 'pausado' });
+            alert(`Ciclo "${activeCycleData.nome}" pausado.`);
+            activeCycleData.status = 'pausado'; 
+            updateCycleUI();
+            carregarDados(); 
+        } catch (error) {
+            console.error("Erro ao pausar ciclo: ", error);
+            alert("Falha ao pausar ciclo.");
+        }
+    }
+
+    async function populateCycleSelector(purpose, filterStatus = null) {
+        const selectionArea = document.getElementById('cycle-selection-area');
+        selectionArea.innerHTML = ''; 
+
+        const ciclosSnap = await db.ref('ciclos').once('value');
+        if (!ciclosSnap.exists()) {
+            selectionArea.innerHTML = '<p>Nenhum ciclo encontrado.</p>';
+            return null;
+        }
+
+        const select = document.createElement('select');
+        select.id = `cycle-selector-${purpose}`;
+        let hasOptions = false;
+        const cyclesArray = [];
+        ciclosSnap.forEach(childSnap => {
+            cyclesArray.push({ id: childSnap.key, ...childSnap.val() });
+        });
+
+        // Sort by cycle number for consistent display
+        cyclesArray.sort((a,b) => (a.numero || 0) - (b.numero || 0));
+
+        cyclesArray.forEach(cycle => {
+            if (filterStatus && cycle.status !== filterStatus) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = cycle.id;
+            option.textContent = `Nº ${cycle.numero}: ${cycle.nome} (Status: ${cycle.status})`;
+            select.appendChild(option);
+            hasOptions = true;
+        });
+
+        if (!hasOptions) {
+             selectionArea.innerHTML = `<p>Nenhum ciclo ${filterStatus ? '"'+filterStatus+'"' : ''} encontrado para ${purpose === 'continue' ? 'continuar' : 'excluir'}.</p>`;
+            return null;
+        }
+        
+        const label = document.createElement('label');
+        label.htmlFor = select.id;
+        label.textContent = `Selecione o ciclo para ${purpose === 'continue' ? 'continuar' : 'excluir'}: `;
+        selectionArea.appendChild(label);
+        selectionArea.appendChild(select);
+        return select;
+    }
+    
+    async function continueCyclePrompt() {
+        const selector = await populateCycleSelector('continue', 'pausado');
+        if (!selector) return;
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Continuar Ciclo Selecionado';
+        confirmBtn.onclick = async () => {
+            const selectedCycleId = selector.value;
+            if (!selectedCycleId) return;
+            
+            if(activeCycleData && activeCycleData.id !== selectedCycleId && activeCycleData.status === 'ativo') {
+                 await db.ref(`ciclos/${activeCycleData.id}`).update({ status: 'pausado' });
+            }
+
+            await db.ref(`ciclos/${selectedCycleId}`).update({ status: 'ativo' });
+            await db.ref('cicloAtualId').set(selectedCycleId);
+            alert('Ciclo continuado!');
+            document.getElementById('cycle-selection-area').innerHTML = ''; 
+            await loadActiveCycleDetails();
+        };
+        document.getElementById('cycle-selection-area').appendChild(confirmBtn);
+    }
+    
+    async function excludeCyclePrompt() {
+        const selector = await populateCycleSelector('exclude');
+        if (!selector) return;
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Excluir Ciclo Selecionado';
+        confirmBtn.classList.add('danger-action');
+        confirmBtn.onclick = async () => {
+            const selectedCycleId = selector.value;
+            if (!selectedCycleId) return;
+            const selectedOptionText = selector.options[selector.selectedIndex].text;
+
+            if (!confirm(`TEM CERTEZA que deseja excluir o ciclo "${selectedOptionText}"? Mapas históricos associados a este ciclo NÃO serão excluídos, mas o ciclo sim.`)) return;
+
+            try {
+                await db.ref(`ciclos/${selectedCycleId}`).remove();
+                if (activeCycleData && activeCycleData.id === selectedCycleId) {
+                    await db.ref('cicloAtualId').remove();
+                }
+                alert(`Ciclo "${selectedOptionText}" excluído.`);
+                document.getElementById('cycle-selection-area').innerHTML = ''; 
+                await loadActiveCycleDetails(); 
+            } catch (error) {
+                console.error("Erro ao excluir ciclo: ", error);
+                alert("Falha ao excluir ciclo.");
+            }
+        };
+        document.getElementById('cycle-selection-area').appendChild(confirmBtn);
     }
 
     function atualizarBarraProgresso() {
-      db.ref("historicoMapas").once("value").then(snapshot => {
-        const historico = snapshot.val() || {};
-        const finalizados = Object.values(historico).filter(m => m.ciclo === currentCycle);
-        const percent = Math.round((finalizados.length / 38) * 100);
-        const bar = document.getElementById("progress-bar");
+      const bar = document.getElementById("progress-bar");
+      if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
+        bar.style.width = "0%";
+        bar.textContent = "Nenhum ciclo ativo";
+        return;
+      }
+      // Query for maps in the current cycle by its NUMBER
+      db.ref("historicoMapas").orderByChild("ciclo").equalTo(activeCycleData.numero).once("value").then(snapshot => {
+        const finalizadosNoCicloAtual = snapshot.exists() ? Object.values(snapshot.val()) : [];
+        const totalMapasNoCiclo = 38; 
+        const percent = totalMapasNoCiclo > 0 ? Math.round((finalizadosNoCicloAtual.length / totalMapasNoCiclo) * 100) : 0;
+        
         bar.style.width = percent + "%";
-        bar.textContent = `Ciclo ${currentCycle} — ${percent}%`;
-
-        if (finalizados.length >= 38) {
-          currentCycle++;
-          db.ref("cicloAtual").set(currentCycle);
-        }
+        bar.textContent = `Ciclo Nº ${activeCycleData.numero} (${activeCycleData.nome || ''}): ${percent}% (${finalizadosNoCicloAtual.length}/${totalMapasNoCiclo})`;
+      }).catch(error => {
+          console.error("Erro ao atualizar barra de progresso:", error);
+          bar.style.width = "0%";
+          bar.textContent = "Erro ao carregar progresso";
       });
     }
 
-   async function salvarNoHistorico(id, inicio, fim) {
-  const ref = db.ref("historicoMapas");
+    async function salvarNoHistorico(id, nome, inicio, fim) {
+      if (!activeCycleData || activeCycleData.status !== 'ativo' || typeof activeCycleData.numero === 'undefined') {
+          alert("Não há um ciclo ativo para salvar o mapa. Inicie ou continue um ciclo.");
+          return;
+      }
+      const cicloNumeroParaSalvar = activeCycleData.numero;
 
-  // Verifica se já existe um registro do mesmo mapa no ciclo atual
-  const snap = await ref.orderByChild("mapa").equalTo(id).once("value");
-  const registros = snap.val() || {};
+      const ref = db.ref("historicoMapas");
+      const snap = await ref.orderByChild("mapa").equalTo(id).once("value");
+      const registros = snap.val() || {};
 
-  for (const key in registros) {
-    const registro = registros[key];
-    if (registro.ciclo === currentCycle) {
-      // Remove o registro antigo do mesmo mapa no mesmo ciclo
-      await db.ref("historicoMapas/" + key).remove();
+      for (const key in registros) {
+        const registro = registros[key];
+        if (registro.ciclo === cicloNumeroParaSalvar && registro.mapa === id) { 
+          await db.ref("historicoMapas/" + key).remove();
+        }
+      }
+
+      await ref.push({
+        mapa: id,
+        nome: nome || "", // Ensure nome is saved, even if empty string
+        dataInicio: inicio,
+        dataFim: fim,
+        ciclo: cicloNumeroParaSalvar 
+      });
+
+      await db.ref(`mapas/${id}`).remove(); // Assuming mapas are stored directly by ID/Number under /mapas
+      carregarDados(); 
     }
-  }
+    
+    function toggleGlobalHistoricoEdit() {
+        const button = document.getElementById('toggle-historico-edit-btn');
+        if (isHistoricoEditingGlobal) { 
+            saveAllHistoricoChanges();
+        } else { 
+            isHistoricoEditingGlobal = true;
+            button.textContent = 'Salvar Alterações e Desabilitar';
+            button.classList.add('warning-action');
+            carregarDados(); 
+        }
+    }
 
-  // Salva o novo registro corrigido
-  await ref.push({
-    mapa: id,
-    dataInicio: inicio,
-    dataFim: fim,
-    ciclo: currentCycle
-  });
+    async function saveAllHistoricoChanges() {
+        const promises = [];
+        const rows = document.querySelectorAll("#historico-body tr");
+        rows.forEach(row => {
+            const key = row.getAttribute('data-key');
+            if (!key) return;
 
-  // Remove o mapa da lista de mapas em andamento
-  await db.ref("mapas/" + id).remove();
+            const newNameInput = row.cells[1].querySelector('input.nome-input');
+            const newDataInicioInput = row.cells[2].querySelector('input.dataInicio-input');
+            const newDataFimInput = row.cells[3].querySelector('input.dataFim-input');
 
-  // Recarrega os dados
-  carregarDados();
-}
+            if (!newNameInput || !newDataInicioInput || !newDataFimInput) {
+                console.warn(`Inputs não encontrados para edição na linha com chave ${key}. Pulando.`);
+                return;
+            }
 
+            const updatedData = {
+                nome: newNameInput.value,
+                dataInicio: newDataInicioInput.value,
+                dataFim: newDataFimInput.value
+            };
+            promises.push(db.ref("historicoMapas/" + key).update(updatedData));
+        });
+
+        try {
+            await Promise.all(promises);
+            alert('Todas as alterações foram salvas!');
+        } catch (error) {
+            console.error("Erro ao salvar alterações globais: ", error);
+            alert('Falha ao salvar algumas alterações.');
+        }
+        
+        isHistoricoEditingGlobal = false;
+        const button = document.getElementById('toggle-historico-edit-btn');
+        button.textContent = 'Habilitar Edição Geral';
+        button.classList.remove('warning-action');
+        carregarDados(); 
+    }
 
     function carregarDados() {
+      console.log("Carregando dados dos mapas...");
+      // Carregar Mapas em Andamento
+      // Assuming 'mapas' are stored in an array-like object where index is map number
       db.ref("mapas").once("value").then(snap => {
         const tbody = document.getElementById("relatorio-body");
         tbody.innerHTML = "";
-        const mapas = snap.val() || {};
-        Object.entries(mapas).forEach(([id, dados]) => {
-          const tr = document.createElement("tr");
-          const temFim = dados.dataFim && dados.dataFim.trim() !== "";
-          const botao = temFim ? `<button onclick="salvarNoHistorico('${id}', '${dados.dataInicio}', '${dados.dataFim}')">Salvar</button>` : "";
-          tr.innerHTML = `
-            <td>${id}</td>
-            <td>${formatarData(dados.dataInicio)}</td>
-            <td>${formatarData(dados.dataFim)}</td>
-            <td>${botao}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-        atualizarBarraProgresso();
-      });
+        const mapasData = snap.val(); // This might be an array or object
+        if (mapasData) {
+            // Handle if mapasData is an array (often from Firebase when keys are numeric)
+            // or an object. Object.entries works for both if array indices are treated as keys.
+            Object.entries(mapasData).forEach(([id, dados]) => {
+              if (!dados) return; // Skip null entries if it's an array with gaps
 
+              // Ensure 'id' is treated as the map number, which might be the array index
+              const mapId = id; 
+              const hasDataInicio = dados.dataInicio && dados.dataInicio.trim() !== "";
+              const hasDataFim = dados.dataFim && dados.dataFim.trim() !== "";
+
+              if (hasDataInicio || hasDataFim) {
+                const tr = document.createElement("tr");
+                const nomeInputId = `nome-input-${mapId}`;
+                const saveButtonDisabled = (!activeCycleData || activeCycleData.status !== 'ativo');
+                const botao = hasDataFim ? `<button ${saveButtonDisabled ? 'disabled title="Inicie ou continue um ciclo para salvar."' : ''} onclick="salvarNoHistorico('${mapId}', document.getElementById('${nomeInputId}').value, '${dados.dataInicio || ''}', '${dados.dataFim}')">Salvar</button>` : "";
+                
+                tr.innerHTML = `
+                  <td>${mapId}</td>
+                  <td><input type="text" id="${nomeInputId}" class="edit-input" value="${dados.nome || ''}" placeholder="Nome do Mapa"></td>
+                  <td>${formatarData(dados.dataInicio)}</td>
+                  <td>${formatarData(dados.dataFim)}</td>
+                  <td>${botao}</td>
+                `;
+                tbody.appendChild(tr);
+              }
+            });
+        }
+        atualizarBarraProgresso(); 
+      }).catch(error => console.error("Erro ao carregar mapas em andamento:", error));
+
+      // Carregar Histórico de Mapas Concluídos
       db.ref("historicoMapas").once("value").then(snap => {
-        const tbody = document.getElementById("historico-body");
-        tbody.innerHTML = "";
+        const tbodyHistorico = document.getElementById("historico-body");
+        tbodyHistorico.innerHTML = "";
         const historico = snap.val() || {};
-        const chavesUnicas = new Set();
-
-        // ✅ Correção aplicada aqui: ordenar por número do mapa
-        Object.values(historico)
-          .sort((a, b) => Number(a.mapa) - Number(b.mapa))
-          .forEach(reg => {
-            const chave = `${reg.mapa}-${reg.dataInicio}-${reg.dataFim}-${reg.ciclo}`;
-            if (!chavesUnicas.has(chave)) {
-              chavesUnicas.add(chave);
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
-                <td>${reg.mapa}</td>
-                <td>${formatarData(reg.dataInicio)}</td>
-                <td>${formatarData(reg.dataFim)}</td>
-                <td>${reg.ciclo}</td>
-              `;
-              tbody.appendChild(tr);
+        
+        Object.entries(historico)
+          .sort(([,a], [,b]) => { 
+            const cicloA = typeof a.ciclo === 'string' && a.ciclo === 'ciclo_1' ? 1 : (a.ciclo || 0);
+            const cicloB = typeof b.ciclo === 'string' && b.ciclo === 'ciclo_1' ? 1 : (b.ciclo || 0);
+            if (cicloA !== cicloB) return cicloA - cicloB;
+            return Number(a.mapa) - Number(b.mapa);
+          })
+          .forEach(([key, reg]) => {
+            // Skip entries that don't look like our target history items
+            if (typeof reg.mapa === 'undefined' || (typeof reg.ciclo === 'undefined' && reg.ciclo !== null) ) { // Allow ciclo to be null if not set, but not completely undefined property
+                // console.warn("Entrada de histórico ignorada (estrutura inválida ou incompleta):", key, reg);
+                return; 
             }
+
+            const tr = document.createElement("tr");
+            tr.setAttribute('data-key', key);
+            
+            let cicloDisplay = 'N/A';
+            if (reg.ciclo === 1 || reg.ciclo === 'ciclo_1') { // Check for both migrated numeric 1 and legacy string "ciclo_1"
+                cicloDisplay = '1'; // Display as number 1
+            } else if (typeof reg.ciclo === 'number') {
+                cicloDisplay = reg.ciclo;
+            } else if (reg.ciclo) { // Other string cycle IDs if any (though current logic aims for numeric)
+                cicloDisplay = reg.ciclo; 
+            }
+
+
+            if (isHistoricoEditingGlobal) {
+                tr.innerHTML = `
+                  <td>${reg.mapa}</td>
+                  <td><input type="text" class="edit-input nome-input" value="${reg.nome || ''}"></td>
+                  <td><input type="date" class="edit-input dataInicio-input" value="${reg.dataInicio || ''}"></td>
+                  <td><input type="date" class="edit-input dataFim-input" value="${reg.dataFim || ''}"></td>
+                  <td>${cicloDisplay}</td>
+                `;
+            } else {
+                tr.innerHTML = `
+                  <td>${reg.mapa}</td>
+                  <td>${reg.nome || '—'}</td>
+                  <td>${formatarData(reg.dataInicio)}</td>
+                  <td>${formatarData(reg.dataFim)}</td>
+                  <td>${cicloDisplay}</td>
+                `;
+            }
+            tbodyHistorico.appendChild(tr);
           });
-      });
+      }).catch(error => console.error("Erro ao carregar histórico de mapas:", error));
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-      await carregarCicloAtual();
-      carregarDados();
+      console.log("DOM Carregado. Iniciando sistema de ciclos...");
+      await loadActiveCycleDetails(); 
     });
   </script>
 </body>

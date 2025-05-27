@@ -1,0 +1,1441 @@
+{
+  "cicloAtualId": "ciclo_1",
+  "ciclos": {
+    "ciclo_1": {
+      "dataInicio": "2023-01-01",
+      "nome": "Ciclo 1 (Importado)",
+      "numero": 1,
+      "progresso": 0,
+      "status": "ativo"
+    }
+  },
+  "historico": {
+    "4": {
+      "-OR-DT2aJ8uVxqcu40Th": {
+        "dataFim": "2025-05-08",
+        "dataInicio": "2025-04-17",
+        "timestamp": 1748055482739
+      }
+    },
+    "7": {
+      "-OR-DT2cV08P__ulu6OY": {
+        "dataFim": "2025-05-03",
+        "dataInicio": "2025-05-03",
+        "timestamp": 1748055482742
+      }
+    },
+    "8": {
+      "-OR-DT2cV08P__ulu6OZ": {
+        "dataFim": "2025-05-10",
+        "dataInicio": "2025-04-18",
+        "timestamp": 1748055482742
+      }
+    },
+    "13": {
+      "-OR-DT2dQ0RU8ALWu6dL": {
+        "dataFim": "2025-05-13",
+        "dataInicio": "2025-04-29",
+        "timestamp": 1748055482743
+      }
+    },
+    "14": {
+      "-OR-DT2dQ0RU8ALWu6dM": {
+        "dataFim": "2025-04-21",
+        "dataInicio": "2025-04-21",
+        "timestamp": 1748055482743
+      }
+    },
+    "15": {
+      "-OR-DT2emuhw0QJWMgUW": {
+        "dataFim": "2025-04-29",
+        "dataInicio": "2025-04-15",
+        "timestamp": 1748055482744
+      }
+    },
+    "17": {
+      "-OR-DT2emuhw0QJWMgUX": {
+        "dataFim": "2025-05-11",
+        "dataInicio": "2025-05-02",
+        "timestamp": 1748055482744
+      }
+    },
+    "21": {
+      "-OR-DT2f6UpTm2ddkg9e": {
+        "dataFim": "2025-05-01",
+        "dataInicio": "2025-05-01",
+        "timestamp": 1748055482745
+      }
+    },
+    "22": {
+      "-OR-DT2f6UpTm2ddkg9f": {
+        "dataFim": "2025-04-26",
+        "dataInicio": "2025-04-19",
+        "timestamp": 1748055482745
+      }
+    },
+    "23": {
+      "-OR-DT2g6xezutaDn8ex": {
+        "dataFim": "2025-05-01",
+        "dataInicio": "2025-04-26",
+        "timestamp": 1748055482746
+      }
+    },
+    "24": {
+      "-OR-DT2g6xezutaDn8ey": {
+        "dataFim": "2025-05-16",
+        "dataInicio": "2025-05-04",
+        "timestamp": 1748055482746
+      }
+    },
+    "29": {
+      "-OR-DT2g6xezutaDn8ez": {
+        "dataFim": "2025-05-21",
+        "dataInicio": "2025-05-07",
+        "timestamp": 1748055482746
+      }
+    },
+    "30": {
+      "-OR-DT2hozPhsCS1YIxn": {
+        "dataFim": "2025-04-27",
+        "dataInicio": "2025-04-16",
+        "timestamp": 1748055482747
+      }
+    },
+    "32": {
+      "-OR-DT2hozPhsCS1YIxo": {
+        "dataFim": "2025-05-04",
+        "dataInicio": "2025-04-30",
+        "timestamp": 1748055482747
+      }
+    },
+    "33": {
+      "-OR-DT2hozPhsCS1YIxp": {
+        "dataFim": "2025-04-20",
+        "dataInicio": "2025-04-20",
+        "timestamp": 1748055482747
+      }
+    },
+    "38": {
+      "-OR-DT2hozPhsCS1YIxq": {
+        "dataFim": "2025-05-04",
+        "dataInicio": "2025-04-13",
+        "timestamp": 1748055482747
+      }
+    }
+  },
+  "historicoDesignacoes": {
+    "-OOfu0blq3e3SqPPrJbW": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "\nDesignação para o dia 25/04/2025\nSaida casa do Irmão Robson i\n-------------‐------------------\nDar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.",
+      "timestamp": "2025-04-25T07:44:57.517Z"
+    },
+    "-OOfuULJpOXD7FSFB4X4": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:46:59.273Z"
+    },
+    "-OOfuXmqS8X4YmDn3MP8": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:47:13.388Z"
+    },
+    "-OOfu_f14zI9BZvqOYiE": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:47:25.176Z"
+    },
+    "-OOfvEr3s6KZO2x9Zg2W": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:50:18.031Z"
+    },
+    "-OOfvXTHYkWCddasn-Pp": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Iniciado no dia 17/04/2025 quinta feira.\nDesignação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:51:34.216Z"
+    },
+    "-OOfv_ElbO988pmCXhG1": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:51:45.575Z"
+    },
+    "-OOfw_lPC1e8-tfK_t2l": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n\n",
+      "timestamp": "2025-04-25T07:56:09.877Z"
+    },
+    "-OOfwhzoPP4y9J4fKE6J": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n",
+      "timestamp": "2025-04-25T07:56:43.567Z"
+    },
+    "-OOheoT_kp_2iVqWq29v": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Designação para o dia 25/04/2025 Saida casa do Irmão Robson i -------------‐------------------ Dar continuidade ao mapa número 4 (residencial Araguaia parte A) trabalhando as quadras w, x e assim por diante sempre no sentido leste do mapa.\n",
+      "timestamp": "2025-04-25T15:57:43.504Z"
+    },
+    "-OOhexLe7wa5svddKo74": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T15:58:19.862Z"
+    },
+    "-OOheyQHC81IWc1D549O": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T15:58:24.254Z"
+    },
+    "-OOhjGMiB905IhiGGTh8": {
+      "acao": "designado",
+      "dia": "Sexta-Feira",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:17:10.758Z"
+    },
+    "-OOhjKiIe2Ar1pXCMPK3": {
+      "acao": "removido",
+      "dia": "Sexta-Feira",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:17:28.587Z"
+    },
+    "-OOhjUHuT0e54CqEytxG": {
+      "acao": "designado",
+      "dia": "Quinta-Feira",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:18:07.793Z"
+    },
+    "-OOhjcJlhtbYB3PRk8PG": {
+      "acao": "removido",
+      "dia": "Quinta-Feira",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:18:44.777Z"
+    },
+    "-OOhjvDmooDTPulu8bhT": {
+      "acao": "designado",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:20:02.218Z"
+    },
+    "-OOhk3Fn0YcsrosUYabU": {
+      "acao": "removido",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:20:39.211Z"
+    },
+    "-OOhlNBeOU5l4OiT9pfR": {
+      "acao": "designado",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:26:22.989Z"
+    },
+    "-OOhlQCRYENEvEGQVfd7": {
+      "acao": "removido",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:26:35.327Z"
+    },
+    "-OOhmeUH2G1OGBPld_oR": {
+      "acao": "designado",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:32:00.055Z"
+    },
+    "-OOhmhC6zIpFHiQNYaD2": {
+      "acao": "removido",
+      "dia": "Sábado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:32:11.181Z"
+    },
+    "-OOhnzUi57EMQSAvmGDG": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:37:47.923Z"
+    },
+    "-OOho-__83G4hwDoQglf": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:37:52.394Z"
+    },
+    "-OOhpRCl1aiN8ib3NFwU": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:44:08.034Z"
+    },
+    "-OOhrOrQCwD83OqEVa_j": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:52:42.682Z"
+    },
+    "-OOhrpSl1dS0DmvdvJgS": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:54:35.446Z"
+    },
+    "-OOhrryG33FzCrAQ7pOj": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T16:54:45.719Z"
+    },
+    "-OOhyQIwACzZkstKVi49": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:23:24.186Z"
+    },
+    "-OOhzFM0MWEd7jeGHaVh": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:27:01.451Z"
+    },
+    "-OOhzImuNsv-JRi-X7Gk": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:27:14.655Z"
+    },
+    "-OOhzlmWz_qPnaaP6oPv": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:29:17.510Z"
+    },
+    "-OOhznXRUKz4t3OH9DLk": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:29:24.673Z"
+    },
+    "-OOhzsfuukM84fokmJmq": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:29:46.638Z"
+    },
+    "-OOhzumlhwFT2JTzZUuz": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:29:54.390Z"
+    },
+    "-OOi3Z7NiBT-aTWS1crM": {
+      "acao": "designado",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:50:12.284Z"
+    },
+    "-OOi3_NuWPBCmvBVstk1": {
+      "acao": "removido",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": "",
+      "timestamp": "2025-04-25T17:50:17.438Z"
+    },
+    "-OOiHddvqVL557BVu9Vk": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T18:51:57.518Z"
+    },
+    "-OOiIbcRmS4yGTAnOeIf": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T18:56:11.347Z"
+    },
+    "-OOiJA1OQ0ErmpsIx7MZ": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T18:58:36.381Z"
+    },
+    "-OOiJIvzW5sv0Ejxgqva": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T18:58:59.739Z"
+    },
+    "-OOiJc2FxdvoJoVmrQgQ": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T19:00:35.224Z"
+    },
+    "-OOj-67V1d_rwpwFwcbh": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-25T22:10:22.171Z"
+    },
+    "-OOmaLCwTL8p03i3QwOM": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-26T14:56:16.725Z"
+    },
+    "-OOmaM1quO3F6i9el76G": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing",
+      "mapaId": 22,
+      "nome": "22 Renascença III 3⁰ Etapa",
+      "observacao": "Designação para o dia 26/04/2025\nMapa 22 (Renascença III terceira etapa)\nFaltam somente duas quadras para fechar. Se fechar o mapa 22, os irmãos poderão entrar no mapa 23 (Porto Rico II)",
+      "timestamp": "2025-04-26T14:56:20.113Z"
+    },
+    "-OOmuQq7iVNn6Kg8Ghf_": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1cydoQcQmHEk-1R95mH0ez_Fbt3m3vek&usp=sharing",
+      "mapaId": 15,
+      "nome": "15 Porto Rico",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\nGrupos 1 e 2. Saída do Salão do Reino \nGrupos 3 e 4. Saída da casa do irmão José Lopes \nGrupos 5 e 6. Saída da casa do irmão Fernando.",
+      "timestamp": "2025-04-26T16:24:02.584Z"
+    },
+    "-OOmwag3ymj9cYMwSLX8": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade",
+      "timestamp": "2025-04-26T16:33:32.857Z"
+    },
+    "-OOmwvLfMO_wJhFglFdg": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1cydoQcQmHEk-1R95mH0ez_Fbt3m3vek&usp=sharing",
+      "mapaId": 15,
+      "nome": "15 Porto Rico",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\nGrupos 3 e 4. Saída da casa do irmão José Lopes \n",
+      "timestamp": "2025-04-26T16:34:57.504Z"
+    },
+    "-OOmxUkr5JGlr0T8DC4P": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\n(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade",
+      "timestamp": "2025-04-26T16:37:26.636Z"
+    },
+    "-OOmyFUHlUGkICcL3ccW": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. ",
+      "timestamp": "2025-04-26T16:40:46.215Z"
+    },
+    "-OOmyZCfUaNCAekaNKhO": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. \nTerminar o novo Milênio entrar no Canaxuê.",
+      "timestamp": "2025-04-26T16:42:07.008Z"
+    },
+    "-OOmy_Sg4C0LCUX8grve": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing",
+      "mapaId": 29,
+      "nome": "29 Canaxuê",
+      "observacao": "Terminar o novo Milênio entrar no Canaxuê.\nGrupos 5 e 6. Saída da casa do irmão Fernando.",
+      "timestamp": "2025-04-26T16:42:12.129Z"
+    },
+    "-OOmymg5o_b5HjZGk5JQ": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing",
+      "mapaId": 29,
+      "nome": "29 Canaxuê",
+      "observacao": "Terminar a Quadra (A) do novo Milênio entrar no Canaxuê.\nGrupos 5 e 6. Saída da casa do irmão Fernando.",
+      "timestamp": "2025-04-26T16:43:06.299Z"
+    },
+    "-OOmyyQzO7QLWHMaDQdt": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. \nTerminar o novo Milênio entrar no Canaxuê.",
+      "timestamp": "2025-04-26T16:43:54.420Z"
+    },
+    "-OOmz1rHEGCTjsg9ivbI": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing",
+      "mapaId": 29,
+      "nome": "29 Canaxuê",
+      "observacao": "Terminar a Quadra (A) do novo Milênio entrar no Canaxuê.\nGrupos 5 e 6. Saída da casa do irmão Fernando.",
+      "timestamp": "2025-04-26T16:44:12.551Z"
+    },
+    "-OOn7HlqSyJUyJQMSeJg": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\n(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade",
+      "timestamp": "2025-04-26T17:24:35.840Z"
+    },
+    "-OOn7UhJA8Wd_KX30fza": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\n(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade",
+      "timestamp": "2025-04-26T17:25:28.798Z"
+    },
+    "-OOnB49NtosVREKCt4AW": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\n(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade se fechar esse mapa, os irmãos poderão entrar na Andarai.",
+      "timestamp": "2025-04-26T17:41:08.670Z"
+    },
+    "-OOnBFcr87Zlqr5VT-Jm": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing",
+      "mapaId": 24,
+      "nome": "24 Andaraí",
+      "observacao": "se fechar o mapa 23 os irmãos poderão entrar na Andareí.",
+      "timestamp": "2025-04-26T17:41:55.678Z"
+    },
+    "-OOnBOQG8pahKPYKZ3pN": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing",
+      "mapaId": 24,
+      "nome": "24 Andaraí",
+      "observacao": "(Grupos 1 e 2. Saída do Salão do Reino ) \n\nse fechar o mapa 23 os irmãos poderão entrar na Andareí.",
+      "timestamp": "2025-04-26T17:42:31.671Z"
+    },
+    "-OOnBZSlUGkSaRgq3O0X": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing",
+      "mapaId": 24,
+      "nome": "24 Andaraí",
+      "observacao": "(Grupos 1 e 2. Saída do Salão do Reino ) \n\nse fechar o mapa 23 Porto Rico II os irmãos poderão entrar na Andareí.",
+      "timestamp": "2025-04-26T17:43:16.888Z"
+    },
+    "-OOnBewZnoPo8LF0ggJe": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing",
+      "mapaId": 24,
+      "nome": "24 Andaraí",
+      "observacao": "(Grupos 1 e 2. Saída do Salão do Reino ) \n\nse fechar o mapa 23 Porto Rico II os irmãos poderão entrar na Andarai.",
+      "timestamp": "2025-04-26T17:43:43.434Z"
+    },
+    "-OOrt4K2hqITEzgPFeHi": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1cydoQcQmHEk-1R95mH0ez_Fbt3m3vek&usp=sharing",
+      "mapaId": 15,
+      "nome": "15 Porto Rico",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\nGrupos 3 e 4. Saída da casa do irmão José Lopes \n",
+      "timestamp": "2025-04-27T15:36:27.879Z"
+    },
+    "-OOrt5FyJ2QFGaUt7eLp": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Designação serviço de campo para domingo 27/04/2025\n(Grupos 1 e 2. Saída do Salão do Reino ) \nDar continuidade se fechar esse mapa, os irmãos poderão entrar na Andarai.",
+      "timestamp": "2025-04-27T15:36:31.715Z"
+    },
+    "-OOrt6KgfqIKRWJEji1T": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing",
+      "mapaId": 24,
+      "nome": "24 Andaraí",
+      "observacao": "(Grupos 1 e 2. Saída do Salão do Reino ) \n\nse fechar o mapa 23 Porto Rico II os irmãos poderão entrar na Andarai.",
+      "timestamp": "2025-04-27T15:36:36.113Z"
+    },
+    "-OOrt78JUiHEfRpaO25f": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing",
+      "mapaId": 29,
+      "nome": "29 Canaxuê",
+      "observacao": "Terminar a Quadra (A) do novo Milênio entrar no Canaxuê.\nGrupos 5 e 6. Saída da casa do irmão Fernando.",
+      "timestamp": "2025-04-27T15:36:39.416Z"
+    },
+    "-OOrt8FckvSa-_Fm_t64": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. \nTerminar o novo Milênio entrar no Canaxuê.",
+      "timestamp": "2025-04-27T15:36:43.981Z"
+    },
+    "-OOs1aGDhYBplZriyCBs": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. \nTerminar o novo Milênio entrar no Canaxuê.",
+      "timestamp": "2025-04-27T16:18:02.071Z"
+    },
+    "-OOs1eWayrmTVYquLLda": {
+      "acao": "removido",
+      "link": "https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing",
+      "mapaId": 30,
+      "nome": "30 Conj Novo Milênio",
+      "observacao": "Grupos 5 e 6. Saída da casa do irmão Fernando.\n\nFalta quadra (A) do conj para fechar o território. \nTerminar o novo Milênio entrar no Canaxuê.",
+      "timestamp": "2025-04-27T16:18:19.488Z"
+    },
+    "-OP3WyuszatHIHrAOaxI": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1B6-oEvxA5OFqWjx76mHH-43f70xCG84&usp=sharing",
+      "mapaId": 32,
+      "nome": "32 Conj Todos os Santos (parte B)",
+      "observacao": "Iniciar o campo com esse mapa caso terminem iniciar o mapa 31 conj Todos os Santos parte A",
+      "timestamp": "2025-04-30T02:30:24.888Z"
+    },
+    "-OP3X_w90yPjHJ7fOAwO": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing",
+      "mapaId": 31,
+      "nome": "31 Conj Todos os Santos (parte A)",
+      "observacao": "Iniciar o campo 32 Conj Todos os Santos (parte B). Vir para esse caso precisem amanhã.",
+      "timestamp": "2025-04-30T02:33:04.713Z"
+    },
+    "-OP3XfZSsHjYic5Ic2-0": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing",
+      "mapaId": 31,
+      "nome": "31 Conj Todos os Santos (parte A)",
+      "observacao": "Iniciar o campo no mapa 32 Conj Todos os Santos (parte B). Vir para esse caso precisem amanhã.",
+      "timestamp": "2025-04-30T02:33:27.773Z"
+    },
+    "-OP3XogRIMobfEtxrVL2": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing",
+      "mapaId": 31,
+      "nome": "31 Conj Todos os Santos (parte A)",
+      "observacao": "Iniciar o campo no mapa 32 Conj Todos os Santos (parte B). Vir para esse aqui caso.",
+      "timestamp": "2025-04-30T02:34:05.148Z"
+    },
+    "-OP3Y2t3t_rOAuoou_vA": {
+      "acao": "designado",
+      "link": "https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing",
+      "mapaId": 31,
+      "nome": "31 Conj Todos os Santos (parte A)",
+      "observacao": "Iniciar o campo no mapa 32 Conj Todos os Santos (parte B). Vir para esse aqui se precisarem de outro território.",
+      "timestamp": "2025-04-30T02:35:07.396Z"
+    },
+    "-OP4KKqaSQuoEaVehnFC": {
+      "dataDesignacao": "2025-04-30",
+      "link": "https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing",
+      "mapaId": 31,
+      "nome": "31 Conj Todos os Santos (parte A)",
+      "observacao": "Iniciar o campo no mapa 32 Conj Todos os Santos (parte B). Vir para esse aqui se precisarem de outro território."
+    },
+    "-OP6YxsxSWT32mWLPs99": {
+      "dataDesignacao": "2025-04-30",
+      "link": "https://www.google.com/maps/d/edit?mid=19iTJEvALPSSiz2sk2PZTdq0Gx8rddeY&usp=sharing",
+      "mapaId": 21,
+      "nome": "21 Loteamento Renascença",
+      "observacao": "Território para trabalhar amanhã"
+    },
+    "-OP6_-pHR3Z1vfaYI7SW": {
+      "dataDesignacao": "2025-04-30",
+      "link": "https://www.google.com/maps/d/edit?mid=19iTJEvALPSSiz2sk2PZTdq0Gx8rddeY&usp=sharing",
+      "mapaId": 21,
+      "nome": "21 Loteamento Renascença",
+      "observacao": "Território para trabalhar amanhã Quinta Feira"
+    },
+    "-OP6hnbFznu_cPD3nTyg": {
+      "dataDesignacao": "2025-04-30",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Para trabalhar hoje A tarde continuar o trabalho. Conforme instruções no grupo dos dirigentes. "
+    },
+    "-OP6hwIIIdOnN1XcxvVC": {
+      "dataDesignacao": "2025-04-30",
+      "link": "https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing",
+      "mapaId": 23,
+      "nome": "23 Porto Rico II",
+      "observacao": "Para trabalhar hoje ( Quarta Feira) - A tarde continuar o trabalho. Conforme instruções no grupo dos dirigentes. "
+    },
+    "-OPB8RehMoKX7CWwWVE5": {
+      "dataDesignacao": "2025-05-01",
+      "link": "https://www.google.com/maps/d/edit?mid=19iTJEvALPSSiz2sk2PZTdq0Gx8rddeY&usp=sharing",
+      "mapaId": 21,
+      "nome": "21 Loteamento Renascença",
+      "observacao": "Território para trabalhar amanhã Quinta Feira"
+    },
+    "-OPDUQVkUVUpmIMclSvl": {
+      "dataDesignacao": "2025-05-02",
+      "link": "https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing",
+      "mapaId": 17,
+      "nome": "17 Renascença I (parte B)",
+      "observacao": ""
+    },
+    "-OPDlzJ5MofWUMBAgdKR": {
+      "dataDesignacao": "2025-05-02",
+      "link": "https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing",
+      "mapaId": 17,
+      "nome": "17 Renascença I (parte B)",
+      "observacao": "Amanhã, saindo da casa do irmão José Lopes, o território a ser trabalhado é o Renascença I parte B."
+    },
+    "-OPGbEccp21DMF0DDPpW": {
+      "dataDesignacao": "2025-05-02",
+      "link": "https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing",
+      "mapaId": 17,
+      "nome": "17 Renascença I (parte B)",
+      "observacao": "Amanhã, saindo da casa do irmão José Lopes, o território a ser trabalhado é o Renascença I parte B."
+    },
+    "-OPGinHj5uj6pF2WuPE5": {
+      "dataDesignacao": "2025-05-02",
+      "link": "https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing",
+      "mapaId": 17,
+      "nome": "17 Renascença I (parte B)",
+      "observacao": "Falta as quadras 4 e 8"
+    },
+    "-OPLVj_ZWRHtiIXEYv3E": {
+      "dataDesignacao": "2025-05-03",
+      "link": "https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing",
+      "mapaId": 7,
+      "nome": "7 Vila Firmino (parte A)",
+      "observacao": ""
+    },
+    "-OPLVmjNdeXAXBcp-eal": {
+      "dataDesignacao": "2025-05-03",
+      "link": "https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing",
+      "mapaId": 7,
+      "nome": "7 Vila Firmino (parte A)",
+      "observacao": ""
+    },
+    "-OPMF4J0HtcxNyuHKzOH": {
+      "dataDesignacao": "2025-05-03",
+      "link": "https://www.google.com/maps/d/edit?mid=1rKdGXPe1SY79wpA-MCY8xkmck6_cjuI&usp=sharing",
+      "mapaId": 36,
+      "nome": "36 Pedro Balzi - Vila Nova Esperança",
+      "observacao": ""
+    },
+    "-OPQwIJwnObSI1xuDbHT": {
+      "dataDesignacao": "2025-05-04",
+      "link": "https://goo.gl/maps/Md49jEyZRj3EvN6v9",
+      "mapaId": 1,
+      "nome": "1 Conjunto São Paulo",
+      "observacao": ""
+    },
+    "-OPR79iaEgAX8HW--nkf": {
+      "dataDesignacao": "2025-05-04",
+      "link": "https://www.google.com/maps/d/edit?mid=1hosg_pJqzj_2GK2pgJEI6xl5nX_RnPU&usp=sharing",
+      "mapaId": 38,
+      "nome": "38 Pedro Balzi - Parte de Cima do Morro",
+      "observacao": ""
+    },
+    "-OPRP5stMWarWDwm-OVs": {
+      "dataDesignacao": "2025-05-04",
+      "link": "https://www.google.com/maps/d/edit?mid=1B6-oEvxA5OFqWjx76mHH-43f70xCG84&usp=sharing",
+      "mapaId": 32,
+      "nome": "32 Conj Todos os Santos (parte B)",
+      "observacao": "Fechado Quadra > J -N  - L \nFeito um lado da Quadra - M"
+    },
+    "-OPgCXf3EiDJnjl--5Qa": {
+      "dataDesignacao": "2025-05-07",
+      "link": "https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing",
+      "mapaId": 4,
+      "nome": "4 Res Araguaia (parte A)",
+      "observacao": "Falta a quadra  A1 para fechar"
+    },
+    "-OPgCtC17qqetYR8kOrA": {
+      "dataDesignacao": "2025-05-07",
+      "link": "https://www.google.com/maps/d/edit?mid=12gcziapB8ifTF4qB0JIERIbZO1dNKIw&usp=sharing",
+      "mapaId": 5,
+      "nome": "5 Res Araguaia (parte B)",
+      "observacao": "Continuar aqui quando terminar a parte (A)"
+    },
+    "-OPkGaIIcmwCB6EBXsWp": {
+      "dataDesignacao": "2025-05-08",
+      "link": "https://www.google.com/maps/d/edit?mid=12gcziapB8ifTF4qB0JIERIbZO1dNKIw&usp=sharing",
+      "mapaId": 5,
+      "nome": "5 Res Araguaia (parte B)",
+      "observacao": "Feito as ( V, P, J e D)."
+    },
+    "-OPz2fW7kSjJJE_N-cCB": {
+      "dataDesignacao": "2025-05-11",
+      "link": "https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing",
+      "mapaId": 8,
+      "nome": "8 Vila Firmino (parte B)",
+      "observacao": ""
+    },
+    "-OQp1kS8FOZfq4gQp3a6": {
+      "dataDesignacao": "2025-05-21",
+      "link": "https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing",
+      "mapaId": 29,
+      "nome": "29 Canaxuê",
+      "observacao": ""
+    }
+  },
+  "historicoMapas": {
+    "4": {
+      "ciclos": {
+        "2025-04-17_2025-05-08": {
+          "dataFim": "2025-05-08",
+          "dataInicio": "2025-04-17"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "7": {
+      "ciclos": {
+        "2025-05-03_2025-05-03": {
+          "dataFim": "2025-05-03",
+          "dataInicio": "2025-05-03"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "8": {
+      "ciclos": {
+        "2025-04-18_2025-05-10": {
+          "dataFim": "2025-05-10",
+          "dataInicio": "2025-04-18"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "13": {
+      "ciclos": {
+        "2025-04-29_2025-05-13": {
+          "dataFim": "2025-05-13",
+          "dataInicio": "2025-04-29"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "14": {
+      "ciclos": {
+        "2025-04-21_2025-04-21": {
+          "dataFim": "2025-04-21",
+          "dataInicio": "2025-04-21"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "15": {
+      "ciclos": {
+        "2025-04-15_2025-04-29": {
+          "dataFim": "2025-04-29",
+          "dataInicio": "2025-04-15"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "17": {
+      "ciclos": {
+        "2025-05-02_2025-05-11": {
+          "dataFim": "2025-05-11",
+          "dataInicio": "2025-05-02"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "21": {
+      "ciclos": {
+        "2025-05-01_2025-05-01": {
+          "dataFim": "2025-05-01",
+          "dataInicio": "2025-05-01"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "22": {
+      "ciclos": {
+        "2025-04-19_2025-04-26": {
+          "dataFim": "2025-04-26",
+          "dataInicio": "2025-04-19"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "23": {
+      "ciclos": {
+        "2025-04-26_2025-05-01": {
+          "dataFim": "2025-05-01",
+          "dataInicio": "2025-04-26"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "24": {
+      "ciclos": {
+        "2025-05-04_2025-05-16": {
+          "dataFim": "2025-05-16",
+          "dataInicio": "2025-05-04"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "29": {
+      "ciclos": {
+        "2025-05-07_2025-05-21": {
+          "dataFim": "2025-05-21",
+          "dataInicio": "2025-05-07"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "30": {
+      "ciclos": {
+        "2025-04-16_2025-04-27": {
+          "dataFim": "2025-04-27",
+          "dataInicio": "2025-04-16"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "32": {
+      "ciclos": {
+        "2025-04-30_2025-05-04": {
+          "dataFim": "2025-05-04",
+          "dataInicio": "2025-04-30"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "33": {
+      "ciclos": {
+        "2025-04-20_2025-04-20": {
+          "dataFim": "2025-04-20",
+          "dataInicio": "2025-04-20"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "38": {
+      "ciclos": {
+        "2025-04-13_2025-05-04": {
+          "dataFim": "2025-05-04",
+          "dataInicio": "2025-04-13"
+        }
+      },
+      "dataFim": "",
+      "dataInicio": "",
+      "nome": ""
+    },
+    "-OR2KoWPMYUjAoKd7BHE": {
+      "ciclo": 1,
+      "dataFim": "2025-05-10",
+      "dataInicio": "2025-04-18",
+      "mapa": "8",
+      "nome": ""
+    },
+    "-OR2KqZYHaXK9YEvfOJn": {
+      "ciclo": 1,
+      "dataFim": "2025-05-13",
+      "dataInicio": "2025-04-29",
+      "mapa": "13",
+      "nome": ""
+    },
+    "-OR2Kr5lQ05852JhIFPt": {
+      "ciclo": 1,
+      "dataFim": "2025-04-21",
+      "dataInicio": "2025-04-21",
+      "mapa": "14",
+      "nome": ""
+    },
+    "-OR2KrW8WVSIC-tuYtp5": {
+      "ciclo": 1,
+      "dataFim": "2025-04-29",
+      "dataInicio": "2025-04-15",
+      "mapa": "15",
+      "nome": ""
+    },
+    "-OR2KsFJXNNY61YqYvA7": {
+      "ciclo": 1,
+      "dataFim": "2025-05-11",
+      "dataInicio": "2025-05-02",
+      "mapa": "17",
+      "nome": ""
+    },
+    "-OR2Ksuw1BJNbGhqOChD": {
+      "ciclo": 1,
+      "dataFim": "2025-05-01",
+      "dataInicio": "2025-05-01",
+      "mapa": "21",
+      "nome": ""
+    },
+    "-OR2KtLdelCcpvnoCrAy": {
+      "ciclo": 1,
+      "dataFim": "2025-04-26",
+      "dataInicio": "2025-04-19",
+      "mapa": "22",
+      "nome": ""
+    },
+    "-OR2KtkLYcXjKpC99HB9": {
+      "ciclo": 1,
+      "dataFim": "2025-05-01",
+      "dataInicio": "2025-04-26",
+      "mapa": "23",
+      "nome": ""
+    },
+    "-OR2KvArWxhfLuOHkrsx": {
+      "ciclo": 1,
+      "dataFim": "2025-05-16",
+      "dataInicio": "2025-05-04",
+      "mapa": "24",
+      "nome": ""
+    },
+    "-OR2Kvol7lFSNtUEALS8": {
+      "ciclo": 1,
+      "dataFim": "2025-05-21",
+      "dataInicio": "2025-05-07",
+      "mapa": "29",
+      "nome": ""
+    },
+    "-OR2KwT8cdGPn_D7BakD": {
+      "ciclo": 1,
+      "dataFim": "2025-04-27",
+      "dataInicio": "2025-04-16",
+      "mapa": "30",
+      "nome": ""
+    },
+    "-OR2Kwx4DMPQ_o6sh_Fw": {
+      "ciclo": 1,
+      "dataFim": "2025-05-04",
+      "dataInicio": "2025-04-30",
+      "mapa": "32",
+      "nome": ""
+    },
+    "-OR2KxW-whNdg_i2M8OM": {
+      "ciclo": 1,
+      "dataFim": "2025-04-20",
+      "dataInicio": "2025-04-20",
+      "mapa": "33",
+      "nome": ""
+    },
+    "-OR2Ky6QlNOEiuAjJcfU": {
+      "ciclo": 1,
+      "dataFim": "2025-05-04",
+      "dataInicio": "2025-04-13",
+      "mapa": "38",
+      "nome": ""
+    },
+    "-OR7GKQTCqvHS59t_0-P": {
+      "ciclo": 1,
+      "dataFim": "2025-05-25",
+      "dataInicio": "2025-05-16",
+      "mapa": "25",
+      "nome": ""
+    },
+    "-OR7Zo2jY8GBdwUYobWD": {
+      "ciclo": 1,
+      "dataFim": "2025-05-25",
+      "dataInicio": "2025-05-11",
+      "mapa": "9",
+      "nome": ""
+    },
+    "-OR7kp0N1edsOvfriKwS": {
+      "ciclo": 1,
+      "dataFim": "2025-05-08",
+      "dataInicio": "2025-04-17",
+      "mapa": "4",
+      "nome": ""
+    },
+    "-OR7lbeuR-tG5laBuYWB": {
+      "ciclo": 1,
+      "dataFim": "2025-05-03",
+      "dataInicio": "2025-05-03",
+      "mapa": "7",
+      "nome": ""
+    }
+  },
+  "mapas": [
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "",
+      "status": "Status: Não iniciado"
+    },
+    null,
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "2025-05-08",
+      "observacao": "Falta ultima quadra do canto que fica em frente ao cemitério ",
+      "status": "Status: Em andamento"
+    },
+    null,
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "2025-05-10",
+      "observacao": "",
+      "status": "Status: Em andamento"
+    },
+    null,
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "2025-05-20",
+      "observacao": "",
+      "status": "Status: Em andamento"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    null,
+    null,
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "2025-05-23",
+      "observacao": "",
+      "status": "Status: Em andamento"
+    },
+    null,
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "2025-05-25",
+      "observacao": "",
+      "status": "Status: Em andamento"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "",
+      "observacao": "Concluído ciclo 1 ✔️ ",
+      "status": "Status: Não iniciado"
+    },
+    {
+      "dataFim": "",
+      "dataInicio": "2025-04-20",
+      "observacao": "Início: 20/04/2025 domingo.\n\nOnde parou?",
+      "status": "Status: Em andamento"
+    },
+    null,
+    {
+      "dataFim": "",
+      "dataInicio": "2025-04-13",
+      "observacao": "",
+      "status": "Status: Em andamento"
+    }
+  ],
+  "progressoGeral": {
+    "progresso": 2.631578947368421
+  },
+  "relatorioConfig": {
+    "colunaAtual": 0
+  },
+  "schedules": {
+    "cleaning": [
+      {
+        "group": "1",
+        "week": "21 a 27 de Abril"
+      },
+      {
+        "group": "2",
+        "week": "28 de Abril a 4 de Maio"
+      },
+      {
+        "group": "3",
+        "week": "5 a 11 de Maio"
+      },
+      {
+        "group": "4",
+        "week": "12 a 18 de Maio"
+      },
+      {
+        "group": "5",
+        "week": "19 a 25 de Maio"
+      },
+      {
+        "group": "6",
+        "week": "26 de Maio a 1 de Junho"
+      }
+    ],
+    "congregation": [
+      {
+        "indicator": "Gerbeson/ notato",
+        "president": "Faustino ",
+        "reader": "Eric",
+        "stage": "Pedro Henrique ",
+        "volante": "Lima / Rodrigo ",
+        "week": "21 a 27 de Abril"
+      },
+      {
+        "indicator": "",
+        "president": "",
+        "reader": "",
+        "stage": "",
+        "volante": "",
+        "week": "28 de Abril a 4 de Maio"
+      },
+      {
+        "indicator": "",
+        "president": "",
+        "reader": "",
+        "stage": "",
+        "volante": "",
+        "week": "5 a 11 de Maio"
+      },
+      {
+        "indicator": "",
+        "president": "",
+        "reader": "",
+        "stage": "",
+        "volante": "",
+        "week": "12 a 18 de Maio"
+      }
+    ],
+    "field": [
+      {
+        "day": "Terça-Feira",
+        "leader": "Jose Lopes",
+        "location": "Jose Lopes",
+        "time": "8h"
+      },
+      {
+        "day": "Quarta-Feira",
+        "leader": "Nonato Nery",
+        "location": "Fernando Sousa",
+        "time": "8h"
+      },
+      {
+        "day": "Quinta-Feira",
+        "leader": "Robson",
+        "location": "Robson",
+        "time": "8h"
+      },
+      {
+        "day": "Sexta-Feira",
+        "leader": "Robson",
+        "location": "Salao do Reino",
+        "time": "8h"
+      },
+      {
+        "day": "Sábado",
+        "leader": "Jose Nilo",
+        "location": "Raimunda Alves",
+        "time": "8:20h"
+      },
+      {
+        "day": "Domingo",
+        "leader": "",
+        "location": "Respectivos Grupos",
+        "time": "8:20h"
+      }
+    ]
+  }
+}
