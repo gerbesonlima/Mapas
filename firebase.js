@@ -217,8 +217,6 @@ async function loadActiveCycleDetailsForIndex() {
     // After loading, update UI elements that depend on the active cycle
     await carregarDadosEAtualizarProgressoIndex();
 }
-// Dentro do arquivo firebase.js
-// Substitua a função atualizarProgressoGeralIndex existente por esta:
 
 async function atualizarProgressoGeralIndex() {
     const progressBar = document.getElementById("progress-bar"); 
@@ -286,8 +284,7 @@ async function atualizarProgressoGeralIndex() {
         
         const cycleName = activeCycleDataIndex.nome || `Ciclo ${activeCycleDataIndex.numero}`;
         progressBar.style.width = percent + "%";
-        progressBar.textContent = `${cycleName} — ${percent}% (${mapasCompletosUnicos}/${totalMapasGlobal})`;
-
+        progressBar.textContent = `${percent}% (${mapasCompletosUnicos}/${totalMapasGlobal})`;
     } catch (error) {
         console.error("Index Page: Erro ao atualizar barra de progresso:", error);
         progressBar.style.width = "0%";
