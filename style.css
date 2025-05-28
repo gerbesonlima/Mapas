@@ -79,14 +79,13 @@ h1 {
 }
 
 .card:hover, .mapa-item:hover { /* Leve elevação no hover para desktop */
-    /* transform: translateY(-1px); // Sutil */
     box-shadow: var(--elevation-z2);
 }
 
 .card-title { /* Usado em .destaque-principal */
     font-size: 1.125rem; /* Material Subtitle1 (16sp) */
     font-weight: 500; /* Medium */
-    color: var(--text-primary); /* Cor primária de texto, não a cor de destaque */
+    color: var(--text-primary); 
     margin-bottom: 16px;
     line-height: 1.4;
 }
@@ -96,7 +95,7 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px; /* Espaçamento Material */
+    margin-bottom: 8px; 
     font-size: 0.875rem; /* Material Body2 (14sp) */
     gap: 8px;
 }
@@ -114,120 +113,126 @@ h1 {
 }
 
 /* Botões - Estilo Material */
-button, .button { /* .button pode ser usado para links estilizados como botões */
+button, .button { 
     display: inline-flex;
     align-items: center;
-    justify-content: center; /* Centralizar conteúdo */
+    justify-content: center; 
     gap: 8px;
-    padding: 0 16px; /* Padding horizontal */
-    height: 36px; /* Altura padrão */
+    padding: 0 16px; 
+    height: 36px; 
     background: var(--primary-color);
     color: #fff;
     border: none;
     border-radius: var(--border-radius-standard);
     font-size: 0.875rem; /* 14sp */
     font-weight: 500; /* Medium */
-    text-transform: uppercase; /* Botões Material geralmente são uppercase */
+    text-transform: uppercase; 
     cursor: pointer;
     transition: background-color var(--transition-swift), box-shadow var(--transition-swift);
     position: relative;
-    overflow: hidden; /* Para futuros efeitos de ripple se adicionados com JS */
+    overflow: hidden; 
     box-shadow: var(--elevation-z1);
-    user-select: none; /* Evitar seleção de texto no botão */
+    user-select: none; 
 }
 
 button:hover, .button:hover {
     background: var(--primary-dark);
     box-shadow: var(--elevation-z2);
-    /* transform: translateY(-1px); // Sutil */
 }
 
-button:focus, .button:focus { /* Estilo de foco visível */
+button:focus, .button:focus { 
     outline: 2px solid var(--primary-dark);
     outline-offset: 2px;
     box-shadow: var(--elevation-z2);
 }
-button:active, .button:active { /* Feedback de toque */
+button:active, .button:active { 
     box-shadow: var(--elevation-z3);
-    background-color: var(--primary-dark); /* Um pouco mais escuro no active */
+    background-color: var(--primary-dark); 
 }
 
 
 button.button-secondary {
-    background: var(--surface); /* Botão secundário/texto */
+    background: var(--surface); 
     color: var(--primary-color);
-    box-shadow: none; /* Botões de texto não têm sombra */
+    box-shadow: none; 
 }
 button.button-secondary:hover {
-    background: rgba(0,0,0,0.04); /* Fundo sutil no hover para botões de texto */
+    background: rgba(0,0,0,0.04); 
     box-shadow: none;
 }
 
 button.success { background: var(--success); }
-button.success:hover { background: #388e3c; } /* Verde mais escuro */
+button.success:hover { background: #388e3c; } 
 
-button i { /* Para ícones dentro de botões */
+button i { 
     font-size: 1.125rem; /* 18sp */
 }
 
-/* Botão Animado (Ver onde trabalhar) - Mantido, mas com ajustes Material */
+/* Botão Animado (Ver onde trabalhar) */
 #open-territories-container {
     text-align: center;
     margin: 24px 0 16px;
 }
-.animated-btn { /* Pode ser estilizado como um FAB ou botão extendido */
-    padding: 0 24px; /* Padding para botões extendidos */
+.animated-btn { 
+    padding: 0 24px; 
     font-size: 0.875rem;
     font-weight: 500;
-    height: 48px; /* Altura de FAB extendido */
+    height: 48px; 
     line-height: 48px;
-    background: var(--accent-color); /* Usar cor de destaque para ações primárias flutuantes */
+    background: var(--accent-color); 
     color: #fff;
-    border-radius: 24px; /* Raio para botões extendidos/FABs */
+    border-radius: 24px; 
     box-shadow: var(--elevation-z3);
     animation: pulse 2s infinite;
     transition: var(--transition-swift);
     text-transform: uppercase;
 }
 .animated-btn:hover {
-    background: #f57c00; /* Accent mais escuro */
+    background: #f57c00; 
     box-shadow: var(--elevation-z4);
     animation: none;
 }
-@keyframes pulse { /* Mantido */
+@keyframes pulse { 
     0% { transform: scale(1); }
     50% { transform: scale(1.03); }
     100% { transform: scale(1); }
 }
 
-/* Itens de Mapa (usado em index.html para mapas designados e lista principal) */
+/* Itens de Mapa */
 .mapa-item {
     padding: 16px;
-    margin-bottom: 8px; /* Espaçamento menor entre itens de lista */
+    margin-bottom: 8px; 
 }
 .mapa-item a {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
     font-size: 1rem; /* Material Subtitle2 (16sp) */
-    display: block; /* Nome do mapa em uma linha */
+    display: block; 
     margin-bottom: 4px;
 }
 .mapa-item a:hover { text-decoration: underline; }
 
-.mapa-item span#status-id { /* Para o status do mapa */
+.mapa-item span#status-id { /* Para o status do mapa - ID específico, aplicar a todos os spans de status */
     font-size: 0.75rem; /* Material Caption (12sp) */
     color: var(--text-secondary);
     display: block;
     margin-bottom: 8px;
 }
+/* Se seus spans de status não têm ID, use uma classe ou selecione de forma mais genérica */
+.mapa-item a span[id^="status-"] { /* Seleciona spans dentro de 'a' cujo ID começa com "status-" */
+    font-size: 0.75rem; 
+    color: var(--text-secondary);
+    margin-left: 8px; /* Para separar o status do nome do mapa se estiver na mesma linha do link */
+}
+
 .mapa-item label {
     font-size: 0.75rem; /* Material Caption */
     color: var(--text-secondary);
     margin-top: 8px;
     margin-bottom: 4px;
 }
-.mapa-item .info { /* Div que agrupa data-inicio, data-fim */
+.mapa-item .info { 
     margin-top: 8px;
     border-top: 1px solid var(--divider-color);
     padding-top: 8px;
@@ -238,34 +243,33 @@ button i { /* Para ícones dentro de botões */
 
 
 /* Formulários - Inputs e Textarea com estilo Material */
-label { /* Estilo geral para labels */
+label { 
     font-size: 0.875rem; /* 14sp */
     color: var(--text-secondary);
-    margin-bottom: 4px; /* Espaçamento menor */
+    margin-bottom: 4px; 
     display: block;
     font-weight: 400; /* Normal */
 }
 
-/* Inputs com linha inferior Material */
 textarea, input[type="date"], input[type="password"], input[type="text"] {
     width: 100%;
-    padding: 8px 0; /* Padding inferior para a linha e superior para respiro */
+    padding: 8px 0; 
     border: none;
-    border-bottom: 1px solid rgba(0,0,0,0.42); /* Linha padrão de input Material */
-    border-radius: 0; /* Inputs Material não tem borda arredondada na linha */
+    border-bottom: 1px solid rgba(0,0,0,0.42); 
+    border-radius: 0; 
     font-size: 1rem; /* 16sp - tamanho de texto de input */
-    background: transparent; /* Sem fundo para estilo de linha inferior */
+    background: transparent; 
     transition: border-color var(--transition-swift);
     color: var(--text-primary);
-    margin-bottom: 16px; /* Espaço abaixo do input */
+    margin-bottom: 16px; 
 }
 textarea:focus, input[type="date"]:focus, input[type="password"]:focus, input[type="text"]:focus {
-    border-bottom: 2px solid var(--primary-color); /* Linha de foco mais grossa e colorida */
+    border-bottom: 2px solid var(--primary-color); 
     outline: none;
     margin-bottom: 15px; /* Ajuste para a borda de 2px */
 }
 textarea {
-    min-height: 80px; /* Altura mínima para textareas */
+    min-height: 80px; 
     line-height: 1.4;
     padding-top: 8px;
     padding-bottom: 8px;
@@ -275,9 +279,9 @@ textarea {
 .designar-btn { background: var(--accent-color); }
 .designar-btn:hover { background: #f57c00; }
 
-.enviar-btn { /* Usado para "Remover" em mapas designados */
+.enviar-btn { 
     background: var(--error);
-    height: 32px; /* Botão um pouco menor para ações em lista */
+    height: 32px; 
     line-height: 32px;
     padding: 0 12px;
     font-size: 0.8125rem; /* 13sp */
@@ -285,98 +289,84 @@ textarea {
 .enviar-btn:hover { background: #d32f2f; }
 
 /* Progresso (para id="progress-bar" em index.html) */
-.progress-container { /* Já estilizado em .card, mas pode ter ajustes */
+.progress-container { 
     padding: 16px;
-    margin: 16px 0; /* Ajuste de margem */
-    text-align: left; /* Texto "Mapas concluidos" à esquerda */
+    margin: 16px 0; 
+    text-align: left; 
+    background: var(--surface); /* Adicionado para consistência com outros cards */
+    border-radius: var(--border-radius-standard); /* Adicionado */
+    box-shadow: var(--elevation-z1); /* Adicionado */
 }
-.progress-container p { /* Para o texto "Mapas concluidos" */
+.progress-container p { 
     font-size: 0.875rem;
     color: var(--text-secondary);
     margin-bottom: 8px;
 }
-.progress-bar { /* Estilo para a div#progress-bar */
-    width: 100%; /* O JS controlará a largura do preenchimento real */
-    height: 8px; /* Altura de barra de progresso Material mais fina */
-    background-color: var(--divider-color); /* Fundo da barra (trilha) */
-    border-radius: 4px; /* Arredondamento da trilha */
-    overflow: hidden; /* Para o preenchimento não vazar */
-    position: relative; /* Para o texto, se houver */
-}
-.progress-bar div { /* Para o preenchimento interno, se o JS criar um div interno */
-    /* Se o JS apenas muda o texto e background da div#progress-bar: */
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark)); /* Gradiente sutil */
-    color: white;
+/* Estilo para a div#progress-bar em index.html */
+#progress-bar { 
+    width: 0%; /* O JS controlará a largura do preenchimento real */
+    height: 24px; 
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    border-radius: var(--border-radius-standard); 
+    overflow: hidden; 
+    position: relative; 
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 500; /* Medium */
-    font-size: 0.75rem; /* Texto dentro da barra */
-    line-height: 8px; /* Para texto na barra fina */
-    border-radius: 4px; /* Consistente com o container */
-    transition: width 0.4s ease; /* Transição da largura */
-    /* O texto virá do JS, ex: "47% (18/38)" */
-    /* Se o texto for sobreposto e a barra for só cor: */
-    text-indent: -9999px; /* Esconde texto se for apenas uma barra colorida e o texto estiver em outro lugar */
+    font-weight: 500; 
+    font-size: 0.875rem; 
+    line-height: 24px; 
+    text-align: center; 
+    transition: width 0.4s ease; 
 }
-/* O JavaScript que você tem já define o textContent e style.width diretamente no #progress-bar */
-/* Ajuste para o textContent do #progress-bar (quando ele mesmo é o preenchimento) */
-#progress-bar { 
-    height: 24px; /* Altura padrão de Material para barras com texto */
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    font-size: 0.875rem; /* Tamanho de texto para dentro da barra */
-    line-height: 24px; /* Centralizar texto verticalmente */
-    text-align: center; /* Centralizar texto */
-    color: #fff;
-    font-weight: 500;
-}
+/* O estilo 'progress' e 'progress::-webkit-progress-bar' etc., são para o elemento <progress> nativo.
+   Se você não o estiver usando, pode remover essas regras específicas.
+   A barra em index.html é uma <div> com id="progress-bar", então as regras acima #progress-bar são as relevantes. */
 
 
 /* Container de Senha */
 #password-container {
     text-align: center;
-    margin-top: 16px; /* Espaço acima se for o primeiro elemento */
+    margin-top: 16px; 
 }
 #password-container input[type="password"] {
-    max-width: 280px; /* Limitar largura em telas grandes */
+    max-width: 280px; 
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 12px; /* Espaço antes do botão */
+    margin-bottom: 12px; 
     display: block;
 }
 #password-container button {
     margin-top: 8px;
 }
 
-
-/* Grupos (Listas Expansíveis) */
+/* Grupos (Listas Expansíveis) - MODIFICADO PARA BARRA AZUL */
 .grupo {
-    margin-bottom: 16px; /* Espaçamento entre grupos */
+    margin-bottom: 16px; 
 }
 .grupo-titulo {
-    background: var(--surface); /* Títulos de grupo como cards não elevados */
-    color: var(--text-primary);
+    background: var(--primary-color); /* MODIFICADO para cor primária (azul) */
+    color: #fff; /* MODIFICADO para texto branco */
     padding: 12px 16px;
     border-radius: var(--border-radius-standard);
-    font-weight: 500; /* Medium */
-    font-size: 1rem; /* 16sp */
+    font-weight: 500; 
+    font-size: 1rem; 
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: background-color var(--transition-swift);
-    border: 1px solid var(--divider-color); /* Borda sutil */
-    box-shadow: none; /* Sem sombra para um look mais flat de lista */
+    box-shadow: var(--elevation-z1); /* Leve elevação */
 }
 .grupo-titulo:hover {
-    background: rgba(0,0,0,0.04); /* Fundo sutil no hover */
+    background: var(--primary-dark); /* MODIFICADO para azul mais escuro no hover */
 }
-.grupo-titulo.active { /* Quando a lista está expandida */
-    background: rgba(0,0,0,0.06);
+.grupo-titulo.active { 
+    background: var(--primary-dark); /* MODIFICADO para manter azul escuro */
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    border-bottom: none;
+    /* border-bottom: none; /* Removido, pois .grupo-lista agora tem sua própria borda superior */
 }
 
 .grupo-titulo::after { /* Ícone Chevron */
@@ -384,51 +374,52 @@ textarea {
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     transition: transform var(--transition-swift);
-    color: var(--text-secondary);
+    color: rgba(255,255,255,0.7); /* MODIFICADO para branco semi-transparente */
 }
 .grupo-titulo.active::after {
     transform: rotate(180deg);
 }
 
-.grupo-lista { /* Conteúdo da lista expansível */
+.grupo-lista { 
     display: none;
-    padding: 8px 0 0 0; /* Padding apenas no topo para se conectar ao título */
+    padding: 0; /* Removido padding para que os .mapa-item preencham */
     background: var(--surface);
-    border-radius: 0 0 var(--border-radius-standard) var(--border-radius-standard); /* Arredondar cantos inferiores */
-    margin-top: 0; /* Remover margem do topo */
+    border-radius: 0 0 var(--border-radius-standard) var(--border-radius-standard); 
+    margin-top: 0; 
     box-shadow: var(--elevation-z1);
     border: 1px solid var(--divider-color);
-    border-top: none;
+    border-top: none; /* Para se conectar suavemente ao .grupo-titulo.active */
 }
-.grupo-lista .mapa-item { /* Itens dentro da lista */
-    box-shadow: none; /* Remover sombra individual dos itens */
+.grupo-lista .mapa-item { 
+    box-shadow: none; 
     border-radius: 0;
-    border-bottom: 1px solid var(--divider-color); /* Divisor entre itens */
+    border-bottom: 1px solid var(--divider-color); 
     margin-bottom: 0;
 }
 .grupo-lista .mapa-item:last-child {
-    border-bottom: none; /* Remover borda do último item */
+    border-bottom: none; 
+    border-bottom-left-radius: var(--border-radius-standard); /* Arredondar canto do último item */
+    border-bottom-right-radius: var(--border-radius-standard);
 }
-
 
 /* Footer */
 footer {
-    background: var(--surface); /* Fundo claro para o footer */
+    background: var(--surface); 
     color: var(--text-secondary);
-    padding: 16px; /* Padding Material */
+    padding: 16px; 
     text-align: center;
-    margin-top: auto; /* Empurrar para o final da página */
+    margin-top: auto; 
     border-top: 1px solid var(--divider-color);
 }
 .footer-links {
     display: flex;
     justify-content: center;
-    gap: 24px; /* Mais espaço entre links */
+    gap: 24px; 
     flex-wrap: wrap;
     margin-bottom: 8px;
 }
 footer a {
-    color: var(--primary-color); /* Links com cor primária */
+    color: var(--primary-color); 
     text-decoration: none;
     font-size: 0.875rem; /* 14sp */
     font-weight: 500; /* Medium */
@@ -438,7 +429,7 @@ footer a:hover {
     text-decoration: underline;
     color: var(--primary-dark);
 }
-footer p { /* Copyright text */
+footer p { 
     font-size: 0.75rem; /* 12sp */
     margin-top: 16px;
     color: var(--text-secondary);
@@ -446,7 +437,7 @@ footer p { /* Copyright text */
 
 /* Utilitários */
 .hidden { display: none !important; }
-.sr-only { /* Para acessibilidade, texto para leitores de tela */
+.sr-only { 
     position: absolute;
     width: 1px;
     height: 1px;
@@ -461,77 +452,72 @@ footer p { /* Copyright text */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
 /* Responsividade */
-@media (min-width: 600px) { /* Telas maiores que celulares pequenos */
+@media (min-width: 600px) { 
     .container {
-        padding: 16px; /* Mais padding em telas maiores */
+        padding: 16px; 
     }
     h1 {
-        padding: 0 24px; /* Padding de AppBar para desktop */
-        height: 64px; /* Altura de AppBar para desktop */
+        padding: 0 24px; 
+        height: 64px; 
         line-height: 64px;
-        font-size: 1.25rem; /* Consistente */
+        font-size: 1.25rem; 
     }
     .info-item {
-        font-size: 1rem; /* Texto um pouco maior */
-    }
-    button, .button {
-        /* padding: 10px 20px; // Mantido do mobile, ok */
-        /* font-size: 0.875rem; // Mantido do mobile, ok */
+        font-size: 1rem; 
     }
     #password-container {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
-        align-items: center; /* Alinhar input e botão */
+        align-items: center; 
         justify-content: center;
     }
     #password-container input[type="password"] {
-        margin-bottom: 0; /* Remover margem se estiver flex */
-        flex-grow: 1; /* Permitir que o input cresça */
+        margin-bottom: 0; 
+        flex-grow: 1; 
     }
     .progress-container {
-        max-width: 700px; /* Limitar largura da barra de progresso */
+        max-width: 700px; 
         margin-left: auto;
         margin-right: auto;
     }
-    /* Para a lista de mapas dentro de grupos em telas maiores */
     .grupo-lista {
-        padding: 16px; /* Mais padding interno para a lista */
+        padding: 16px; 
     }
 }
 
-@media (min-width: 900px) { /* Telas de Desktop */
+@media (min-width: 900px) { 
     .container {
-        max-width: 960px; /* Limite de largura típico de conteúdo Material */
+        max-width: 960px; 
     }
-    .destaque-principal { /* Layout de duas colunas para a seção de destaque */
+    .destaque-principal { 
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Colunas flexíveis */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
         gap: 24px;
         align-items: start;
     }
-    .card, .mapa-item { /* Padding maior para cards em desktop */
+    .card, .mapa-item { 
         padding: 20px;
     }
-    .grupo-lista { /* Layout de grid para itens de mapa em desktop */
+    .grupo-lista { 
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Mais espaço por item */
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
         gap: 16px;
-        padding: 16px; /* Padding dentro da lista agrupada */
+        padding: 16px; 
     }
-    .grupo-lista .mapa-item { /* Ajuste para itens no grid */
-        margin-bottom: 0; /* Removido pois o gap do grid cuida disso */
-        border: 1px solid var(--divider-color); /* Adiciona borda sutil se não tiver sombra individual */
-        box-shadow: var(--elevation-z1); /* Leve sombra para cada item */
+    .grupo-lista .mapa-item { 
+        margin-bottom: 0; 
+        border: 1px solid var(--divider-color); 
+        box-shadow: var(--elevation-z1); 
     }
-     .mapa-item { /* Itens de mapa fora de .grupo-lista, como os designados */
+     .mapa-item { 
         padding: 20px;
     }
 }
 
 /* Acessibilidade - Reduzir movimento */
 @media (prefers-reduced-motion: reduce) {
-    .animated-btn, button, .grupo-titulo, .progress-bar div {
+    .animated-btn, button, .grupo-titulo, #progress-bar { /* Adicionado #progress-bar */
         animation: none !important;
         transition: none !important;
     }
