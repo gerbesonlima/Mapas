@@ -339,17 +339,19 @@ async function carregarDadosEAtualizarProgressoIndex() {
     dataFimVal = historyEntry.dataFim || "";
 
     // Formata a dataFim para o padrão brasileiro
-    let dataFimFormatada = "";
-    if (historyEntry.dataFim) {
-        const data = new Date(historyEntry.dataFim);
-        const dia = String(data.getDate()).padStart(2, '0');
-        const mes = String(data.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
-        const ano = data.getFullYear();
-        dataFimFormatada = `${dia}/${mes}/${ano}`;
-    }
+let dataFimFormatada = "";
+if (historyEntry.dataFim) {
+    const data = new Date(historyEntry.dataFim);
+    // Usando métodos UTC para evitar conversão de fuso horário local
+    const dia = String(data.getUTCDate()).padStart(2, '0');
+    const mes = String(data.getUTCMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+    const ano = data.getUTCFullYear();
+    dataFimFormatada = `${dia}/${mes}/${ano}`;
+}
 
-    observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${dataFimFormatada}` : "");
-    isFromHistory = true;
+observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${dataFimFormatada}` : "");
+isFromHistory = true;
+
 } else {
     const dadosMapaAtual = mapasEmAndamento[i];
     if (dadosMapaAtual) {
