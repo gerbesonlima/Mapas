@@ -6,447 +6,447 @@
 }
 
 :root {
-    --primary-color: #3f51b5;
-    --primary-dark: #303f9f;
-    --accent-color: #ff9800;
-    --text-primary: #212121;
-    --text-secondary: #757575;
-    --divider-color: #e0e0e0;
-    --background: #f5f5f5;
-    --surface: #ffffff;
-    --error: #f44336;
-    --success: #4caf50;
-    --progress-gradient-start: #4caf50;
-    --progress-gradient-end: #81c784;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-    --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
-    --transition: all 0.3s ease;
+    --primary-color: #3f51b5; /* Azul Índigo Material */
+    --primary-dark: #303f9f; /* Índigo Escuro Material */
+    --accent-color: #ff9800; /* Laranja Material como cor de destaque */
+    --text-primary: #212121; /* Preto (87% de opacidade em branco) */
+    --text-secondary: #757575; /* Cinza Médio (54% de opacidade em branco) */
+    --divider-color: #e0e0e0; /* Cinza Claro para divisores e bordas */
+    --background: #f5f5f5; /* Cinza Muito Claro (fundo de apps Android) */
+    --surface: #ffffff; /* Branco para superfícies de cards, diálogos */
+    --error: #f44336; /* Vermelho Material */
+    --success: #4caf50; /* Verde Material */
+    
+    /* Sombras Material Design (aproximações) */
+    --elevation-z1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --elevation-z2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    --elevation-z3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    --elevation-z4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    --elevation-z5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+    
+    --transition-swift: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1); /* Transição rápida Material */
+    --border-radius-standard: 4px; /* Raio de borda comum no Material */
 }
 
 body, html {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Fonte padrão do Android */
     background: var(--background);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    font-size: 16px;
+    font-size: 16px; /* Base para dp/sp (1dp = 1px em telas mdpi) */
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Spinner para Carregamento */
-.spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid var(--divider-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* App Bar (h1) */
+/* App Bar (h1) - Semelhante à Toolbar do Android */
 h1 {
     background: var(--primary-color);
     color: #fff;
-    padding: 16px;
-    font-size: 1.75rem;
-    font-weight: 500;
-    text-align: center;
+    padding: 0 16px; /* Padding lateral típico */
+    height: 56px; /* Altura padrão da Toolbar mobile */
+    line-height: 56px; /* Centralizar texto verticalmente */
+    font-size: 1.25rem; /* Material Title (20sp) */
+    font-weight: 500; /* Medium */
+    text-align: left; /* Títulos geralmente à esquerda ou centralizados se únicos */
     position: sticky;
     top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow-md);
+    z-index: 1000; /* Sobrepor outros elementos */
+    box-shadow: var(--elevation-z2); /* Sombra de AppBar */
     margin: 0;
-    transition: var(--transition);
+    transition: background-color var(--transition-swift);
 }
 
 /* Container Principal */
 .container {
     flex: 1;
-    padding: 16px;
+    padding: 8px; /* Espaçamento menor em telas pequenas, ajustado em media queries */
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
 }
 
-/* Cards */
-.card, .destaque-principal {
+/* Cards - Padrão Material */
+.card, .destaque-principal, .mapa-item, #password-container, .grupo-lista {
     background: var(--surface);
-    border-radius: 8px;
-    box-shadow: var(--shadow-sm);
-    padding: 20px;
-    margin-bottom: 20px;
-    transition: transform var(--transition), box-shadow var(--transition);
+    border-radius: var(--border-radius-standard); /* Borda padrão Material */
+    box-shadow: var(--elevation-z1);
+    padding: 16px; /* Espaçamento interno de card */
+    margin-bottom: 16px; /* Espaçamento entre cards */
+    transition: transform var(--transition-swift), box-shadow var(--transition-swift);
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+.card:hover, .mapa-item:hover { /* Leve elevação no hover para desktop */
+    /* transform: translateY(-1px); // Sutil */
+    box-shadow: var(--elevation-z2);
 }
 
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: var(--primary-color);
-    margin-bottom: 12px;
+.card-title { /* Usado em .destaque-principal */
+    font-size: 1.125rem; /* Material Subtitle1 (16sp) */
+    font-weight: 500; /* Medium */
+    color: var(--text-primary); /* Cor primária de texto, não a cor de destaque */
+    margin-bottom: 16px;
+    line-height: 1.4;
 }
 
-/* Informações */
+/* Informações (dentro de cards) */
 .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    font-size: 1rem;
+    margin-bottom: 8px; /* Espaçamento Material */
+    font-size: 0.875rem; /* Material Body2 (14sp) */
     gap: 8px;
 }
 
 .info-label {
-    font-weight: 500;
+    font-weight: 400; /* Normal */
     color: var(--text-secondary);
     flex-shrink: 0;
 }
 
 .info-value {
     color: var(--text-primary);
-    font-weight: 400;
+    font-weight: 500; /* Destaque para o valor */
+    text-align: right;
 }
 
-/* Botões */
-button, .button {
+/* Botões - Estilo Material */
+button, .button { /* .button pode ser usado para links estilizados como botões */
     display: inline-flex;
     align-items: center;
+    justify-content: center; /* Centralizar conteúdo */
     gap: 8px;
-    padding: 10px 20px;
+    padding: 0 16px; /* Padding horizontal */
+    height: 36px; /* Altura padrão */
     background: var(--primary-color);
     color: #fff;
     border: none;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    border-radius: var(--border-radius-standard);
+    font-size: 0.875rem; /* 14sp */
+    font-weight: 500; /* Medium */
+    text-transform: uppercase; /* Botões Material geralmente são uppercase */
     cursor: pointer;
-    transition: var(--transition);
+    transition: background-color var(--transition-swift), box-shadow var(--transition-swift);
     position: relative;
-    overflow: hidden;
+    overflow: hidden; /* Para futuros efeitos de ripple se adicionados com JS */
+    box-shadow: var(--elevation-z1);
+    user-select: none; /* Evitar seleção de texto no botão */
 }
 
 button:hover, .button:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
+    box-shadow: var(--elevation-z2);
+    /* transform: translateY(-1px); // Sutil */
 }
 
-button:focus, .button:focus {
+button:focus, .button:focus { /* Estilo de foco visível */
     outline: 2px solid var(--primary-dark);
     outline-offset: 2px;
+    box-shadow: var(--elevation-z2);
 }
+button:active, .button:active { /* Feedback de toque */
+    box-shadow: var(--elevation-z3);
+    background-color: var(--primary-dark); /* Um pouco mais escuro no active */
+}
+
 
 button.button-secondary {
-    background: var(--divider-color);
-    color: var(--text-primary);
+    background: var(--surface); /* Botão secundário/texto */
+    color: var(--primary-color);
+    box-shadow: none; /* Botões de texto não têm sombra */
 }
-
 button.button-secondary:hover {
-    background: #d5d5d5;
+    background: rgba(0,0,0,0.04); /* Fundo sutil no hover para botões de texto */
+    box-shadow: none;
 }
 
-button.success {
-    background: var(--success);
+button.success { background: var(--success); }
+button.success:hover { background: #388e3c; } /* Verde mais escuro */
+
+button i { /* Para ícones dentro de botões */
+    font-size: 1.125rem; /* 18sp */
 }
 
-button.success:hover {
-    background: #388e3c;
-}
-
-button i {
-    font-size: 1rem;
-    transition: transform var(--transition);
-}
-
-button:hover i {
-    transform: translateX(4px);
-}
-
-/* Botão Animado (Ver onde trabalhar) */
+/* Botão Animado (Ver onde trabalhar) - Mantido, mas com ajustes Material */
 #open-territories-container {
     text-align: center;
-    margin: 24px 0;
+    margin: 24px 0 16px;
 }
-
-.animated-btn {
-    padding: 12px 24px;
-    font-size: 1rem;
+.animated-btn { /* Pode ser estilizado como um FAB ou botão extendido */
+    padding: 0 24px; /* Padding para botões extendidos */
+    font-size: 0.875rem;
     font-weight: 500;
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+    height: 48px; /* Altura de FAB extendido */
+    line-height: 48px;
+    background: var(--accent-color); /* Usar cor de destaque para ações primárias flutuantes */
     color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
+    border-radius: 24px; /* Raio para botões extendidos/FABs */
+    box-shadow: var(--elevation-z3);
     animation: pulse 2s infinite;
-    transition: var(--transition);
+    transition: var(--transition-swift);
+    text-transform: uppercase;
 }
-
 .animated-btn:hover {
-    background: var(--primary-dark);
-    box-shadow: var(--shadow-md);
+    background: #f57c00; /* Accent mais escuro */
+    box-shadow: var(--elevation-z4);
     animation: none;
 }
-
-@keyframes pulse {
+@keyframes pulse { /* Mantido */
     0% { transform: scale(1); }
     50% { transform: scale(1.03); }
     100% { transform: scale(1); }
 }
 
-/* Itens de Mapa */
+/* Itens de Mapa (usado em index.html para mapas designados e lista principal) */
 .mapa-item {
-    background: var(--surface);
-    border-radius: 8px;
-    box-shadow: var(--shadow-sm);
     padding: 16px;
-    margin-bottom: 16px;
-    transition: var(--transition);
+    margin-bottom: 8px; /* Espaçamento menor entre itens de lista */
 }
-
-.mapa-item:hover {
-    box-shadow: var(--shadow-md);
-}
-
 .mapa-item a {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 1rem; /* Material Subtitle2 (16sp) */
+    display: block; /* Nome do mapa em uma linha */
+    margin-bottom: 4px;
 }
+.mapa-item a:hover { text-decoration: underline; }
 
-.mapa-item a:hover {
-    text-decoration: underline;
-}
-
-.mapa-item span {
-    font-size: 0.75rem;
+.mapa-item span#status-id { /* Para o status do mapa */
+    font-size: 0.75rem; /* Material Caption (12sp) */
     color: var(--text-secondary);
-}
-
-/* Formulários */
-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
     display: block;
+    margin-bottom: 8px;
+}
+.mapa-item label {
+    font-size: 0.75rem; /* Material Caption */
+    color: var(--text-secondary);
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.mapa-item .info { /* Div que agrupa data-inicio, data-fim */
+    margin-top: 8px;
+    border-top: 1px solid var(--divider-color);
+    padding-top: 8px;
+}
+.mapa-item .info label {
+    margin-top: 4px;
 }
 
+
+/* Formulários - Inputs e Textarea com estilo Material */
+label { /* Estilo geral para labels */
+    font-size: 0.875rem; /* 14sp */
+    color: var(--text-secondary);
+    margin-bottom: 4px; /* Espaçamento menor */
+    display: block;
+    font-weight: 400; /* Normal */
+}
+
+/* Inputs com linha inferior Material */
 textarea, input[type="date"], input[type="password"], input[type="text"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid var(--divider-color);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    background: var(--surface);
-    transition: border-color var(--transition);
+    padding: 8px 0; /* Padding inferior para a linha e superior para respiro */
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.42); /* Linha padrão de input Material */
+    border-radius: 0; /* Inputs Material não tem borda arredondada na linha */
+    font-size: 1rem; /* 16sp - tamanho de texto de input */
+    background: transparent; /* Sem fundo para estilo de linha inferior */
+    transition: border-color var(--transition-swift);
+    color: var(--text-primary);
+    margin-bottom: 16px; /* Espaço abaixo do input */
 }
-
-textarea:focus, input:focus {
-    border-color: var(--primary-color);
+textarea:focus, input[type="date"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+    border-bottom: 2px solid var(--primary-color); /* Linha de foco mais grossa e colorida */
     outline: none;
+    margin-bottom: 15px; /* Ajuste para a borda de 2px */
 }
-
 textarea {
-    min-height: 100px;
-    resize: vertical;
+    min-height: 80px; /* Altura mínima para textareas */
+    line-height: 1.4;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
-/* Botões Específicos */
-.designar-btn {
-    background: var(--accent-color);
-}
+/* Botões Específicos (designar, enviar/remover) */
+.designar-btn { background: var(--accent-color); }
+.designar-btn:hover { background: #f57c00; }
 
-.designar-btn:hover {
-    background: #f57c00;
-}
-
-.enviar-btn {
+.enviar-btn { /* Usado para "Remover" em mapas designados */
     background: var(--error);
+    height: 32px; /* Botão um pouco menor para ações em lista */
+    line-height: 32px;
+    padding: 0 12px;
+    font-size: 0.8125rem; /* 13sp */
 }
+.enviar-btn:hover { background: #d32f2f; }
 
-.enviar-btn:hover {
-    background: #d32f2f;
-}
-
-/* Progresso */
-.progress-container {
-    background: var(--surface);
-    border-radius: 8px;
+/* Progresso (para id="progress-bar" em index.html) */
+.progress-container { /* Já estilizado em .card, mas pode ter ajustes */
     padding: 16px;
-    box-shadow: var(--shadow-sm);
-    margin: 20px 0;
-    text-align: center;
-    position: relative;
+    margin: 16px 0; /* Ajuste de margem */
+    text-align: left; /* Texto "Mapas concluidos" à esquerda */
 }
-
-progress {
-    width: 100%;
-    height: 20px;
-    border-radius: 10px;
-    background: var(--divider-color);
-    border: 1px solid rgba(0,0,0,0.1);
-    overflow: hidden;
-    cursor: pointer;
+.progress-container p { /* Para o texto "Mapas concluidos" */
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
 }
-
-progress::-webkit-progress-bar {
-    background: var(--divider-color);
-    border-radius: 10px;
+.progress-bar { /* Estilo para a div#progress-bar */
+    width: 100%; /* O JS controlará a largura do preenchimento real */
+    height: 8px; /* Altura de barra de progresso Material mais fina */
+    background-color: var(--divider-color); /* Fundo da barra (trilha) */
+    border-radius: 4px; /* Arredondamento da trilha */
+    overflow: hidden; /* Para o preenchimento não vazar */
+    position: relative; /* Para o texto, se houver */
 }
-
-progress::-webkit-progress-value {
-    background: linear-gradient(90deg, var(--progress-gradient-start), var(--progress-gradient-end));
-    border-radius: 10px;
-    transition: width 0.5s ease-in-out;
+.progress-bar div { /* Para o preenchimento interno, se o JS criar um div interno */
+    /* Se o JS apenas muda o texto e background da div#progress-bar: */
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark)); /* Gradiente sutil */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500; /* Medium */
+    font-size: 0.75rem; /* Texto dentro da barra */
+    line-height: 8px; /* Para texto na barra fina */
+    border-radius: 4px; /* Consistente com o container */
+    transition: width 0.4s ease; /* Transição da largura */
+    /* O texto virá do JS, ex: "47% (18/38)" */
+    /* Se o texto for sobreposto e a barra for só cor: */
+    text-indent: -9999px; /* Esconde texto se for apenas uma barra colorida e o texto estiver em outro lugar */
 }
-
-progress::-moz-progress-bar {
-    background: linear-gradient(90deg, var(--progress-gradient-start), var(--progress-gradient-end));
-    border-radius: 10px;
-}
-
-#percentual-geral {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--primary-color);
-    margin-top: 8px;
-    display: block;
-}
-
-/* Tooltip para progresso */
-.progress-container:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    background: var(--primary-color);
+/* O JavaScript que você tem já define o textContent e style.width diretamente no #progress-bar */
+/* Ajuste para o textContent do #progress-bar (quando ele mesmo é o preenchimento) */
+#progress-bar { 
+    height: 24px; /* Altura padrão de Material para barras com texto */
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    font-size: 0.875rem; /* Tamanho de texto para dentro da barra */
+    line-height: 24px; /* Centralizar texto verticalmente */
+    text-align: center; /* Centralizar texto */
     color: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity var(--transition);
+    font-weight: 500;
 }
 
-.progress-container:hover::after {
-    opacity: 1;
-}
 
 /* Container de Senha */
 #password-container {
-    background: var(--surface);
-    border-radius: 8px;
-    box-shadow: var(--shadow-sm);
-    padding: 20px;
-    margin-bottom: 20px;
     text-align: center;
+    margin-top: 16px; /* Espaço acima se for o primeiro elemento */
 }
-
 #password-container input[type="password"] {
-    max-width: 300px;
-    margin: 0 auto 12px;
+    max-width: 280px; /* Limitar largura em telas grandes */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 12px; /* Espaço antes do botão */
+    display: block;
+}
+#password-container button {
+    margin-top: 8px;
 }
 
-/* Grupos */
+
+/* Grupos (Listas Expansíveis) */
 .grupo {
-    margin-bottom: 20px;
+    margin-bottom: 16px; /* Espaçamento entre grupos */
 }
-
 .grupo-titulo {
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--surface); /* Títulos de grupo como cards não elevados */
+    color: var(--text-primary);
     padding: 12px 16px;
-    border-radius: 6px;
-    font-weight: 500;
+    border-radius: var(--border-radius-standard);
+    font-weight: 500; /* Medium */
+    font-size: 1rem; /* 16sp */
     cursor: pointer;
     display: flex;
-
-
-
-    
     justify-content: space-between;
     align-items: center;
-    transition: var(--transition);
+    transition: background-color var(--transition-swift);
+    border: 1px solid var(--divider-color); /* Borda sutil */
+    box-shadow: none; /* Sem sombra para um look mais flat de lista */
+}
+.grupo-titulo:hover {
+    background: rgba(0,0,0,0.04); /* Fundo sutil no hover */
+}
+.grupo-titulo.active { /* Quando a lista está expandida */
+    background: rgba(0,0,0,0.06);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
 }
 
-.grupo-titulo::after {
-    content: '\f078'; /* Font Awesome chevron-down */
+.grupo-titulo::after { /* Ícone Chevron */
+    content: '\f078'; 
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
-    transition: transform var(--transition);
+    transition: transform var(--transition-swift);
+    color: var(--text-secondary);
 }
-
-.grupo-titulo[aria-expanded="true"]::after {
+.grupo-titulo.active::after {
     transform: rotate(180deg);
 }
 
-.grupo-titulo:hover {
-    background: var(--primary-dark);
+.grupo-lista { /* Conteúdo da lista expansível */
+    display: none;
+    padding: 8px 0 0 0; /* Padding apenas no topo para se conectar ao título */
+    background: var(--surface);
+    border-radius: 0 0 var(--border-radius-standard) var(--border-radius-standard); /* Arredondar cantos inferiores */
+    margin-top: 0; /* Remover margem do topo */
+    box-shadow: var(--elevation-z1);
+    border: 1px solid var(--divider-color);
+    border-top: none;
+}
+.grupo-lista .mapa-item { /* Itens dentro da lista */
+    box-shadow: none; /* Remover sombra individual dos itens */
+    border-radius: 0;
+    border-bottom: 1px solid var(--divider-color); /* Divisor entre itens */
+    margin-bottom: 0;
+}
+.grupo-lista .mapa-item:last-child {
+    border-bottom: none; /* Remover borda do último item */
 }
 
-.grupo-lista {
-    display: none;
-    padding: 12px 0;
-    background: var(--surface);
-    border-radius: 6px;
-    margin-top: 8px;
-    box-shadow: var(--shadow-sm);
-}
 
 /* Footer */
 footer {
-    background: var(--primary-color);
-    color: #fff;
-    padding: 20px;
+    background: var(--surface); /* Fundo claro para o footer */
+    color: var(--text-secondary);
+    padding: 16px; /* Padding Material */
     text-align: center;
-    margin-top: auto;
+    margin-top: auto; /* Empurrar para o final da página */
+    border-top: 1px solid var(--divider-color);
 }
-
 .footer-links {
     display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: 24px; /* Mais espaço entre links */
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
-
 footer a {
-    color: #fff;
+    color: var(--primary-color); /* Links com cor primária */
     text-decoration: none;
-    font-size: 0.875rem;
-    transition: var(--transition);
+    font-size: 0.875rem; /* 14sp */
+    font-weight: 500; /* Medium */
+    transition: color var(--transition-swift);
 }
-
 footer a:hover {
     text-decoration: underline;
-    color: var(--accent-color);
+    color: var(--primary-dark);
 }
-
-footer p {
-    font-size: 0.75rem;
-    margin-top: 8px;
+footer p { /* Copyright text */
+    font-size: 0.75rem; /* 12sp */
+    margin-top: 16px;
+    color: var(--text-secondary);
 }
 
 /* Utilitários */
-.hidden {
-    display: none !important;
-}
-
-.sr-only {
+.hidden { display: none !important; }
+.sr-only { /* Para acessibilidade, texto para leitores de tela */
     position: absolute;
     width: 1px;
     height: 1px;
@@ -454,96 +454,85 @@ footer p {
     margin: -1px;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
+    border: 0;
 }
 
-/* Font Awesome */
+/* Font Awesome (se você já tem no HTML, pode remover esta linha) */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
-/* Responsividade - Tablet */
-@media (min-width: 600px) {
+/* Responsividade */
+@media (min-width: 600px) { /* Telas maiores que celulares pequenos */
     .container {
-        padding: 24px;
+        padding: 16px; /* Mais padding em telas maiores */
     }
-
+    h1 {
+        padding: 0 24px; /* Padding de AppBar para desktop */
+        height: 64px; /* Altura de AppBar para desktop */
+        line-height: 64px;
+        font-size: 1.25rem; /* Consistente */
+    }
     .info-item {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        align-items: center;
+        font-size: 1rem; /* Texto um pouco maior */
     }
-
     button, .button {
-        padding: 12px 24px;
+        /* padding: 10px 20px; // Mantido do mobile, ok */
+        /* font-size: 0.875rem; // Mantido do mobile, ok */
     }
-
     #password-container {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+        align-items: center; /* Alinhar input e botão */
         justify-content: center;
     }
-
+    #password-container input[type="password"] {
+        margin-bottom: 0; /* Remover margem se estiver flex */
+        flex-grow: 1; /* Permitir que o input cresça */
+    }
     .progress-container {
-        max-width: 600px;
-        margin: 20px auto;
+        max-width: 700px; /* Limitar largura da barra de progresso */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    /* Para a lista de mapas dentro de grupos em telas maiores */
+    .grupo-lista {
+        padding: 16px; /* Mais padding interno para a lista */
     }
 }
 
-/* Responsividade - Desktop */
-@media (min-width: 900px) {
+@media (min-width: 900px) { /* Telas de Desktop */
     .container {
-        max-width: 1000px;
+        max-width: 960px; /* Limite de largura típico de conteúdo Material */
     }
-
-    .destaque-principal {
+    .destaque-principal { /* Layout de duas colunas para a seção de destaque */
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Colunas flexíveis */
         gap: 24px;
         align-items: start;
     }
-
-    .card {
-        padding: 24px;
+    .card, .mapa-item { /* Padding maior para cards em desktop */
+        padding: 20px;
     }
-
-    .grupo-lista {
+    .grupo-lista { /* Layout de grid para itens de mapa em desktop */
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Mais espaço por item */
         gap: 16px;
+        padding: 16px; /* Padding dentro da lista agrupada */
     }
-
-    .mapa-item {
-        margin-bottom: 0;
+    .grupo-lista .mapa-item { /* Ajuste para itens no grid */
+        margin-bottom: 0; /* Removido pois o gap do grid cuida disso */
+        border: 1px solid var(--divider-color); /* Adiciona borda sutil se não tiver sombra individual */
+        box-shadow: var(--elevation-z1); /* Leve sombra para cada item */
+    }
+     .mapa-item { /* Itens de mapa fora de .grupo-lista, como os designados */
+        padding: 20px;
     }
 }
 
-/* Acessibilidade */
+/* Acessibilidade - Reduzir movimento */
 @media (prefers-reduced-motion: reduce) {
-    .animated-btn, button, .grupo-titulo {
-        animation: none;
-        transition: none;
+    .animated-btn, button, .grupo-titulo, .progress-bar div {
+        animation: none !important;
+        transition: none !important;
     }
-}
-  /* Progresso */
-.progress-container {
-    width: 100%;
-    max-width: 650px;
-    margin: 20px auto;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-}
-
-.progress-bar {
-    height: 30px;
-    background: linear-gradient(90deg, var(--progress-gradient-start), var(--progress-gradient-end));
-    border-radius: 5px;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    transition: width 0.4s ease;
 }
