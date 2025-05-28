@@ -21,6 +21,9 @@
             padding: 15px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        /* A classe .controls foi removida do CSS pois o elemento foi removido do HTML
+           mas se você tiver outros usos para ela, pode manter.
+           Para este exemplo, vou comentar/remover as regras não utilizadas.
         .controls {
             text-align: center;
             margin-bottom: 20px;
@@ -43,6 +46,7 @@
             border: none;
             border-radius: 4px;
         }
+        */
         h1 {
             text-align: center;
             font-size: 1.4em;
@@ -91,7 +95,7 @@
         @media print {
             body { margin: 0; background-color: #fff; font-size: 7pt; }
             .container { box-shadow: none; padding: 0; max-width:100%;}
-            .controls { display: none; }
+            /* .controls { display: none; }  Removido pois .controls não existe mais */
             h1, h2 { color: #000; }
             th { background-color: #f2f2f2 !important; color: #000 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
             thead th.main-header { background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
@@ -103,12 +107,6 @@
 </head>
 <body>
     <div class="container">
-        <div class="controls">
-            <label for="cycleInput">Ano de Serviço (Ciclo):</label>
-            <input type="text" id="cycleInput" placeholder="Ex: 2024 ou 1" value="2024">
-            <button onclick="triggerLoad()">Carregar Dados</button> {/* Modificado para chamar triggerLoad */}
-        </div>
-
         <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
         <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
 
@@ -161,21 +159,17 @@
             return dateString; 
         }
         
-        // Nova função para acionar o carregamento (chamada pelo botão e no onload)
-        async function triggerLoad() {
-            const cycleInputValue = document.getElementById('cycleInput').value.trim();
-            // A função loadAndRenderArchivedData agora lida com cycleInputValue vazio
-            await loadAndRenderArchivedData(cycleInputValue);
-        }
+        // A função triggerLoad() foi removida pois não é mais necessária com o carregamento automático direto.
 
-        // Função principal modificada para aceitar o ciclo como parâmetro
         async function loadAndRenderArchivedData(selectedCycle) {
             const tbody = document.getElementById('archived_territory_table_body');
             const serviceYearHeader = document.getElementById('serviceYearHeader');
 
+            // Esta verificação pode ser removida se você sempre fornecer um selectedCycle válido
+            // ou ajustada para um comportamento padrão se selectedCycle for nulo/vazio por algum motivo.
             if (!selectedCycle) {
-                serviceYearHeader.textContent = 'Ano de Serviço: [Nenhum Ciclo Selecionado]';
-                tbody.innerHTML = '<tr><td colspan="10">Por favor, insira um Ano de Serviço (Ciclo) e clique em "Carregar Dados".</td></tr>';
+                serviceYearHeader.textContent = 'Ano de Serviço: [Ciclo não definido no script]';
+                tbody.innerHTML = '<tr><td colspan="10">Ciclo de serviço não foi definido no script.</td></tr>';
                 return;
             }
 
@@ -186,16 +180,15 @@
                 const snapshot = await db.ref('historico_arquivado').once('value');
                 const allArchivedData = snapshot.val();
                 let processedData = {}; 
-                let allTerritoryIds = new Set(); // Não usado diretamente para iterar de 1-38, mas bom para saber quais terrs têm dados
+                let allTerritoryIds = new Set(); 
 
                 if (allArchivedData) {
                     for (const key in allArchivedData) {
                         const record = allArchivedData[key];
-                        if (record.mapa) { // Garante que o registro tem um mapa
+                        if (record.mapa) { 
                            allTerritoryIds.add(parseInt(record.mapa));
                         }
                         
-                        // Comparação do ciclo do registro com o ciclo selecionado
                         if (String(record.ciclo) === String(selectedCycle)) {
                             if (!processedData[record.mapa]) {
                                 processedData[record.mapa] = {
@@ -214,7 +207,7 @@
 
                 for (const mapId in processedData) {
                     processedData[mapId].assignments.sort((a, b) => {
-                        if (!a.dataInicio) return 1; // Coloca registros sem data de início no final
+                        if (!a.dataInicio) return 1; 
                         if (!b.dataInicio) return -1;
                         if (a.dataInicio < b.dataInicio) return -1;
                         if (a.dataInicio > b.dataInicio) return 1;
@@ -250,7 +243,6 @@
                     datesRowHTML += `</tr>`;
                     tbody.insertAdjacentHTML('beforeend', datesRowHTML);
 
-                    // Lógica especial para Territórios 19 e 24 se tiverem mais de 4 designações
                     if ((mapId === "19" || mapId === "24") && assignments.length > 4) {
                         const fifthAssignment = assignments[4];
                         if (fifthAssignment) {
@@ -268,7 +260,7 @@
                         }
                     }
                 }
-                 if (!foundDataForCycle && tbody.innerHTML === '') { // Verifica se dados foram encontrados E se o tbody está realmente vazio
+                 if (!foundDataForCycle && tbody.innerHTML === '') { 
                     tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ciclo: ${selectedCycle}.</td></tr>`;
                 }
 
@@ -280,9 +272,10 @@
             }
         }
         
-        // Carregar dados para o ciclo padrão (definido no value do input) ao iniciar a página
+        // Carregar dados para um ciclo específico ao iniciar a página
         window.onload = function() {
-            triggerLoad(); // Chama a função que lê o input e carrega os dados
+            const cicloPadrao = "1"; // Defina o ciclo padrão aqui (ex: "1" ou "2024")
+            loadAndRenderArchivedData(cicloPadrao); 
         };
     </script>
 </body>
