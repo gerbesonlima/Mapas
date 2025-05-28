@@ -14,56 +14,59 @@
       background-color: #FAFAFA; /* Fundo padrão Material Design (cinza bem claro) */
       color: #212121; /* Cor de texto primária Material (quase preto) */
       line-height: 1.6;
+      padding: 0; /* Controlar padding nos wrappers */
       padding-bottom: 60px;
+      -webkit-text-size-adjust: 100%; /* Prevenir zoom em iOS */
     }
 
     /* AppBar (Cabeçalho Principal) */
     h1 {
       background-color: #4CAF50; /* Verde primário */
       color: #FFFFFF;
-      padding: 16px 24px; /* Espaçamento Material (16dp nas laterais, altura comum de 56dp) */
+      padding: 12px 16px; /* Ajustado */
       margin: 0;
-      font-size: 1.25rem; /* Equivalente a 20sp no Material */
+      font-size: 1.15rem; /* Ajustado */
       font-weight: 500; /* Medium weight */
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       text-align: left;
-      line-height: 1.4; /* Para altura de 56px com padding */
+      line-height: 1.4; 
     }
 
     /* Títulos de Seção */
     h2 {
       text-align: center;
-      color: #4CAF50; /* Cor primária */
-      font-size: 1.5rem; /* Um pouco maior */
-      font-weight: 400; /* Normal weight */
-      margin-top: 32px;
-      margin-bottom: 16px;
+      color: #4CAF50; 
+      font-size: 1.3rem; /* Ajustado */
+      font-weight: 400; 
+      margin-top: 24px; /* Ajustado */
+      margin-bottom: 12px; /* Ajustado */
     }
 
     h3 {
       text-align: center;
-      color: #757575; /* Cor de texto secundária */
-      font-size: 1.1rem;
+      color: #757575; 
+      font-size: 1.0rem; /* Ajustado */
       font-weight: 500;
-      margin-top: 24px;
-      margin-bottom: 8px;
+      margin-top: 18px; /* Ajustado */
+      margin-bottom: 6px; /* Ajustado */
     }
 
     /* Contêineres de Conteúdo e Controles */
-    .content-wrapper, .controls-wrapper {
-      padding: 0 16px; /* Espaçamento lateral */
+    .controls-wrapper, .content-wrapper {
+      padding: 0 8px; /* Ajustado */
       max-width: 900px;
       margin: 0 auto 24px auto;
       text-align: center;
+      box-sizing: border-box;
     }
 
-    /* Informação do Ciclo Atual - Estilo de Chip/Card Pequeno */
+    /* Informação do Ciclo Atual */
     #current-cycle-info {
       font-weight: 500;
-      margin: 16px 0;
-      padding: 12px 16px;
-      background-color: #EEEEEE; /* Cinza claro Material */
-      border-radius: 18px; /* Mais arredondado, como um chip grande */
+      margin: 12px 0; /* Ajustado */
+      padding: 10px 14px; /* Ajustado */
+      background-color: #EEEEEE; 
+      border-radius: 18px; 
       display: inline-block;
       min-height: auto;
       vertical-align: middle;
@@ -78,66 +81,65 @@
         font-size: 0.9rem;
     }
 
-
+    /* Barra de Progresso */
    .progress-container {
       width: 100%;
       max-width: 900px;
       margin: 16px auto 24px auto;
       background-color: #E0E0E0; 
-      border-radius: 4px; /* Raio um pouco maior para uma barra mais alta */
+      border-radius: 4px; 
       overflow: hidden;
-      height: 24px; /* Altura aumentada para acomodar texto */
+      height: 24px; 
       box-shadow: none;
     }
     .progress-bar {
-      height: 24px; /* Mesma altura do contêiner */
+      height: 24px; 
       background-color: #4CAF50; 
-      text-align: center; /* Centraliza o texto na barra */
+      text-align: center; 
       color: white;
-      line-height: 24px; /* Centraliza verticalmente o texto */
+      line-height: 24px; 
       width: 0%;
       transition: width 0.4s ease;
-      font-weight: 500; /* Peso de fonte Material Medium */
-      border-radius: 4px; /* Raio consistente */
-      font-size: 0.8rem; /* Tamanho de fonte legível para o texto */
-      white-space: nowrap; /* Evita que o texto quebre em múltiplas linhas */
-      overflow: hidden; /* Evita que o texto saia da barra */
-      padding: 0 8px; /* Adiciona um pequeno padding lateral para o texto não colar nas bordas */
-      box-sizing: border-box; /* Inclui padding na largura total */
+      font-weight: 500; 
+      border-radius: 4px; 
+      font-size: 0.8rem; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      padding: 0 8px; 
+      box-sizing: border-box; 
     }
-    .progress-bar[style*="width: 100%"] { /* Garante borda arredondada completa em 100% */
+    .progress-bar[style*="width: 100%"] { 
         border-radius: 4px;
     }
 
-
-    /* Botões - Estilo Material Design */
+    /* Botões */
     button {
-      background-color: #4CAF50; /* Cor primária */
+      background-color: #4CAF50; 
       color: #FFFFFF;
       border: none;
-      padding: 0 16px; /* Padding horizontal Material */
-      height: 36px; /* Altura padrão Material */
-      line-height: 36px; /* Para centralizar o texto */
+      padding: 0 12px; /* Ajustado */
+      height: 34px; /* Ajustado */
+      line-height: 34px; /* Ajustado */
       cursor: pointer;
-      border-radius: 4px; /* Raio de borda Material */
-      font-weight: 500; /* Medium weight */
+      border-radius: 4px; 
+      font-weight: 500; 
       text-transform: uppercase;
-      font-size: 0.875rem; /* 14sp */
+      font-size: 0.8rem; /* Ajustado */
       box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 
                   0 3px 1px -2px rgba(0,0,0,0.12), 
-                  0 1px 5px 0 rgba(0,0,0,0.2); /* Sombra padrão de botão elevado */
+                  0 1px 5px 0 rgba(0,0,0,0.2); 
       transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1), 
                   background-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      margin: 8px 4px; /* Espaçamento entre botões */
+      margin: 6px; /* Ajustado */
       outline: none;
     }
     button:hover:not(:disabled) {
-      background-color: #43A047; /* Levemente mais escuro no hover */
+      background-color: #43A047; 
       box-shadow: 0 3px 3px 0 rgba(0,0,0,0.14), 
                   0 1px 7px 0 rgba(0,0,0,0.12), 
                   0 3px 1px -1px rgba(0,0,0,0.2);
     }
-    button:active:not(:disabled) { /* Feedback de pressionado */
+    button:active:not(:disabled) { 
         background-color: #388E3C;
         box-shadow: 0 4px 5px -2px rgba(0,0,0,0.14),
                     0 2px 10px 0px rgba(0,0,0,0.12),
@@ -149,123 +151,94 @@
         box-shadow: none;
         cursor: not-allowed;
     }
-
-    /* Variações de Botões */
-    button.secondary-action {
-        background-color: #2196F3; /* Azul Material para ações secundárias */
-    }
-    button.secondary-action:hover:not(:disabled) {
-        background-color: #1E88E5;
-    }
-    button.secondary-action:active:not(:disabled) {
-        background-color: #1976D2;
-    }
-
-    button.warning-action { /* Para ações que requerem atenção, como "Desfazer" ou "Salvar Edição" */
-        background-color: #FF9800; /* Laranja Material */
-        color: #FFFFFF;
-    }
-    button.warning-action:hover:not(:disabled) {
-        background-color: #FB8C00;
-    }
-     button.warning-action:active:not(:disabled) {
-        background-color: #F57C00;
-    }
-
-    button.danger-action {
-        background-color: #F44336; /* Vermelho Material para perigo */
-    }
-    button.danger-action:hover:not(:disabled) {
-        background-color: #E53935;
-    }
-    button.danger-action:active:not(:disabled) {
-        background-color: #D32F2F;
-    }
+    button.secondary-action { background-color: #2196F3; }
+    button.secondary-action:hover:not(:disabled) { background-color: #1E88E5; }
+    button.secondary-action:active:not(:disabled) { background-color: #1976D2; }
+    button.warning-action { background-color: #FF9800; color: #FFFFFF; }
+    button.warning-action:hover:not(:disabled) { background-color: #FB8C00; }
+    button.warning-action:active:not(:disabled) { background-color: #F57C00; }
+    button.danger-action { background-color: #F44336; }
+    button.danger-action:hover:not(:disabled) { background-color: #E53935; }
+    button.danger-action:active:not(:disabled) { background-color: #D32F2F; }
     
-    /* Inputs e Select - Estilo Material (simplificado com CSS puro) */
+    /* Inputs e Select */
     input[type="text"], input[type="date"], select {
-      padding: 10px 0px 8px 0px; /* Padding focado na parte inferior */
+      padding: 10px 0px 8px 0px; 
       border: none;
-      border-bottom: 1px solid rgba(0,0,0,0.12); /* Linha inferior sutil */
-      border-radius: 0; /* Sem bordas arredondadas para inputs de linha */
+      border-bottom: 1px solid rgba(0,0,0,0.12); 
+      border-radius: 0; 
       box-sizing: border-box;
       width: 100%;
-      margin: 8px 0 16px 0; /* Espaçamento */
-      background-color: transparent; /* Fundo transparente */
-      font-size: 1rem; /* 16sp */
+      margin: 8px 0 16px 0; 
+      background-color: transparent; 
+      font-size: 1rem; 
       transition: border-bottom-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
     }
     input[type="text"]:focus, input[type="date"]:focus, select:focus {
-      border-bottom: 2px solid #4CAF50; /* Cor primária na linha inferior ao focar */
-      margin-bottom: 15px; /* Ajuste para a borda mais grossa */
+      border-bottom: 2px solid #4CAF50; 
+      margin-bottom: 15px; 
     }
-    /* Placeholder com cor Material */
-    input[type="text"]::placeholder {
-        color: rgba(0,0,0,0.38);
-        opacity: 1; /* Firefox */
-    }
-
+    input[type="text"]::placeholder { color: rgba(0,0,0,0.38); opacity: 1; }
     select {
         width: auto;
         min-width: 200px;
         margin-right: 10px;
-        padding: 10px 8px 8px 2px; /* Ajuste para select */
-        appearance: none; /* Remove aparência padrão do SO */
+        padding: 10px 8px 8px 2px; 
+        appearance: none; 
         -webkit-appearance: none;
         -moz-appearance: none;
         background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
         background-repeat: no-repeat;
         background-position: right 8px top 50%;
         background-size: .65em auto;
-        padding-right: 2em; /* Espaço para a seta */
+        padding-right: 2em; 
     }
 
-    /* Tabelas com estilo de Card Material */
+    /* Tabelas */
     table {
-      width: 100%;
-      max-width: 900px;
-      margin: 24px auto;
+      width: 100%; /* Garante que a tabela tente usar a largura disponível */
+      /* max-width: 900px; Removido para permitir que a rolagem funcione dentro do wrapper */
+      margin: 16px auto; /* Ajustado */
       border-collapse: collapse;
-      background-color: #FFFFFF; /* Fundo branco para o card */
-      border-radius: 4px; /* Raio Material */
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); /* Sombra de card */
-      overflow: hidden; /* Para o raio de borda funcionar com as células */
+      background-color: #FFFFFF; 
+      border-radius: 4px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); 
+      font-size: 0.8em; /* Ajustado */
+      /* overflow: hidden; Removido daqui, será controlado pelo div wrapper */
     }
     th, td {
-      padding: 16px; /* Padding Material para células de tabela */
+      padding: 8px; /* Ajustado */
       text-align: left;
-      border: none; /* Remove bordas individuais das células */
-      color: #212121; /* Cor de texto primária */
+      border: none; 
+      color: #212121; 
+      white-space: nowrap; /* Para melhor comportamento com rolagem horizontal */
     }
     th {
-      background-color: #FFFFFF; /* Cabeçalho da tabela sem fundo forte */
-      color: #757575; /* Cor de texto secundária para cabeçalhos */
-      font-weight: 500; /* Medium weight */
-      border-bottom: 1px solid rgba(0,0,0,0.12); /* Separador Material */
-      font-size: 0.875rem; /* 14sp */
+      background-color: #FFFFFF; 
+      color: #757575; 
+      font-weight: 500; 
+      border-bottom: 1px solid rgba(0,0,0,0.12); 
+      font-size: 0.875rem; 
     }
     td {
-      border-bottom: 1px solid rgba(0,0,0,0.12); /* Separador Material entre linhas */
-       font-size: 0.875rem; /* 14sp */
+      border-bottom: 1px solid rgba(0,0,0,0.12); 
+       font-size: 0.875rem; 
        line-height: 1.4;
     }
-    tr:last-child td {
-      border-bottom: none; /* Remove borda da última linha */
-    }
-    tr:hover { /* Feedback sutil no hover para web */
-      background-color: rgba(0,0,0,0.03); 
-    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background-color: rgba(0,0,0,0.03); }
 
-    /* Ajustes para inputs dentro de células de tabela quando em modo de edição */
+    /* Inputs em tabela */
     td input[type="text"], td input[type="date"]{
-        padding: 8px 0px; /* Padding menor para inputs em tabela */
-        font-size: 0.875rem; /* Mesmo tamanho da célula */
-        margin: 0; /* Remove margens extras dentro da célula */
+        padding: 8px 0px; 
+        font-size: 0.875rem; 
+        margin: 0; 
         line-height: normal;
+        min-width: 100px; /* Adicionado para evitar que fiquem muito pequenos */
     }
     td input[type="text"]:focus, td input[type="date"]:focus {
-      margin-bottom: -1px; /* Compensar a borda de foco de 2px */
+      margin-bottom: -1px; 
     }
 
     /* Área de seleção de ciclo */
@@ -285,27 +258,148 @@
         margin-top: 10px;
     }
     #historico-edit-controls button {
-        margin-bottom: 16px; /* Espaço abaixo do botão de edição geral */
+        margin-bottom: 16px; 
     }
 
-    @media (max-width: 767px) { /* Ajuste este valor conforme necessário para o seu "ponto de quebra" móvel */
-    #historico-table th:nth-child(5), /* Ciclo (Nº) */
-    #historico-table td:nth-child(5),
-    #historico-table th:nth-child(6), /* Ações */
-    #historico-table td:nth-child(6) {
-        /* Se quiser esconder a coluna de Ações também em telas menores, descomente as duas linhas abaixo */
-        /* display: none; */ 
-    }
-     /* Ajusta o tamanho do botão de arquivar para caber melhor */
-    #historico-table button.archive-btn {
-        font-size: 0.75rem; /* Tamanho de fonte menor */
-        padding: 0 8px; /* Padding horizontal menor */
-        height: 30px; /* Altura menor */
-        line-height: 30px; /* Linha-altura correspondente */
+    /* --- Início das Regras Responsivas --- */
+
+    /* Telas Médias (tablets em retrato, celulares grandes) */
+    @media (max-width: 768px) {
+        h1 { font-size: 1.0rem; padding: 10px 12px; }
+        h2 { font-size: 1.15rem; }
+        h3 { font-size: 0.95rem; }
+
+        th, td {
+            padding: 6px;
+            font-size: 0.75em;
+        }
+        
+        /* Tabela Mapas em Andamento (#relatorio-table) */
+        #relatorio-table th:nth-child(3), /* Ocultar Data de Início */
+        #relatorio-table td:nth-child(3),
+        #relatorio-table th:nth-child(4), /* Ocultar Data de Fim */
+        #relatorio-table td:nth-child(4) {
+            display: none;
+        }
+
+        /* Tabela Histórico (#historico-table) */
+        #historico-table th:nth-child(5), /* Ocultar Ciclo (Nº) */
+        #historico-table td:nth-child(5),
+        #historico-table th:nth-child(6), /* Ocultar Ações */
+        #historico-table td:nth-child(6) {
+            display: none;
+        }
+        #historico-table button.archive-btn { /* Botão específico de arquivar */
+            font-size: 0.7rem; 
+            padding: 0 6px;
+            height: 28px;
+            line-height: 28px;
+        }
+
+        /* Empilhar botões de controle de ciclo */
+        #cycle-actions button {
+            display: block;
+            width: 80%;
+            max-width: 280px;
+            margin: 8px auto; 
+        }
+         #cycle-selection-area select, #cycle-selection-area button {
+            width: 100%; /* Fazer select e botão ocuparem largura total */
+            margin-left: 0;
+            margin-right: 0;
+            box-sizing: border-box;
+        }
     }
 
-}
+    /* Telas Pequenas (celulares em retrato) */
+    @media (max-width: 480px) {
+        body {
+            line-height: 1.5;
+        }
+        .controls-wrapper, .content-wrapper {
+            padding: 0 5px; 
+        }
+        h1 { font-size: 0.9rem; padding: 8px 10px; }
+        h2 { font-size: 1.0rem; }
+        h3 { font-size: 0.85rem; }
 
+        th, td {
+            padding: 4px;
+            font-size: 0.7em; 
+        }
+        td input[type="text"] { /* Input de texto dentro de tabelas */
+            font-size: 0.9em; /* Manter input legível */
+        }
+
+        /* Tabela Mapas em Andamento (#relatorio-table) */
+        /* Colunas visíveis: Nº, Designado (input), Ação */
+        #relatorio-table td:nth-child(2) input[type="text"] { /* Campo "Designado para" */
+           min-width: 70px; /* Reduzir ainda mais */
+           font-size: 0.85em;
+        }
+        #relatorio-table th:nth-child(1), 
+        #relatorio-table td:nth-child(1) { /* Coluna Nº Mapa */
+            min-width: 25px; 
+            white-space: normal; /* Permitir quebra de texto se o número for grande */
+        }
+
+        /* Tabela Histórico (#historico-table) */
+        /* Colunas visíveis: Nº, Data Início, Data Fim */
+        #historico-table th:nth-child(2), /* Ocultar Designado para */
+        #historico-table td:nth-child(2),
+        #historico-table th:nth-child(3), /* Ocultar Data de Início original (a que fica visível é a 3a efetiva agora)*/
+        #historico-table td:nth-child(3),
+        #historico-table th:nth-child(4), /* Ocultar Data de Fim original (a que fica visível é a 4a efetiva agora)*/
+        #historico-table td:nth-child(4) {
+            /* As colunas "Data de Início" e "Data de Fim" da regra original (768px) já as ocultavam.
+               Para ser mais explícito, vamos redefinir aqui caso a estrutura mude ou queiramos mostrar só o número */
+            /* Se a ideia é mostrar SÓ o número do mapa em telas muito pequenas: */
+            /* display: none; */
+        }
+         /* Se precisar ocultar mais colunas do histórico em 480px:
+           (Exemplo: deixar apenas Nº do Mapa e Data de Fim)
+            #historico-table th:nth-child(3), // Data de Início
+            #historico-table td:nth-child(3) {
+                display: none;
+            }
+         */
+         /* A regra anterior já escondia Designado, Ciclo e Ações.
+            Então as colunas restantes são Nº, Início, Fim. Vamos ajustar o que esconder:
+            Deixar: Nº, Fim. Esconder: Designado, Início, Ciclo, Ações.
+         */
+        #historico-table th:nth-child(2), /* Designado para */
+        #historico-table td:nth-child(2),
+        #historico-table th:nth-child(3), /* Data de Início */
+        #historico-table td:nth-child(3) {
+            display: none;
+        }
+        /* Visível no histórico-table (max 480px): Nº do Mapa, Data de Fim */
+
+
+        #current-cycle-info {
+            padding: 8px 10px;
+            font-size: 0.8rem;
+        }
+        #current-cycle-info span {
+            line-height: 1.3;
+        }
+
+        .progress-bar {
+            font-size: 0.7rem;
+            height: 20px;
+            line-height: 20px;
+        }
+        .progress-container {
+            height: 20px;
+        }
+
+        #toggle-historico-edit-btn, #cycle-actions button {
+            width: 95%; /* Botões de ação principal ocupam mais largura */
+            padding: 0 8px;
+            font-size: 0.75rem;
+        }
+    }
+    /* --- Fim das Regras Responsivas --- */
 </style>
 </head>
 <body>
@@ -329,7 +423,7 @@
     </div>
   </div>
 
-  <div class="content-wrapper">
+  <div style="overflow-x:auto; margin-bottom: 24px;">
     <h2>Mapas em Andamento</h2>
     <table id="relatorio-table">
       <thead>
@@ -345,9 +439,9 @@
     </table>
 
     <h2>Histórico de Mapas Concluídos</h2>
-    <div id="historico-edit-controls" style="text-align:center; margin-bottom:10px;">
+    <div id="historico-edit-controls" style="overflow-x:auto;">
         <button id="toggle-historico-edit-btn" onclick="toggleGlobalHistoricoEdit()">Habilitar Edição Geral</button>
-    </div>
+    </div style="overflow-x:auto; margin-bottom: 24px;">
     <table id="historico-table">
       <thead>
         <tr>
@@ -359,7 +453,7 @@
           <th>Ações</th> 
         </tr>
       </thead>
-      <tbody id="historico-body"></tbody>
+      <tbody  id="historico-body"></tbody>
     </table>
   </div>
 

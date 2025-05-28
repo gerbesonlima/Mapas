@@ -374,6 +374,10 @@ progress::-moz-progress-bar {
     font-weight: 500;
     cursor: pointer;
     display: flex;
+
+
+
+    
     justify-content: space-between;
     align-items: center;
     transition: var(--transition);
