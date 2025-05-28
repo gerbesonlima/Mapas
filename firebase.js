@@ -337,7 +337,7 @@ async function carregarDadosEAtualizarProgressoIndex() {
                 statusText = "Status: Concluído (Histórico)";
                 dataInicioVal = historyEntry.dataInicio || "";
                 dataFimVal = historyEntry.dataFim || "";
-                observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído por: ${historyEntry.nome}` : "");
+                observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${historyEntry.dataFim}` : "");
                 isFromHistory = true;
             } else {
                 const dadosMapaAtual = mapasEmAndamento[i];
