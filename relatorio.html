@@ -197,22 +197,20 @@
 
     /* Tabelas */
     table {
-      width: 100%; /* Garante que a tabela tente usar a largura disponível */
-      /* max-width: 900px; Removido para permitir que a rolagem funcione dentro do wrapper */
-      margin: 16px auto; /* Ajustado */
+      width: 100%; 
+      margin: 16px auto; 
       border-collapse: collapse;
       background-color: #FFFFFF; 
       border-radius: 4px; 
       box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); 
-      font-size: 0.8em; /* Ajustado */
-      /* overflow: hidden; Removido daqui, será controlado pelo div wrapper */
+      font-size: 0.8em; 
     }
     th, td {
-      padding: 8px; /* Ajustado */
+      padding: 8px; 
       text-align: left;
       border: none; 
       color: #212121; 
-      white-space: nowrap; /* Para melhor comportamento com rolagem horizontal */
+      white-space: nowrap; 
     }
     th {
       background-color: #FFFFFF; 
@@ -235,7 +233,7 @@
         font-size: 0.875rem; 
         margin: 0; 
         line-height: normal;
-        min-width: 100px; /* Adicionado para evitar que fiquem muito pequenos */
+        min-width: 100px; 
     }
     td input[type="text"]:focus, td input[type="date"]:focus {
       margin-bottom: -1px; 
@@ -257,7 +255,7 @@
     #cycle-selection-area button {
         margin-top: 10px;
     }
-    #historico-edit-controls button {
+    #historico-edit-controls button { /* Botão "Habilitar Edição Geral" */
         margin-bottom: 16px; 
     }
 
@@ -283,17 +281,19 @@
         }
 
         /* Tabela Histórico (#historico-table) */
-        #historico-table th:nth-child(5), /* Ocultar Ciclo (Nº) */
-        #historico-table td:nth-child(5),
-        #historico-table th:nth-child(6), /* Ocultar Ações */
-        #historico-table td:nth-child(6) {
+        /* Colunas: Nº(1), Designado(2), Início(3), Fim(4), Ciclo(5), Ações(6) */
+        #historico-table th:nth-child(5), /* Ocultar APENAS Ciclo (Nº) */
+        #historico-table td:nth-child(5) {
             display: none;
         }
-        #historico-table button.archive-btn { /* Botão específico de arquivar */
+        /* A coluna "Ações" (6) NÃO é mais oculta aqui */
+
+        #historico-table button.archive-btn { 
             font-size: 0.7rem; 
             padding: 0 6px;
             height: 28px;
             line-height: 28px;
+            white-space: nowrap; 
         }
 
         /* Empilhar botões de controle de ciclo */
@@ -304,7 +304,7 @@
             margin: 8px auto; 
         }
          #cycle-selection-area select, #cycle-selection-area button {
-            width: 100%; /* Fazer select e botão ocuparem largura total */
+            width: 100%; 
             margin-left: 0;
             margin-right: 0;
             box-sizing: border-box;
@@ -327,53 +327,26 @@
             padding: 4px;
             font-size: 0.7em; 
         }
-        td input[type="text"] { /* Input de texto dentro de tabelas */
-            font-size: 0.9em; /* Manter input legível */
+        td input[type="text"] { 
+            font-size: 0.9em; 
         }
 
         /* Tabela Mapas em Andamento (#relatorio-table) */
-        /* Colunas visíveis: Nº, Designado (input), Ação */
-        #relatorio-table td:nth-child(2) input[type="text"] { /* Campo "Designado para" */
-           min-width: 70px; /* Reduzir ainda mais */
+        #relatorio-table td:nth-child(2) input[type="text"] { 
+           min-width: 70px; 
            font-size: 0.85em;
         }
         #relatorio-table th:nth-child(1), 
-        #relatorio-table td:nth-child(1) { /* Coluna Nº Mapa */
+        #relatorio-table td:nth-child(1) { 
             min-width: 25px; 
-            white-space: normal; /* Permitir quebra de texto se o número for grande */
+            white-space: normal; 
         }
 
+
         /* Tabela Histórico (#historico-table) */
-        /* Colunas visíveis: Nº, Data Início, Data Fim */
-        #historico-table th:nth-child(2), /* Ocultar Designado para */
-        #historico-table td:nth-child(2),
-        #historico-table th:nth-child(3), /* Ocultar Data de Início original (a que fica visível é a 3a efetiva agora)*/
-        #historico-table td:nth-child(3),
-        #historico-table th:nth-child(4), /* Ocultar Data de Fim original (a que fica visível é a 4a efetiva agora)*/
-        #historico-table td:nth-child(4) {
-            /* As colunas "Data de Início" e "Data de Fim" da regra original (768px) já as ocultavam.
-               Para ser mais explícito, vamos redefinir aqui caso a estrutura mude ou queiramos mostrar só o número */
-            /* Se a ideia é mostrar SÓ o número do mapa em telas muito pequenas: */
-            /* display: none; */
-        }
-         /* Se precisar ocultar mais colunas do histórico em 480px:
-           (Exemplo: deixar apenas Nº do Mapa e Data de Fim)
-            #historico-table th:nth-child(3), // Data de Início
-            #historico-table td:nth-child(3) {
-                display: none;
-            }
-         */
-         /* A regra anterior já escondia Designado, Ciclo e Ações.
-            Então as colunas restantes são Nº, Início, Fim. Vamos ajustar o que esconder:
-            Deixar: Nº, Fim. Esconder: Designado, Início, Ciclo, Ações.
-         */
-        #historico-table th:nth-child(2), /* Designado para */
-        #historico-table td:nth-child(2),
-        #historico-table th:nth-child(3), /* Data de Início */
-        #historico-table td:nth-child(3) {
-            display: none;
-        }
-        /* Visível no histórico-table (max 480px): Nº do Mapa, Data de Fim */
+        /* A coluna "Ciclo (Nº)" (5ª) já está oculta pela regra de 768px. */
+        /* As colunas "Designado para" (2ª), "Data de Início" (3ª) e "Ações" (6ª) devem permanecer visíveis */
+        /* Todas as colunas (1, 2, 3, 4, 6) tentarão se ajustar, e a rolagem horizontal cuidará do excesso. */
 
 
         #current-cycle-info {
@@ -393,8 +366,8 @@
             height: 20px;
         }
 
-        #toggle-historico-edit-btn, #cycle-actions button {
-            width: 95%; /* Botões de ação principal ocupam mais largura */
+        #toggle-historico-edit-btn, #cycle-actions button { /* Botão "Habilitar Edição Geral" e outros de ciclo */
+            width: 95%; 
             padding: 0 8px;
             font-size: 0.75rem;
         }
