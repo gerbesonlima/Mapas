@@ -218,6 +218,9 @@ async function loadActiveCycleDetailsForIndex() {
     await carregarDadosEAtualizarProgressoIndex();
 }
 
+// Dentro do seu arquivo firebase.js
+// Substitua a função atualizarProgressoGeralIndex existente por esta:
+
 async function atualizarProgressoGeralIndex() {
     const progressBar = document.getElementById("progress-bar"); 
     
@@ -226,72 +229,83 @@ async function atualizarProgressoGeralIndex() {
         return;
     }
 
-    // activeCycleDataIndex é carregado por loadActiveCycleDetailsForIndex()
     if (!activeCycleDataIndex || typeof activeCycleDataIndex.numero === 'undefined') {
         progressBar.style.width = "0%";
-        progressBar.textContent = "Nenhum ciclo ativo";
+        progressBar.textContent = "0% (0/" + totalMapasGlobal + ")";
         return;
     }
 
     const cicloAtualNumero = activeCycleDataIndex.numero;
-    // totalMapasGlobal já é uma variável global em firebase.js
-    // const totalMapasNoCiclo = totalMapasGlobal; 
 
     try {
-        // Promise para buscar mapas concluídos do historicoMapas principal
         const promiseHistorico = db.ref("historicoMapas")
             .orderByChild("ciclo")
-            .equalTo(cicloAtualNumero) // Busca apenas do ciclo ativo
+            .equalTo(cicloAtualNumero)
             .once("value");
 
-        // Promise para buscar mapas concluídos do historico_arquivado
         const promiseArquivado = db.ref("historico_arquivado")
-            .once("value"); // Filtraremos client-side pelo cicloAtualNumero
+            .once("value");
 
         const snapshots = await Promise.all([promiseHistorico, promiseArquivado]);
         
         const historicoSnap = snapshots[0];
         const arquivadoSnap = snapshots[1];
 
-        let completedMapIds = new Set(); // Usaremos um Set para contar IDs de mapas únicos
+        let totalConclusoesNoCiclo = 0;
 
-        // Processar historicoMapas principal
         if (historicoSnap.exists()) {
             historicoSnap.forEach(childSnap => {
                 const registro = childSnap.val();
-                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "" && registro.mapa) {
-                    completedMapIds.add(String(registro.mapa));
+                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "" && 
+                    String(registro.ciclo) === String(cicloAtualNumero)) {
+                    totalConclusoesNoCiclo++;
                 }
             });
         }
 
-        // Processar historico_arquivado
         if (arquivadoSnap.exists()) {
             arquivadoSnap.forEach(childSnap => {
                 const registroArchived = childSnap.val();
-                // Filtra para garantir que o registro arquivado pertence ao ciclo ativo e tem dataFim
                 if (registroArchived && 
                     String(registroArchived.ciclo) === String(cicloAtualNumero) && 
                     registroArchived.dataFim && String(registroArchived.dataFim).trim() !== "" &&
                     registroArchived.mapa) {
-                    completedMapIds.add(String(registroArchived.mapa));
+                    totalConclusoesNoCiclo++;
                 }
             });
         }
 
-        const mapasCompletosUnicos = completedMapIds.size;
-        const percent = totalMapasGlobal > 0 ? Math.round((mapasCompletosUnicos / totalMapasGlobal) * 100) : 0;
+        let percent = 0;
+        let mapasNaVoltaAtualDisplay = 0; // Quantos mapas contar para a barra na volta atual
+
+        if (totalConclusoesNoCiclo === 0) {
+            percent = 0;
+            mapasNaVoltaAtualDisplay = 0;
+        } else {
+            // Calcula quantos mapas foram concluídos na "volta" atual de 0-38
+            mapasNaVoltaAtualDisplay = ((totalConclusoesNoCiclo - 1) % totalMapasGlobal) + 1;
+            percent = totalMapasGlobal > 0 ? Math.round((mapasNaVoltaAtualDisplay / totalMapasGlobal) * 100) : 0;
+        }
         
-        const cycleName = activeCycleDataIndex.nome || `Ciclo ${activeCycleDataIndex.numero}`;
         progressBar.style.width = percent + "%";
-        progressBar.textContent = `${percent}% (${mapasCompletosUnicos}/${totalMapasGlobal})`;
+        // Exibe o progresso da volta atual (ex: se 39 concluídos, mostra 3% (1/38))
+        progressBar.textContent = `${percent}% (${mapasNaVoltaAtualDisplay}/${totalMapasGlobal})`;
+
+        // Opcional: se você quiser indicar qual "volta" é (ex: "Volta 2: 3% (1/38)")
+        // const numeroDaVolta = Math.floor((totalConclusoesNoCiclo -1) / totalMapasGlobal) + 1;
+        // if (totalConclusoesNoCiclo > 0) {
+        //     progressBar.textContent = `Volta ${numeroDaVolta}: ${percent}% (${mapasNaVoltaAtualDisplay}/${totalMapasGlobal})`;
+        // } else {
+        //     progressBar.textContent = `0% (0/${totalMapasGlobal})`;
+        // }
+
+
     } catch (error) {
         console.error("Index Page: Erro ao atualizar barra de progresso:", error);
         progressBar.style.width = "0%";
-        progressBar.textContent = "Erro ao carregar progresso";
+        progressBar.textContent = "Erro"; // Ou "0% (0/38)"
     }
 }
-
 
 async function carregarDadosEAtualizarProgressoIndex() {
     let historicoMapasDoCicloAtual = {};
