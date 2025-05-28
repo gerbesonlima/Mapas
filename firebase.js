@@ -333,26 +333,51 @@ async function carregarDadosEAtualizarProgressoIndex() {
                 }
             }
 
-            if (historyEntry && historyEntry.dataFim && String(historyEntry.dataFim).trim() !== "") {
-                statusText = "Status: Concluído (Histórico)";
-                dataInicioVal = historyEntry.dataInicio || "";
-                dataFimVal = historyEntry.dataFim || "";
-                observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${historyEntry.dataFim}` : "");
-                isFromHistory = true;
-            } else {
-                const dadosMapaAtual = mapasEmAndamento[i];
-                if (dadosMapaAtual) {
-                    dataInicioVal = dadosMapaAtual.dataInicio || "";
-                    dataFimVal = dadosMapaAtual.dataFim || "";
-                    observacaoVal = dadosMapaAtual.observacao || "";
+           if (historyEntry && historyEntry.dataFim && String(historyEntry.dataFim).trim() !== "") {
+    statusText = "Status: Concluído (Histórico)";
+    dataInicioVal = historyEntry.dataInicio || "";
+    dataFimVal = historyEntry.dataFim || "";
 
-                    if (dataFimVal) {
-                        statusText = "Status: Concluído (Pronto p/ Relatório)";
-                    } else if (dataInicioVal) {
-                        statusText = "Status: Em andamento";
-                    }
-                }
-            }
+    // Formata a dataFim para o padrão brasileiro
+    let dataFimFormatada = "";
+    if (historyEntry.dataFim) {
+        const data = new Date(historyEntry.dataFim);
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+        const ano = data.getFullYear();
+        dataFimFormatada = `${dia}/${mes}/${ano}`;
+    }
+
+    observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${dataFimFormatada}` : "");
+    isFromHistory = true;
+} else {
+    const dadosMapaAtual = mapasEmAndamento[i];
+    if (dadosMapaAtual) {
+        dataInicioVal = dadosMapaAtual.dataInicio || "";
+        dataFimVal = dadosMapaAtual.dataFim || "";
+        observacaoVal = dadosMapaAtual.observacao || "";
+
+        // Formata a dataFim para o padrão brasileiro também aqui, se necessário
+        let dataFimFormatadaElse = "";
+        if (dataFimVal) {
+            const dataElse = new Date(dataFimVal);
+            const diaElse = String(dataElse.getDate()).padStart(2, '0');
+            const mesElse = String(dataElse.getMonth() + 1).padStart(2, '0');
+            const anoElse = dataElse.getFullYear();
+            dataFimFormatadaElse = `${diaElse}/${mesElse}/${anoElse}`;
+            // Você pode querer usar dataFimFormatadaElse na observacaoVal ou em outro lugar
+        }
+
+
+        if (dataFimVal) {
+            statusText = "Status: Concluído (Pronto p/ Relatório)";
+            // Exemplo de como usar a data formatada no status, se desejado:
+            // statusText = `Status: Concluído (Pronto p/ Relatório em ${dataFimFormatadaElse})`;
+        } else if (dataInicioVal) {
+            statusText = "Status: Em andamento";
+        }
+    }
+}
             
             statusElement.textContent = statusText;
             dataInicioElement.value = dataInicioVal;
