@@ -168,11 +168,8 @@ function carregarMapasDesignados() {
             <button id="relatorio-btn" style="display: none;" onclick="window.location.href='relatorio.html'">Ver Relatório</button>
             <button id="editar-campo-btn" style="display: none;" onclick="window.location.href='configcampo.html'">Editar Campo</button>
         </div>
-    <!-- Barra de progresso dos ciclos -->
-   
-<div id="cycle-selection-area" style="margin-top: 10px;"></div>
+    <div id="cycle-selection-area" style="margin-top: 10px;"></div>
      <div class="progress-container">
-        <p>Mapas concluidos</p>
       <div class="progress-bar" id="progress-bar">0%</div>
     </div>
   </div>
@@ -703,29 +700,78 @@ function carregarMapasDesignados() {
     </footer>
 
     <script>
-  const db = firebase.database(); // você já tem firebase inicializado
+  // Cole esta função completa no lugar da função atualizarBarraProgresso existente em relatorio.html
 
-  async function carregarProgresso() {
-    const cicloSnap = await db.ref("cicloAtual").once("value");
-    const ciclo = cicloSnap.val() || 1;
-
-    const histSnap = await db.ref("historicoMapas").once("value");
-    const historico = histSnap.val() || {};
-
-    const finalizados = Object.values(historico).filter(h => h.ciclo === ciclo).length;
-    const percent = Math.round((finalizados / 38) * 100);
-
+function atualizarBarraProgresso() {
     const bar = document.getElementById("progress-bar");
-    bar.style.width = percent + "%";
-    bar.textContent = `${ciclo} — ${percent}%`;
-
-    // Avança para o próximo ciclo automaticamente se 38 forem finalizados
-    if (finalizados >= 38) {
-      await db.ref("cicloAtual").set(ciclo + 1);
+    if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
+        bar.style.width = "0%";
+        bar.textContent = "Nenhum ciclo ativo";
+        return;
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", carregarProgresso);
+    const cicloAtualNumero = activeCycleData.numero;
+    // Presumindo que totalMapasGlobal de firebase.js (38) é o total para um ciclo.
+    // Se este valor puder mudar, você pode querer torná-lo dinâmico.
+    const totalMapasNoCiclo = 38; 
+
+    // Promise para buscar mapas concluídos do historicoMapas principal
+    const promiseHistorico = db.ref("historicoMapas")
+        .orderByChild("ciclo")
+        .equalTo(cicloAtualNumero) // Busca apenas do ciclo ativo
+        .once("value");
+
+    // Promise para buscar mapas concluídos do historico_arquivado
+    // Atenção: Isso busca todo o nó 'historico_arquivado'.
+    // Se este nó se tornar muito grande, essa abordagem pode ficar lenta,
+    // pois o filtro por ciclo será feito no lado do cliente.
+    const promiseArquivado = db.ref("historico_arquivado")
+        .once("value");
+
+    Promise.all([promiseHistorico, promiseArquivado]).then(snapshots => {
+        const historicoSnap = snapshots[0];
+        const arquivadoSnap = snapshots[1];
+
+        let completedMapIds = new Set(); // Usaremos um Set para contar IDs de mapas únicos
+
+        // Processar historicoMapas principal
+        if (historicoSnap.exists()) {
+            historicoSnap.forEach(childSnap => {
+                const registro = childSnap.val();
+                // Considera apenas se tem dataFim e pertence ao ciclo atual (já filtrado pela query)
+                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "" && registro.mapa) {
+                    completedMapIds.add(String(registro.mapa));
+                }
+            });
+        }
+
+        // Processar historico_arquivado
+        if (arquivadoSnap.exists()) {
+            arquivadoSnap.forEach(childSnap => {
+                const registroArchived = childSnap.val();
+                // Filtra para garantir que o registro arquivado pertence ao ciclo ativo e tem dataFim
+                if (registroArchived && 
+                    String(registroArchived.ciclo) === String(cicloAtualNumero) && 
+                    registroArchived.dataFim && String(registroArchived.dataFim).trim() !== "" &&
+                    registroArchived.mapa) {
+                    completedMapIds.add(String(registroArchived.mapa));
+                }
+            });
+        }
+
+        const mapasCompletosUnicos = completedMapIds.size;
+        const percent = totalMapasNoCiclo > 0 ? Math.round((mapasCompletosUnicos / totalMapasNoCiclo) * 100) : 0;
+        
+        const cycleName = activeCycleData.nome || `Ciclo ${activeCycleData.numero}`;
+        bar.style.width = percent + "%";
+        bar.textContent = `${cycleName} — ${percent}% (${mapasCompletosUnicos}/${totalMapasNoCiclo})`;
+
+    }).catch(error => {
+        console.error("Erro ao atualizar barra de progresso:", error);
+        bar.style.width = "0%";
+        bar.textContent = "Erro ao carregar progresso";
+    });
+}
 </script>
 
 

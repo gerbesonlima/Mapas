@@ -3,137 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Designação de Território - Ano de Serviço: 2025</title>
+    <title>Visualização de Registros Arquivados de Território</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0 10px;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            text-align: center;
+            margin: 15px;
+            line-height: 1.4;
+            background-color: #f8f8f8;
             color: #333;
-            font-size: 2rem;
-            margin: 20px 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .controls {
             text-align: center;
             margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
-        .controls label, .controls select, .controls input {
-            margin: 0 10px;
+        .controls label, .controls input, .controls button {
+            margin: 5px;
+            padding: 8px;
+            font-size: 0.9em;
+        }
+        .controls input {
+            width: 100px;
         }
         .controls button {
-            padding: 8px 16px;
             cursor: pointer;
+            background-color: #2c3e50;
+            color: white;
             border: none;
             border-radius: 4px;
-            background-color: #2c3e50;
-            color: #fff;
-            font-size: 0.95em;
         }
-        .controls button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        h1 {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 5px;
         }
-        .checkbox-group {
-            margin: 10px 0;
-        }
-        .table-container {
-            overflow-x: auto;
-            max-width: 100%;
-            margin: 0 auto;
+        h2#serviceYearHeader {
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 15px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            min-width: 900px;
+            margin-bottom: 15px;
+            font-size: 0.8em;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #bbb;
+            padding: 5px;
             text-align: center;
-            font-size: 0.95em;
+            vertical-align: middle;
         }
         th {
-            background-color: #2c3e50;
-            color: #fff;
+            background-color: #e0e0e0;
             font-weight: bold;
         }
-        td {
+        thead th.main-header {
+            background-color: #c0c0c0;
+        }
+        td.name-cell {
+            font-weight: bold;
             background-color: #f9f9f9;
         }
-        tr:nth-child(even) td {
-            background-color: #f1f1f1;
-        }
-        tr:hover td {
-            background-color: #e0e0e0;
-        }
-        input[type="date"] {
-            width: 100%;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        tr.date-row td {
             font-size: 0.95em;
-            box-sizing: border-box;
         }
-        input[readonly] {
-            background-color: #e9ecef;
+        .footnote, .form-id {
+            font-size: 0.75em;
+            text-align: left;
+            margin-top: 10px;
         }
-        .hidden {
-            display: none !important;
-        }
-        th.coluna1, td.coluna1 {
-            width: 80px;
-        }
-        th.coluna2, td.coluna2 {
-            width: 180px;
-        }
-        th.coluna3, td.coluna3 {
-            min-width: 140px;
-        }
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            th, td {
-                font-size: 0.85em;
-                padding: 6px;
-            }
-            input[type="date"] {
-                font-size: 0.85em;
-                padding: 5px;
-            }
-            .controls button {
-                font-size: 0.85em;
-                padding: 6px 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.2rem;
-            }
-            th, td {
-                font-size: 0.75em;
-                padding: 4px;
-            }
-            input[type="date"] {
-                font-size: 0.75em;
-                padding: 4px;
-            }
-            .controls button {
-                font-size: 0.75em;
-                padding: 5px 10px;
-            }
+        .col-terr-no { width: 5%; }
+        .col-last-completed { width: 10%; }
+
+        @media print {
+            body { margin: 0; background-color: #fff; font-size: 7pt; }
+            .container { box-shadow: none; padding: 0; max-width:100%;}
+            .controls { display: none; }
+            h1, h2 { color: #000; }
+            th { background-color: #f2f2f2 !important; color: #000 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
+            thead th.main-header { background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
+            td { color: #000 !important; padding: 3px; vertical-align: middle;}
+            td.name-cell { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; color-adjust: exact;}
+            .footnote, .form-id { font-size: 0.7em; }
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <label for="cycleInput">Ano de Serviço (Ciclo):</label>
+            <input type="text" id="cycleInput" placeholder="Ex: 2024 ou 1" value="2024">
+            <button onclick="triggerLoad()">Carregar Dados</button> {/* Modificado para chamar triggerLoad */}
+        </div>
+
+        <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
+        <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
+                    <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
+                    <th colspan="2" class="main-header">Designado para</th>
+                    <th colspan="2" class="main-header">Designado para</th>
+                    <th colspan="2" class="main-header">Designado para</th>
+                    <th colspan="2" class="main-header">Designado para</th>
+                </tr>
+                <tr>
+                    <th>Data da designação</th><th>Data da conclusão</th>
+                    <th>Data da designação</th><th>Data da conclusão</th>
+                    <th>Data da designação</th><th>Data da conclusão</th>
+                    <th>Data da designação</th><th>Data da conclusão</th>
+                </tr>
+            </thead>
+            <tbody id="archived_territory_table_body">
+                </tbody>
+        </table>
+        <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
+        <p class="form-id">S-13-T (Visualização de Arquivados)</p>
+    </div>
+
     <script>
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
             authDomain: "territorios-3d0bb.firebaseapp.com",
@@ -145,288 +148,142 @@
             databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
-        // State variables
-        let isEditing = false;
-        let numColumns = 4;
-        let visibleColumns = [true, true, true, true]; // Tracks visibility of each "Designado para" column
-        let tableData = {};
-        let territoryIds = new Set();
+        function formatFirebaseDate(dateString) {
+            if (!dateString || String(dateString).trim() === "") return "";
+            const parts = String(dateString).split("-");
+            if (parts.length === 3) {
+                const [year, month, day] = parts;
+                return `${day}/${month}/${year.slice(-2)}`; // DD/MM/YY
+            }
+            return dateString; 
+        }
+        
+        // Nova função para acionar o carregamento (chamada pelo botão e no onload)
+        async function triggerLoad() {
+            const cycleInputValue = document.getElementById('cycleInput').value.trim();
+            // A função loadAndRenderArchivedData agora lida com cycleInputValue vazio
+            await loadAndRenderArchivedData(cycleInputValue);
+        }
 
-        // Initialize table and load data
-        window.onload = function() {
-            loadTableData();
-        };
+        // Função principal modificada para aceitar o ciclo como parâmetro
+        async function loadAndRenderArchivedData(selectedCycle) {
+            const tbody = document.getElementById('archived_territory_table_body');
+            const serviceYearHeader = document.getElementById('serviceYearHeader');
 
-        // Load data from Firebase
-        function loadTableData() {
-            // Fetch historicoMapas
-            database.ref('historicoMapas').once('value').then((histSnapshot) => {
-                const histData = histSnapshot.val();
-                if (histData) {
-                    Object.keys(histData).forEach(terr => {
-                        if (!isNaN(terr)) {
-                            territoryIds.add(parseInt(terr));
+            if (!selectedCycle) {
+                serviceYearHeader.textContent = 'Ano de Serviço: [Nenhum Ciclo Selecionado]';
+                tbody.innerHTML = '<tr><td colspan="10">Por favor, insira um Ano de Serviço (Ciclo) e clique em "Carregar Dados".</td></tr>';
+                return;
+            }
+
+            serviceYearHeader.textContent = `Ano de Serviço: ${selectedCycle}`;
+            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ciclo ' + selectedCycle + '...</td></tr>';
+
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                let processedData = {}; 
+                let allTerritoryIds = new Set(); // Não usado diretamente para iterar de 1-38, mas bom para saber quais terrs têm dados
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        if (record.mapa) { // Garante que o registro tem um mapa
+                           allTerritoryIds.add(parseInt(record.mapa));
                         }
-                    });
-                }
-
-                // Fetch historicoDesignacoes
-                database.ref('historicoDesignacoes').once('value').then((designSnapshot) => {
-                    const designData = designSnapshot.val();
-                    if (designData) {
-                        Object.values(designData).forEach(design => {
-                            if (design.mapaId && !isNaN(design.mapaId)) {
-                                territoryIds.add(parseInt(design.mapaId));
-                            }
-                        });
-                    }
-
-                    // Initialize tableData from Firebase or default
-                    database.ref('tableData').once('value').then((snapshot) => {
-                        const data = snapshot.val();
-                        if (data) {
-                            tableData = data;
-                        }
-
-                        // Initialize tableData for all territories found
-                        territoryIds.forEach(terr => {
-                            if (!tableData[terr]) {
-                                tableData[terr] = {
-                                    lastCompleted: '',
-                                    assignments: [
-                                        { startDate: '', endDate: '' },
-                                        { startDate: '', endDate: '' },
-                                        { startDate: '', endDate: '' },
-                                        { startDate: '', endDate: '' }
-                                    ]
+                        
+                        // Comparação do ciclo do registro com o ciclo selecionado
+                        if (String(record.ciclo) === String(selectedCycle)) {
+                            if (!processedData[record.mapa]) {
+                                processedData[record.mapa] = {
+                                    assignments: [],
+                                    ultimaDataConcluida: '' 
                                 };
                             }
-                        });
-
-                        // Populate lastCompleted from historicoMapas
-                        if (histData) {
-                            for (let terr in histData) {
-                                if (!isNaN(terr) && territoryIds.has(parseInt(terr))) {
-                                    const cycles = histData[terr].ciclos;
-                                    const latestCycle = Object.values(cycles)[Object.values(cycles).length - 1];
-                                    if (latestCycle) {
-                                        tableData[terr].lastCompleted = latestCycle.dataFim || '';
-                                    }
-                                }
-                            }
+                            processedData[record.mapa].assignments.push({
+                                nome: record.nome || '',
+                                dataInicio: record.dataInicio || '',
+                                dataFim: record.dataFim || ''
+                            });
                         }
-
-                        // Populate first assignment column from historicoDesignacoes
-                        if (designData) {
-                            for (let key in designData) {
-                                const design = designData[key];
-                                if (design.acao === 'designado' && design.mapaId && territoryIds.has(parseInt(design.mapaId))) {
-                                    const terrId = parseInt(design.mapaId);
-                                    // Only populate the first assignment column with dates
-                                    if (!tableData[terrId].assignments[0].startDate) {
-                                        tableData[terrId].assignments[0] = {
-                                            startDate: design.dataDesignacao || design.timestamp.split('T')[0],
-                                            endDate: ''
-                                        };
-                                    }
-                                }
-                            }
-                        }
-
-                        renderTable();
-                        updateColumnVisibility();
-                    });
-                });
-            }).catch((error) => {
-                console.error('Erro ao carregar dados:', error);
-                alert('Erro ao carregar dados do Firebase.');
-            });
-        }
-
-        // Render the table
-        function renderTable() {
-            const table = document.getElementById('territoryTable');
-            const sortedTerritories = Array.from(territoryIds).sort((a, b) => a - b);
-            table.innerHTML = `
-                <thead>
-                    <tr>
-                        <th class="coluna1" rowspan="2">Terr. n.º</th>
-                        <th class="coluna2" rowspan="2">Última data concluída*</th>
-                        ${visibleColumns[0] ? '<th class="coluna3">Designado para</th>' : '<th class="hidden"></th>'}
-                        ${visibleColumns[1] ? '<th class="coluna3">Designado para</th>' : '<th class="hidden"></th>'}
-                        ${visibleColumns[2] ? '<th class="coluna3">Designado para</th>' : '<th class="hidden"></th>'}
-                        ${visibleColumns[3] ? '<th class="coluna3">Designado para</th>' : '<th class="hidden"></th>'}
-                    </tr>
-                    <tr>
-                        ${visibleColumns[0] ? `
-                            <th class="coluna3">Data da designação</th>
-                            <th class="coluna3">Data da conclusão</th>
-                        ` : `
-                            <th class="hidden"></th>
-                            <th class="hidden"></th>
-                        `}
-                        ${visibleColumns[1] ? `
-                            <th class="coluna3">Data da designação</th>
-                            <th class="coluna3">Data da conclusão</th>
-                        ` : `
-                            <th class="hidden"></th>
-                            <th class="hidden"></th>
-                        `}
-                        ${visibleColumns[2] ? `
-                            <th class="coluna3">Data da designação</th>
-                            <th class="coluna3">Data da conclusão</th>
-                        ` : `
-                            <th class="hidden"></th>
-                            <th class="hidden"></th>
-                        `}
-                        ${visibleColumns[3] ? `
-                            <th class="coluna3">Data da designação</th>
-                            <th class="coluna3">Data da conclusão</th>
-                        ` : `
-                            <th class="hidden"></th>
-                            <th class="hidden"></th>
-                        `}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${sortedTerritories.map(terr => `
-                        <tr>
-                            <td class="coluna1">${terr}</td>
-                            <td class="coluna2"><input type="date" value="${tableData[terr].lastCompleted || ''}" data-terr="${terr}" data-field="lastCompleted" ${isEditing ? '' : 'readonly'}></td>
-                            ${visibleColumns[0] ? `
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[0].startDate || ''}" data-terr="${terr}" data-assignment="0" data-field="startDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[0].endDate || ''}" data-terr="${terr}" data-assignment="0" data-field="endDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                            ` : `
-                                <td class="hidden"></td>
-                                <td class="hidden"></td>
-                            `}
-                            ${visibleColumns[1] ? `
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[1].startDate || ''}" data-terr="${terr}" data-assignment="1" data-field="startDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[1].endDate || ''}" data-terr="${terr}" data-assignment="1" data-field="endDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                            ` : `
-                                <td class="hidden"></td>
-                                <td class="hidden"></td>
-                            `}
-                            ${visibleColumns[2] ? `
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[2].startDate || ''}" data-terr="${terr}" data-assignment="2" data-field="startDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[2].endDate || ''}" data-terr="${terr}" data-assignment="2" data-field="endDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                            ` : `
-                                <td class="hidden"></td>
-                                <td class="hidden"></td>
-                            `}
-                            ${visibleColumns[3] ? `
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[3].startDate || ''}" data-terr="${terr}" data-assignment="3" data-field="startDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                                <td class="coluna3">
-                                    <input type="date" value="${tableData[terr].assignments[3].endDate || ''}" data-terr="${terr}" data-assignment="3" data-field="endDate" ${isEditing ? '' : 'readonly'}>
-                                </td>
-                            ` : `
-                                <td class="hidden"></td>
-                                <td class="hidden"></td>
-                            `}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            `;
-        }
-
-        // Toggle edit mode
-        function toggleEditMode() {
-            isEditing = !isEditing;
-            document.getElementById('editButton').textContent = isEditing ? 'Cancelar' : 'Editar';
-            document.getElementById('saveButton').disabled = !isEditing;
-            renderTable();
-        }
-
-        // Save data to Firebase
-        function saveData() {
-            const inputs = document.querySelectorAll('#territoryTable input');
-            inputs.forEach(input => {
-                const terr = input.dataset.terr;
-                const field = input.dataset.field;
-                const assignmentIndex = input.dataset.assignment;
-                if (assignmentIndex !== undefined) {
-                    tableData[terr].assignments[assignmentIndex][field] = input.value;
-                } else {
-                    tableData[terr][field] = input.value;
-                }
-            });
-            database.ref('tableData').set(tableData).then(() => {
-                alert('Dados salvos com sucesso!');
-                toggleEditMode();
-            }).catch((error) => {
-                alert('Erro ao salvar dados: ' + error.message);
-            });
-        }
-
-        // Update column visibility
-        function updateColumnVisibility() {
-            numColumns = parseInt(document.getElementById('colSelector').value);
-            visibleColumns = [
-                document.getElementById('col1').checked,
-                document.getElementById('col2').checked,
-                document.getElementById('col3').checked,
-                document.getElementById('col4').checked
-            ];
-            // Ensure the number of visible columns does not exceed numColumns
-            let visibleCount = visibleColumns.filter(v => v).length;
-            if (visibleCount > numColumns) {
-                alert(`Por favor, selecione no máximo ${numColumns} colunas.`);
-                // Reset checkboxes to match numColumns
-                let count = 0;
-                for (let i = 0; i < 4; i++) {
-                    if (count < numColumns) {
-                        visibleColumns[i] = true;
-                        document.getElementById(`col${i+1}`).checked = true;
-                        count++;
-                    } else {
-                        visibleColumns[i] = false;
-                        document.getElementById(`col${i+1}`).checked = false;
                     }
                 }
+
+                for (const mapId in processedData) {
+                    processedData[mapId].assignments.sort((a, b) => {
+                        if (!a.dataInicio) return 1; // Coloca registros sem data de início no final
+                        if (!b.dataInicio) return -1;
+                        if (a.dataInicio < b.dataInicio) return -1;
+                        if (a.dataInicio > b.dataInicio) return 1;
+                        return 0;
+                    });
+                }
+
+                tbody.innerHTML = ''; 
+
+                let foundDataForCycle = false;
+                for (let i = 1; i <= 38; i++) {
+                    const mapId = String(i);
+                    const terrData = processedData[mapId];
+                    let assignments = terrData ? terrData.assignments : [];
+                    let ultimaData = ''; 
+
+                    if (terrData) foundDataForCycle = true;
+
+                    let namesRowHTML = `<tr><td rowspan="2">${mapId.padStart(2, '0')}</td><td rowspan="2">${formatFirebaseDate(ultimaData)}</td>`;
+                    for (let j = 0; j < 4; j++) {
+                        const assignment = assignments[j];
+                        namesRowHTML += `<td colspan="2" class="name-cell">${assignment ? (assignment.nome || '') : ''}</td>`;
+                    }
+                    namesRowHTML += `</tr>`;
+                    tbody.insertAdjacentHTML('beforeend', namesRowHTML);
+
+                    let datesRowHTML = `<tr class="date-row">`;
+                    for (let j = 0; j < 4; j++) {
+                        const assignment = assignments[j];
+                        datesRowHTML += `<td>${assignment ? formatFirebaseDate(assignment.dataInicio) : ''}</td>
+                                         <td>${assignment ? formatFirebaseDate(assignment.dataFim) : ''}</td>`;
+                    }
+                    datesRowHTML += `</tr>`;
+                    tbody.insertAdjacentHTML('beforeend', datesRowHTML);
+
+                    // Lógica especial para Territórios 19 e 24 se tiverem mais de 4 designações
+                    if ((mapId === "19" || mapId === "24") && assignments.length > 4) {
+                        const fifthAssignment = assignments[4];
+                        if (fifthAssignment) {
+                            let extraNamesRowHTML = `<tr><td rowspan="2" style="font-style:italic;">${mapId.padStart(2, '0')} (cont.)</td><td rowspan="2"></td>`;
+                            extraNamesRowHTML += `<td colspan="2" class="name-cell">${fifthAssignment.nome || ''}</td>`;
+                            extraNamesRowHTML += `<td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td>`;
+                            extraNamesRowHTML += `</tr>`;
+                            tbody.insertAdjacentHTML('beforeend', extraNamesRowHTML);
+
+                            let extraDatesRowHTML = `<tr class="date-row">`;
+                            extraDatesRowHTML += `<td>${formatFirebaseDate(fifthAssignment.dataInicio)}</td><td>${formatFirebaseDate(fifthAssignment.dataFim)}</td>`;
+                            extraDatesRowHTML += `<td></td><td></td> <td></td><td></td> <td></td><td></td>`;
+                            extraDatesRowHTML += `</tr>`;
+                            tbody.insertAdjacentHTML('beforeend', extraDatesRowHTML);
+                        }
+                    }
+                }
+                 if (!foundDataForCycle && tbody.innerHTML === '') { // Verifica se dados foram encontrados E se o tbody está realmente vazio
+                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ciclo: ${selectedCycle}.</td></tr>`;
+                }
+
+            } catch (error) {
+                console.error("Erro ao carregar dados arquivados:", error);
+                serviceYearHeader.textContent = `Ano de Serviço: [Erro ao Carregar]`;
+                tbody.innerHTML = '<tr><td colspan="10">Erro ao carregar dados. Verifique o console (F12).</td></tr>';
+                alert("Erro ao carregar dados: " + error.message);
             }
-            renderTable();
         }
+        
+        // Carregar dados para o ciclo padrão (definido no value do input) ao iniciar a página
+        window.onload = function() {
+            triggerLoad(); // Chama a função que lê o input e carrega os dados
+        };
     </script>
-</head>
-<body>
-    <h1>Registro de Designação de Território - Ano de Serviço: 2025</h1>
-    <div class="controls">
-        <label for="colSelector">Quantas colunas de designação exibir:</label>
-        <select id="colSelector" onchange="updateColumnVisibility()">
-            <option value="1">1 coluna</option>
-            <option value="2">2 colunas</option>
-            <option value="3">3 colunas</option>
-            <option value="4" selected>4 colunas</option>
-        </select>
-        <div class="checkbox-group">
-            <label><input type="checkbox" id="col1" checked onchange="updateColumnVisibility()"> Designado para 1</label>
-            <label><input type="checkbox" id="col2" checked onchange="updateColumnVisibility()"> Designado para 2</label>
-            <label><input type="checkbox" id="col3" checked onchange="updateColumnVisibility()"> Designado para 3</label>
-            <label><input type="checkbox" id="col4" checked onchange="updateColumnVisibility()"> Designado para 4</label>
-        </div>
-        <button id="editButton" onclick="toggleEditMode()">Editar</button>
-        <button id="saveButton" disabled onclick="saveData()">Salvar</button>
-    </div>
-    <div class="table-container">
-        <table id="territoryTable"></table>
-    </div>
 </body>
 </html>

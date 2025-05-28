@@ -289,19 +289,21 @@
     }
 
     @media (max-width: 767px) { /* Ajuste este valor conforme necessário para o seu "ponto de quebra" móvel */
-    #historico-table th:nth-child(5),
-    #historico-table td:nth-child(5) {
-        display: none; /* Esconde a 5ª coluna (Ciclo (Nº)) */
+    #historico-table th:nth-child(5), /* Ciclo (Nº) */
+    #historico-table td:nth-child(5),
+    #historico-table th:nth-child(6), /* Ações */
+    #historico-table td:nth-child(6) {
+        /* Se quiser esconder a coluna de Ações também em telas menores, descomente as duas linhas abaixo */
+        /* display: none; */ 
+    }
+     /* Ajusta o tamanho do botão de arquivar para caber melhor */
+    #historico-table button.archive-btn {
+        font-size: 0.75rem; /* Tamanho de fonte menor */
+        padding: 0 8px; /* Padding horizontal menor */
+        height: 30px; /* Altura menor */
+        line-height: 30px; /* Linha-altura correspondente */
     }
 
-    /* Se a tabela de "Mapas em Andamento" também estiver causando problemas,
-       e você quiser esconder, por exemplo, a coluna "Ação" (que também é a 5ª): */
-    /*
-    #relatorio-table th:nth-child(5),
-    #relatorio-table td:nth-child(5) {
-        display: none;
-    }
-    */
 }
 
 </style>
@@ -320,6 +322,7 @@
       <button id="continue-cycle-btn" onclick="continueCyclePrompt()" style="display:none;">Continuar Ciclo</button>
       <button id="exclude-cycle-btn" onclick="excludeCyclePrompt()" class="danger-action">Excluir Ciclo</button>
     </div>
+    
     <div id="cycle-selection-area" style="margin-top: 10px;"></div>
      <div class="progress-container">
       <div class="progress-bar" id="progress-bar">0%</div>
@@ -353,6 +356,7 @@
           <th>Data de Início</th>
           <th>Data de Fim</th>
           <th>Ciclo (Nº)</th>
+          <th>Ações</th> 
         </tr>
       </thead>
       <tbody id="historico-body"></tbody>
@@ -361,10 +365,10 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY", // Replace with your actual Firebase config
+      apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY", // Substitua pela sua configuração real
       authDomain: "territorios-3d0bb.firebaseapp.com",
       projectId: "territorios-3d0bb",
-      storageBucket: "territorios-3d0bb.appspot.com",
+      storageBucket: "territorios-3d0bb.appspot.com", // Verifique se é appspot.com ou firebasestorage.app para seu projeto
       messagingSenderId: "712377474662",
       appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
       measurementId: "G-DME60YZGXX",
@@ -376,10 +380,10 @@
 
     let activeCycleData = null; 
     let isHistoricoEditingGlobal = false;
-    let allCyclesMap = {}; // To map cycle IDs/numbers to names for display
+    let allCyclesMap = {}; 
 
     function formatarData(data) {
-      if (!data || String(data).trim() === "") return "—"; // Ensure data is treated as string for trim
+      if (!data || String(data).trim() === "") return "—"; 
       const parts = String(data).split("-");
       if (parts.length === 3) {
         const [ano, mes, dia] = parts;
@@ -387,7 +391,7 @@
              return `${String(dia).padStart(2,'0')}/${String(mes).padStart(2,'0')}/${ano}`;
         }
       }
-      return "—"; // Return "—" if date format is unexpected or invalid
+      return "—"; 
     }
     
     function getTodayDateString() {
@@ -401,7 +405,7 @@
     async function loadActiveCycleDetails() {
         console.log("Iniciando loadActiveCycleDetails...");
         let activeCycleId = null;
-        activeCycleData = null; // Reset before loading
+        activeCycleData = null; 
 
         const activeCycleIdSnap = await db.ref("cicloAtualId").once("value");
         activeCycleId = activeCycleIdSnap.val();
@@ -419,7 +423,7 @@
                     activeCycleId = legacyCicloKey;
                     console.log(`Ciclo legado '${legacyCicloKey}' existe. Migrando para 'cicloAtualId'.`);
                     await db.ref('cicloAtualId').set(legacyCicloKey);
-                    await db.ref('cicloAtual').remove(); // Remove old path
+                    await db.ref('cicloAtual').remove(); 
                     console.log(`Migrado para 'cicloAtualId': ${legacyCicloKey}`);
                 } else {
                      console.log(`Ciclo legado '${legacyCicloKey}' não encontrado em /ciclos.`);
@@ -431,11 +435,10 @@
             const cycleSnap = await db.ref(`ciclos/${activeCycleId}`).once("value");
             if (cycleSnap.exists()) {
                 let cycleData = cycleSnap.val();
-                let needsUpdateInDB = false; // Flag to update Firebase only if necessary
+                let needsUpdateInDB = false; 
 
-                // Ensure essential fields exist for the loaded cycle
                 if (typeof cycleData.numero === 'undefined') {
-                    cycleData.numero = 1; // Default for old "ciclo_1" or if somehow missing
+                    cycleData.numero = 1; 
                     needsUpdateInDB = true;
                 }
                 if (typeof cycleData.nome === 'undefined' || String(cycleData.nome).trim() === '') {
@@ -463,7 +466,6 @@
                 activeCycleData = { id: activeCycleId, ...cycleData };
                 console.log("Ciclo ativo carregado:", activeCycleData);
 
-                // One-time migration for historicoMapas entries from "ciclo_1" string to numeric cycle
                 if (activeCycleId === 'ciclo_1' && activeCycleData.numero === 1) {
                     console.log("Verificando migração para historicoMapas com 'ciclo_1'...");
                     const historicoRef = db.ref('historicoMapas');
@@ -471,7 +473,7 @@
                     if (snapshot.exists()) {
                         const updates = {};
                         snapshot.forEach(childSnap => {
-                            updates[`${childSnap.key}/ciclo`] = 1; // Update to numeric 1
+                            updates[`${childSnap.key}/ciclo`] = 1; 
                         });
                         if (Object.keys(updates).length > 0) {
                             console.log(`Migrando ${Object.keys(updates).length} entradas do histórico de 'ciclo_1' para ciclo: 1...`);
@@ -486,7 +488,6 @@
                 activeCycleData = null;
             }
         } else {
-             // No active cycle ID found through new or legacy paths.
              console.log("Nenhum cicloAtualId definido. Verificando se é necessário criar ciclo padrão...");
             const todosCiclosSnap = await db.ref('ciclos').once('value');
             if (!todosCiclosSnap.exists()) { 
@@ -518,13 +519,13 @@
                 activeCycleData = null; 
             }
         }
-        // Load all cycle names for display purposes
+        
         const allCyclesSnap = await db.ref('ciclos').once('value');
         allCyclesMap = {};
         if(allCyclesSnap.exists()){
             allCyclesSnap.forEach(snap => {
-                allCyclesMap[snap.key] = snap.val(); // Store by ID
-                if(snap.val().numero) allCyclesMap[snap.val().numero] = snap.val(); // Also store by number if distinct
+                allCyclesMap[snap.key] = snap.val(); 
+                if(snap.val().numero) allCyclesMap[snap.val().numero] = snap.val(); 
             });
         }
 
@@ -637,7 +638,6 @@
             cyclesArray.push({ id: childSnap.key, ...childSnap.val() });
         });
 
-        // Sort by cycle number for consistent display
         cyclesArray.sort((a,b) => (a.numero || 0) - (b.numero || 0));
 
         cyclesArray.forEach(cycle => {
@@ -716,40 +716,78 @@
         };
         document.getElementById('cycle-selection-area').appendChild(confirmBtn);
     }
+// Cole esta função completa no lugar da função atualizarBarraProgresso existente em relatorio.html
 
-    function atualizarBarraProgresso() {
-      const bar = document.getElementById("progress-bar");
-      if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
+function atualizarBarraProgresso() {
+    const bar = document.getElementById("progress-bar");
+    if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
         bar.style.width = "0%";
         bar.textContent = "Nenhum ciclo ativo";
         return;
-      }
-      
-      db.ref("historicoMapas").orderByChild("ciclo").equalTo(activeCycleData.numero).once("value").then(snapshot => {
-        let mapasComDataFim = 0;
-        if (snapshot.exists()) {
-            const historicoDoCiclo = snapshot.val();
-            for (const key in historicoDoCiclo) {
-                const registro = historicoDoCiclo[key];
-                // Verifica se o registro existe, possui dataFim e se dataFim não é vazia/espaços
-                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "") {
-                    mapasComDataFim++;
-                }
-            }
-        }
-        
-        const totalMapasNoCiclo = 38; 
-        const percent = totalMapasNoCiclo > 0 ? Math.round((mapasComDataFim / totalMapasNoCiclo) * 100) : 0;
-        
-        bar.style.width = percent + "%";
-        bar.textContent = `${percent}% (${mapasComDataFim}/${totalMapasNoCiclo})`;
-
-      }).catch(error => {
-          console.error("Erro ao atualizar barra de progresso:", error);
-          bar.style.width = "0%";
-          bar.textContent = "Erro ao carregar progresso";
-      });
     }
+
+    const cicloAtualNumero = activeCycleData.numero;
+    // Presumindo que totalMapasGlobal de firebase.js (38) é o total para um ciclo.
+    // Se este valor puder mudar, você pode querer torná-lo dinâmico.
+    const totalMapasNoCiclo = 38; 
+
+    // Promise para buscar mapas concluídos do historicoMapas principal
+    const promiseHistorico = db.ref("historicoMapas")
+        .orderByChild("ciclo")
+        .equalTo(cicloAtualNumero) // Busca apenas do ciclo ativo
+        .once("value");
+
+    // Promise para buscar mapas concluídos do historico_arquivado
+    // Atenção: Isso busca todo o nó 'historico_arquivado'.
+    // Se este nó se tornar muito grande, essa abordagem pode ficar lenta,
+    // pois o filtro por ciclo será feito no lado do cliente.
+    const promiseArquivado = db.ref("historico_arquivado")
+        .once("value");
+
+    Promise.all([promiseHistorico, promiseArquivado]).then(snapshots => {
+        const historicoSnap = snapshots[0];
+        const arquivadoSnap = snapshots[1];
+
+        let completedMapIds = new Set(); // Usaremos um Set para contar IDs de mapas únicos
+
+        // Processar historicoMapas principal
+        if (historicoSnap.exists()) {
+            historicoSnap.forEach(childSnap => {
+                const registro = childSnap.val();
+                // Considera apenas se tem dataFim e pertence ao ciclo atual (já filtrado pela query)
+                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "" && registro.mapa) {
+                    completedMapIds.add(String(registro.mapa));
+                }
+            });
+        }
+
+        // Processar historico_arquivado
+        if (arquivadoSnap.exists()) {
+            arquivadoSnap.forEach(childSnap => {
+                const registroArchived = childSnap.val();
+                // Filtra para garantir que o registro arquivado pertence ao ciclo ativo e tem dataFim
+                if (registroArchived && 
+                    String(registroArchived.ciclo) === String(cicloAtualNumero) && 
+                    registroArchived.dataFim && String(registroArchived.dataFim).trim() !== "" &&
+                    registroArchived.mapa) {
+                    completedMapIds.add(String(registroArchived.mapa));
+                }
+            });
+        }
+
+        const mapasCompletosUnicos = completedMapIds.size;
+        const percent = totalMapasNoCiclo > 0 ? Math.round((mapasCompletosUnicos / totalMapasNoCiclo) * 100) : 0;
+        
+        const cycleName = activeCycleData.nome || `Ciclo ${activeCycleData.numero}`;
+        bar.style.width = percent + "%";
+        bar.textContent = `${cycleName} — ${percent}% (${mapasCompletosUnicos}/${totalMapasNoCiclo})`;
+
+    }).catch(error => {
+        console.error("Erro ao atualizar barra de progresso:", error);
+        bar.style.width = "0%";
+        bar.textContent = "Erro ao carregar progresso";
+    });
+}
 
     async function salvarNoHistorico(id, nome, inicio, fim) {
       if (!activeCycleData || activeCycleData.status !== 'ativo' || typeof activeCycleData.numero === 'undefined') {
@@ -764,11 +802,6 @@
 
       for (const key in registros) {
         const registro = registros[key];
-        // Consider removing only if it's for the *same cycle and map* to avoid deleting history from other cycles
-        // For now, assuming map ID is unique enough across history entries that need this specific update logic.
-        // If a map can be worked multiple times and saved to history under different cycle numbers, this is fine.
-        // The original logic was: if (registro.ciclo === cicloNumeroParaSalvar && registro.mapa === id)
-        // This seems correct to only remove prior entry of the same map for the *same* cycle.
         if (registro.ciclo === cicloNumeroParaSalvar && registro.mapa === id) { 
           await db.ref("historicoMapas/" + key).remove();
         }
@@ -818,6 +851,7 @@
                 nome: newNameInput.value,
                 dataInicio: newDataInicioInput.value,
                 dataFim: newDataFimInput.value
+                // Não atualizamos 'ciclo' aqui, pois é estrutural
             };
             promises.push(db.ref("historicoMapas/" + key).update(updatedData));
         });
@@ -836,6 +870,51 @@
         button.classList.remove('warning-action');
         carregarDados(); 
     }
+
+    // NOVA FUNÇÃO PARA ARQUIVAR E REABRIR
+    async function archiveAndReopenMap(histKey, historyEntryDataString) {
+        // Parse a string JSON de volta para um objeto
+        const historyEntryData = JSON.parse(decodeURIComponent(historyEntryDataString));
+
+        if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
+            alert("Não há um ciclo ativo definido. Ação cancelada.");
+            return;
+        }
+
+        // Confirma que a ação é para o ciclo ativo.
+        // historyEntryData.ciclo pode ser número ou string, activeCycleData.numero é número.
+        if (String(historyEntryData.ciclo) !== String(activeCycleData.numero)) {
+            alert("Esta ação só pode ser realizada em registros do ciclo ativo atual.");
+            return;
+        }
+
+        const mapId = historyEntryData.mapa;
+        const confirmMsg = `Tem certeza que deseja arquivar este registro do Mapa ${mapId} (Ciclo ${historyEntryData.ciclo}) e reabri-lo para um novo trabalho? ` +
+                         `O registro atual será movido para um arquivo separado ('historico_arquivado') e os campos no formulário principal (index.html) serão limpos para este mapa.`;
+
+        if (confirm(confirmMsg)) {
+            try {
+                // 1. Copiar para o nó 'historico_arquivado'
+                // Usaremos o mesmo histKey para simplicidade, ou crie um novo se preferir.
+                await db.ref(`historico_arquivado/${histKey}`).set(historyEntryData);
+
+                // 2. Limpar/Remover os dados de 'mapas em andamento' para este mapa,
+                // para garantir que o index.html o carregue como "novo" (campos limpos).
+                await db.ref(`mapas/${mapId}`).remove();
+
+                // 3. Remover o registro original do 'historicoMapas'
+                await db.ref(`historicoMapas/${histKey}`).remove();
+
+                alert(`Mapa ${mapId} (Ciclo ${historyEntryData.ciclo}) foi arquivado com sucesso. Os campos para este mapa no formulário principal (index.html) estão prontos para novo registro.`);
+                
+                carregarDados(); // Recarrega os dados em relatorio.html (inclusive barra de progresso)
+            } catch (error) {
+                console.error("Erro ao arquivar e reabrir mapa:", error);
+                alert("Erro ao arquivar e reabrir mapa: " + error.message);
+            }
+        }
+    }
+
 
     function carregarDados() {
       console.log("Carregando dados dos mapas...");
@@ -919,6 +998,24 @@
                     cicloDisplay = String(cicloValor); 
                 }
             }
+            
+            let actionCellContent = '';
+            // Condições para mostrar o botão "Arquivar e Reabrir":
+            // 1. activeCycleData deve existir e ter um número.
+            // 2. O ciclo do registro (reg.ciclo) deve ser igual ao ciclo ativo.
+            // 3. O registro deve ter uma data de fim (reg.dataFim).
+            // 4. Não estar no modo de edição global (isHistoricoEditingGlobal === false).
+            if (activeCycleData && typeof activeCycleData.numero !== 'undefined' && 
+                String(reg.ciclo) === String(activeCycleData.numero) && 
+                reg.dataFim && String(reg.dataFim).trim() !== "" && 
+                !isHistoricoEditingGlobal) {
+                
+                // Prepara o objeto de dados para ser passado para a função.
+                // Usamos encodeURIComponent para garantir que a string JSON seja segura para o atributo HTML.
+                const regJsonString = encodeURIComponent(JSON.stringify(reg));
+                actionCellContent = `<button onclick='archiveAndReopenMap("${key}", "${regJsonString}")' class='secondary-action archive-btn' title='Arquiva este registro e libera o mapa para novo trabalho no formulário principal.'>Arquivar e Reabrir</button>`;
+            }
+
 
             if (isHistoricoEditingGlobal) {
                 tr.innerHTML = `
@@ -927,6 +1024,7 @@
                   <td><input type="date" class="edit-input dataInicio-input" value="${reg.dataInicio || ''}"></td>
                   <td><input type="date" class="edit-input dataFim-input" value="${reg.dataFim || ''}"></td>
                   <td>${cicloDisplay}</td>
+                  <td>${actionCellContent}</td> 
                 `;
             } else {
                 tr.innerHTML = `
@@ -935,6 +1033,7 @@
                   <td>${formatarData(reg.dataInicio)}</td>
                   <td>${formatarData(reg.dataFim)}</td>
                   <td>${cicloDisplay}</td>
+                  <td>${actionCellContent}</td> 
                 `;
             }
             tbodyHistorico.appendChild(tr);
