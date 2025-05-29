@@ -6,6 +6,7 @@
     <title>Visualização de Registros Arquivados de Território</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,23 +22,24 @@
             padding: 15px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        /* A classe .controls foi removida do CSS pois o elemento foi removido do HTML
-           mas se você tiver outros usos para ela, pode manter.
-           Para este exemplo, vou comentar/remover as regras não utilizadas.
         .controls {
             text-align: center;
             margin-bottom: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
         }
-        .controls label, .controls input, .controls button {
+        .controls label, .controls select, .controls button {
             margin: 5px;
             padding: 8px;
             font-size: 0.9em;
         }
-        .controls input {
-            width: 100px;
+        .controls select {
+            width: 150px;
         }
         .controls button {
             cursor: pointer;
@@ -46,7 +48,6 @@
             border: none;
             border-radius: 4px;
         }
-        */
         h1 {
             text-align: center;
             font-size: 1.4em;
@@ -92,46 +93,131 @@
         .col-terr-no { width: 5%; }
         .col-last-completed { width: 10%; }
 
+        /* Styles for the new PDF button */
+        .pdf-button-container {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .pdf-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .pdf-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* MEDIA PRINT STYLES - MODIFIED FOR LANDSCAPE AND COMPACTNESS */
         @media print {
-            body { margin: 0; background-color: #fff; font-size: 7pt; }
-            .container { box-shadow: none; padding: 0; max-width:100%;}
-            /* .controls { display: none; }  Removido pois .controls não existe mais */
-            h1, h2 { color: #000; }
-            th { background-color: #f2f2f2 !important; color: #000 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
-            thead th.main-header { background-color: #d3d3d3 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
-            td { color: #000 !important; padding: 3px; vertical-align: middle;}
-            td.name-cell { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; color-adjust: exact;}
-            .footnote, .form-id { font-size: 0.7em; }
+            body {
+                margin: 0;
+                background-color: #fff;
+                font-size: 6.5pt; /* Reduzindo um pouco mais a fonte */
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .controls,
+            .pdf-button-container {
+                display: none !important;
+            }
+            h1, h2 {
+                color: #000;
+                text-align: center;
+            }
+            table {
+                width: 100%;
+                font-size: 6.5pt; /* Mantendo a mesma fonte do body */
+                table-layout: fixed; /* Ajuda a controlar melhor as larguras */
+            }
+            th, td {
+                border: 1px solid #bbb;
+                padding: 2px; /* Reduzindo ainda mais o padding */
+                text-align: center;
+                vertical-align: middle;
+                color: #000 !important;
+                word-wrap: break-word; /* Permite quebras de palavra longas */
+                overflow: hidden; /* Esconde conteúdo que transborda */
+            }
+            th {
+                background-color: #f2f2f2 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            thead th.main-header {
+                background-color: #d3d3d3 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            td.name-cell {
+                background-color: #f9f9f9 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .footnote, .form-id {
+                font-size: 0.7em;
+                text-align: left;
+            }
+            /* Ajustar larguras das colunas para tentar caber melhor em paisagem */
+            .col-terr-no { width: 5%; }
+            .col-last-completed { width: 8%; } /* Diminuído para liberar espaço */
+            /* As outras colunas se ajustarão proporcionalmente com table-layout: fixed; */
+            /* Se houver uma coluna específica que ainda corta, você pode dar uma largura explícita a ela aqui */
+
+            /* Forçar quebra de página se a linha for muito grande */
+            tr { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
-        <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
+        <div class="controls">
+            <label for="cycleSelect">Selecionar Ano de Serviço:</label>
+            <select id="cycleSelect" onchange="loadSelectedServiceYear()">
+                </select>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
-                    <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
-                    <th colspan="2" class="main-header">Designado para</th>
-                    <th colspan="2" class="main-header">Designado para</th>
-                    <th colspan="2" class="main-header">Designado para</th>
-                    <th colspan="2" class="main-header">Designado para</th>
-                </tr>
-                <tr>
-                    <th>Data da designação</th><th>Data da conclusão</th>
-                    <th>Data da designação</th><th>Data da conclusão</th>
-                    <th>Data da designação</th><th>Data da conclusão</th>
-                    <th>Data da designação</th><th>Data da conclusão</th>
-                </tr>
-            </thead>
-            <tbody id="archived_territory_table_body">
+        <div class="pdf-button-container">
+            <button class="pdf-button" onclick="downloadPdf()">Baixar Relatório em PDF</button>
+        </div>
+
+        <div id="reportContent">
+            <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
+            <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
+                        <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
+                        <th colspan="2" class="main-header">Designado para</th>
+                        <th colspan="2" class="main-header">Designado para</th>
+                        <th colspan="2" class="main-header">Designado para</th>
+                        <th colspan="2" class="main-header">Designado para</th>
+                    </tr>
+                    <tr>
+                        <th>Data da designação</th><th>Data da conclusão</th>
+                        <th>Data da designação</th><th>Data da conclusão</th>
+                        <th>Data da designação</th><th>Data da conclusão</th>
+                        <th>Data da designação</th><th>Data da conclusão</th>
+                    </tr>
+                </thead>
+                <tbody id="archived_territory_table_body">
                 </tbody>
-        </table>
-        <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
-        <p class="form-id">S-13-T (Visualização de Arquivados)</p>
+            </table>
+            <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
+            <p class="form-id">S-13-T (Visualização de Arquivados)</p>
+        </div>
     </div>
 
     <script>
@@ -156,44 +242,178 @@
                 const [year, month, day] = parts;
                 return `${day}/${month}/${year.slice(-2)}`; // DD/MM/YY
             }
-            return dateString; 
+            return dateString;
         }
-        
-        // A função triggerLoad() foi removida pois não é mais necessária com o carregamento automático direto.
 
-        async function loadAndRenderArchivedData(selectedCycle) {
-            const tbody = document.getElementById('archived_territory_table_body');
-            const serviceYearHeader = document.getElementById('serviceYearHeader');
-
-            // Esta verificação pode ser removida se você sempre fornecer um selectedCycle válido
-            // ou ajustada para um comportamento padrão se selectedCycle for nulo/vazio por algum motivo.
-            if (!selectedCycle) {
-                serviceYearHeader.textContent = 'Ano de Serviço: [Ciclo não definido no script]';
-                tbody.innerHTML = '<tr><td colspan="10">Ciclo de serviço não foi definido no script.</td></tr>';
-                return;
+        function getYearFromDateString(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return parseInt(parts[0]);
             }
+            return null;
+        }
 
-            serviceYearHeader.textContent = `Ano de Serviço: ${selectedCycle}`;
-            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ciclo ' + selectedCycle + '...</td></tr>';
+        function getMonthFromDateString(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return parseInt(parts[1]);
+            }
+            return null;
+        }
+
+        async function populateCycleSelect() {
+            const cycleSelect = document.getElementById('cycleSelect');
+            cycleSelect.innerHTML = '';
 
             try {
                 const snapshot = await db.ref('historico_arquivado').once('value');
                 const allArchivedData = snapshot.val();
-                let processedData = {}; 
-                let allTerritoryIds = new Set(); 
+                const availableYears = new Set();
 
                 if (allArchivedData) {
                     for (const key in allArchivedData) {
                         const record = allArchivedData[key];
-                        if (record.mapa) { 
-                           allTerritoryIds.add(parseInt(record.mapa));
+                        let recordYear = null;
+                        if (record.dataInicio) {
+                            recordYear = getYearFromDateString(record.dataInicio);
+                        } else if (record.dataFim) {
+                            recordYear = getYearFromDateString(record.dataFim);
+                        }
+
+                        if (recordYear) {
+                            availableYears.add(recordYear);
+                        }
+                    }
+                }
+
+                const sortedYears = Array.from(availableYears).sort((a, b) => a - b);
+
+                if (sortedYears.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Nenhum ano de serviço disponível';
+                    cycleSelect.appendChild(option);
+                    cycleSelect.disabled = true;
+                    return;
+                }
+
+                sortedYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = `Ano ${year}`;
+                    cycleSelect.appendChild(option);
+                });
+
+                const currentYear = new Date().getFullYear();
+                let defaultYear = '';
+                // Since current year is 2025, default to it if available.
+                // Otherwise, fall back to the latest available year.
+                if (sortedYears.includes(currentYear)) {
+                    defaultYear = currentYear;
+                } else if (sortedYears.length > 0) {
+                    defaultYear = sortedYears[sortedYears.length - 1]; // Último ano disponível
+                }
+                
+                if (defaultYear) {
+                    cycleSelect.value = defaultYear;
+                }
+                loadSelectedServiceYear();
+            } catch (error) {
+                console.error("Erro ao carregar anos de serviço:", error);
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Erro ao carregar anos';
+                cycleSelect.appendChild(option);
+                cycleSelect.disabled = true;
+            }
+        }
+
+        function loadSelectedServiceYear() {
+            const cycleSelect = document.getElementById('cycleSelect');
+            const selectedYear = cycleSelect.value;
+            if (selectedYear) {
+                loadAndRenderArchivedData(selectedYear);
+            } else {
+                const tbody = document.getElementById('archived_territory_table_body');
+                const serviceYearHeader = document.getElementById('serviceYearHeader');
+                serviceYearHeader.textContent = 'Ano de Serviço: [Selecione um ano]';
+                tbody.innerHTML = '<tr><td colspan="10">Por favor, selecione um ano para visualizar os dados.</td></tr>';
+            }
+        }
+
+        async function getLastCompletionDate(mapId, currentServiceYear) {
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                let latestDate = '';
+                let latestRecordYear = -1;
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        let recordDateYear = null;
+                        if (record.dataFim) {
+                            recordDateYear = getYearFromDateString(record.dataFim);
+                        } else if (record.dataInicio) {
+                            recordDateYear = getYearFromDateString(record.dataInicio);
                         }
                         
-                        if (String(record.ciclo) === String(selectedCycle)) {
+                        if (String(record.mapa) === String(mapId) && recordDateYear && recordDateYear < parseInt(currentServiceYear)) {
+                            if (record.dataFim) {
+                                if (recordDateYear > latestRecordYear) {
+                                    latestRecordYear = recordDateYear;
+                                    latestDate = record.dataFim;
+                                } else if (recordDateYear === latestRecordYear) {
+                                    if (record.dataFim > latestDate) {
+                                        latestDate = record.dataFim;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return latestDate;
+            } catch (error) {
+                console.error("Erro ao obter última data de conclusão:", error);
+                return '';
+            }
+        }
+
+        async function loadAndRenderArchivedData(selectedServiceYear) {
+            const tbody = document.getElementById('archived_territory_table_body');
+            const serviceYearHeader = document.getElementById('serviceYearHeader');
+
+            if (!selectedServiceYear) {
+                serviceYearHeader.textContent = 'Ano de Serviço: [Ano não definido]';
+                tbody.innerHTML = '<tr><td colspan="10">Ano de serviço não foi definido.</td></tr>';
+                return;
+            }
+
+            serviceYearHeader.textContent = `Ano de Serviço: ${selectedServiceYear}`;
+            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ano ' + selectedServiceYear + '...</td></tr>';
+
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                let processedData = {};
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        let recordDateYear = null;
+                        if (record.dataInicio) {
+                            recordDateYear = getYearFromDateString(record.dataInicio);
+                        } else if (record.dataFim) {
+                            recordDateYear = getYearFromDateString(record.dataFim);
+                        }
+
+                        if (recordDateYear && String(recordDateYear) === String(selectedServiceYear)) {
                             if (!processedData[record.mapa]) {
                                 processedData[record.mapa] = {
                                     assignments: [],
-                                    ultimaDataConcluida: '' 
+                                    ultimaDataConcluida: ''
                                 };
                             }
                             processedData[record.mapa].assignments.push({
@@ -207,7 +427,7 @@
 
                 for (const mapId in processedData) {
                     processedData[mapId].assignments.sort((a, b) => {
-                        if (!a.dataInicio) return 1; 
+                        if (!a.dataInicio) return 1;
                         if (!b.dataInicio) return -1;
                         if (a.dataInicio < b.dataInicio) return -1;
                         if (a.dataInicio > b.dataInicio) return 1;
@@ -215,33 +435,37 @@
                     });
                 }
 
-                tbody.innerHTML = ''; 
+                tbody.innerHTML = '';
 
-                let foundDataForCycle = false;
+                let foundDataForYear = false;
+                const allTerritoryPromises = [];
+
                 for (let i = 1; i <= 38; i++) {
                     const mapId = String(i);
                     const terrData = processedData[mapId];
                     let assignments = terrData ? terrData.assignments : [];
-                    let ultimaData = ''; 
+                    let ultimaData = '';
 
-                    if (terrData) foundDataForCycle = true;
+                    if (terrData) foundDataForYear = true;
 
-                    let namesRowHTML = `<tr><td rowspan="2">${mapId.padStart(2, '0')}</td><td rowspan="2">${formatFirebaseDate(ultimaData)}</td>`;
-                    for (let j = 0; j < 4; j++) {
-                        const assignment = assignments[j];
-                        namesRowHTML += `<td colspan="2" class="name-cell">${assignment ? (assignment.nome || '') : ''}</td>`;
-                    }
-                    namesRowHTML += `</tr>`;
-                    tbody.insertAdjacentHTML('beforeend', namesRowHTML);
+                    allTerritoryPromises.push(getLastCompletionDate(mapId, selectedServiceYear).then(date => {
+                        ultimaData = date;
+                        let namesRowHTML = `<tr><td rowspan="2">${mapId.padStart(2, '0')}</td><td rowspan="2">${formatFirebaseDate(ultimaData)}</td>`;
+                        for (let j = 0; j < 4; j++) {
+                            const assignment = assignments[j];
+                            namesRowHTML += `<td colspan="2" class="name-cell">${assignment ? (assignment.nome || '') : ''}</td>`;
+                        }
+                        namesRowHTML += `</tr>`;
 
-                    let datesRowHTML = `<tr class="date-row">`;
-                    for (let j = 0; j < 4; j++) {
-                        const assignment = assignments[j];
-                        datesRowHTML += `<td>${assignment ? formatFirebaseDate(assignment.dataInicio) : ''}</td>
-                                         <td>${assignment ? formatFirebaseDate(assignment.dataFim) : ''}</td>`;
-                    }
-                    datesRowHTML += `</tr>`;
-                    tbody.insertAdjacentHTML('beforeend', datesRowHTML);
+                        let datesRowHTML = `<tr class="date-row">`;
+                        for (let j = 0; j < 4; j++) {
+                            const assignment = assignments[j];
+                            datesRowHTML += `<td>${assignment ? formatFirebaseDate(assignment.dataInicio) : ''}</td>
+                                             <td>${assignment ? formatFirebaseDate(assignment.dataFim) : ''}</td>`;
+                        }
+                        datesRowHTML += `</tr>`;
+                        return { htmlNames: namesRowHTML, htmlDates: datesRowHTML, mapId: parseInt(mapId) };
+                    }));
 
                     if ((mapId === "19" || mapId === "24") && assignments.length > 4) {
                         const fifthAssignment = assignments[4];
@@ -250,18 +474,25 @@
                             extraNamesRowHTML += `<td colspan="2" class="name-cell">${fifthAssignment.nome || ''}</td>`;
                             extraNamesRowHTML += `<td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td>`;
                             extraNamesRowHTML += `</tr>`;
-                            tbody.insertAdjacentHTML('beforeend', extraNamesRowHTML);
 
                             let extraDatesRowHTML = `<tr class="date-row">`;
                             extraDatesRowHTML += `<td>${formatFirebaseDate(fifthAssignment.dataInicio)}</td><td>${formatFirebaseDate(fifthAssignment.dataFim)}</td>`;
                             extraDatesRowHTML += `<td></td><td></td> <td></td><td></td> <td></td><td></td>`;
                             extraDatesRowHTML += `</tr>`;
-                            tbody.insertAdjacentHTML('beforeend', extraDatesRowHTML);
+                            allTerritoryPromises.push(Promise.resolve({ htmlNames: extraNamesRowHTML, htmlDates: extraDatesRowHTML, mapId: parseInt(mapId) + 0.1 }));
                         }
                     }
                 }
-                 if (!foundDataForCycle && tbody.innerHTML === '') { 
-                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ciclo: ${selectedCycle}.</td></tr>`;
+
+                const sortedTerritoryHtml = (await Promise.all(allTerritoryPromises)).sort((a, b) => a.mapId - b.mapId);
+
+                sortedTerritoryHtml.forEach(item => {
+                    tbody.insertAdjacentHTML('beforeend', item.htmlNames);
+                    tbody.insertAdjacentHTML('beforeend', item.htmlDates);
+                });
+
+                if (!foundDataForYear && tbody.innerHTML === '') {
+                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ano: ${selectedServiceYear}.</td></tr>`;
                 }
 
             } catch (error) {
@@ -271,11 +502,21 @@
                 alert("Erro ao carregar dados: " + error.message);
             }
         }
-        
-        // Carregar dados para um ciclo específico ao iniciar a página
+
+        function downloadPdf() {
+            const element = document.getElementById('reportContent');
+
+            html2pdf(element, {
+                margin: 10,
+                filename: 'registro_de_designacao_territorio.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } /* ALTERADO AQUI: orientation: 'landscape' */
+            });
+        }
+
         window.onload = function() {
-            const cicloPadrao = "1"; // Defina o ciclo padrão aqui (ex: "1" ou "2024")
-            loadAndRenderArchivedData(cicloPadrao); 
+            populateCycleSelect();
         };
     </script>
 </body>
