@@ -28,7 +28,8 @@
             padding: 10px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
-            display: flex;
+            display: flex; /* Usar flexbox */
+            flex-wrap: wrap; /* Permitir quebra de linha */
             justify-content: center;
             align-items: center;
             gap: 15px;
@@ -59,8 +60,14 @@
             margin-top: 0;
             margin-bottom: 15px;
         }
+        /* Contêiner da tabela para permitir scroll horizontal */
+        .table-responsive {
+            overflow-x: auto; /* Adicionado para responsividade da tabela */
+            -webkit-overflow-scrolling: touch; /* Melhor rolagem em iOS */
+        }
         table {
-            width: 100%;
+            width: 100%; /* Garante que a tabela use toda a largura disponível no .table-responsive */
+            min-width: 700px; /* Define uma largura mínima para a tabela, para que as colunas não fiquem muito apertadas antes do scroll */
             border-collapse: collapse;
             margin-bottom: 15px;
             font-size: 0.8em;
@@ -113,12 +120,47 @@
             background-color: #0056b3;
         }
 
-        /* MEDIA PRINT STYLES - MODIFIED FOR LANDSCAPE AND COMPACTNESS */
+        /* MEDIA QUERIES FOR RESPONSIVENESS */
+        @media screen and (max-width: 768px) {
+            body {
+                margin: 10px; /* Reduz margens para telas menores */
+            }
+            .container {
+                padding: 10px; /* Reduz padding do container */
+            }
+            .controls {
+                flex-direction: column; /* Empilha os controles verticalmente */
+                align-items: stretch; /* Estica os itens para preencher a largura */
+                gap: 10px;
+            }
+            .controls label, .controls select, .controls button {
+                width: 100%; /* Faz com que preencham a largura disponível */
+                box-sizing: border-box; /* Inclui padding e border na largura */
+            }
+            h1 {
+                font-size: 1.2em; /* Reduz tamanho do título principal */
+            }
+            h2#serviceYearHeader {
+                font-size: 1em; /* Reduz tamanho do subtítulo */
+            }
+            table {
+                font-size: 0.7em; /* Reduz a fonte da tabela para tentar caber mais */
+                min-width: 600px; /* Pode ajustar para mais ou menos, dependendo do conteúdo */
+            }
+            th, td {
+                padding: 3px; /* Reduz o padding das células */
+            }
+            .footnote, .form-id {
+                font-size: 0.7em;
+            }
+        }
+
+        /* MEDIA PRINT STYLES - Mantidos para impressão nativa do navegador */
         @media print {
             body {
                 margin: 0;
                 background-color: #fff;
-                font-size: 6.5pt; /* Reduzindo um pouco mais a fonte */
+                font-size: 6.5pt;
                 -webkit-print-color-adjust: exact;
                 color-adjust: exact;
             }
@@ -135,19 +177,23 @@
                 color: #000;
                 text-align: center;
             }
+            /* Ocultar o .table-responsive na impressão para usar a tabela diretamente */
+            .table-responsive {
+                overflow-x: visible !important; /* Certifica-se de que não há scroll na impressão */
+            }
             table {
                 width: 100%;
-                font-size: 6.5pt; /* Mantendo a mesma fonte do body */
-                table-layout: fixed; /* Ajuda a controlar melhor as larguras */
+                font-size: 6.5pt;
+                table-layout: fixed;
             }
             th, td {
                 border: 1px solid #bbb;
-                padding: 2px; /* Reduzindo ainda mais o padding */
+                padding: 2px;
                 text-align: center;
                 vertical-align: middle;
                 color: #000 !important;
-                word-wrap: break-word; /* Permite quebras de palavra longas */
-                overflow: hidden; /* Esconde conteúdo que transborda */
+                word-wrap: break-word;
+                overflow: hidden;
             }
             th {
                 background-color: #f2f2f2 !important;
@@ -168,13 +214,8 @@
                 font-size: 0.7em;
                 text-align: left;
             }
-            /* Ajustar larguras das colunas para tentar caber melhor em paisagem */
             .col-terr-no { width: 5%; }
-            .col-last-completed { width: 8%; } /* Diminuído para liberar espaço */
-            /* As outras colunas se ajustarão proporcionalmente com table-layout: fixed; */
-            /* Se houver uma coluna específica que ainda corta, você pode dar uma largura explícita a ela aqui */
-
-            /* Forçar quebra de página se a linha for muito grande */
+            .col-last-completed { width: 8%; }
             tr { page-break-inside: avoid; }
         }
     </style>
@@ -182,8 +223,12 @@
 <body>
     <div class="container">
         <div class="controls">
-            <label for="cycleSelect">Selecionar Ano de Serviço:</label>
-            <select id="cycleSelect" onchange="loadSelectedServiceYear()">
+            <label for="serviceYearSelect">Selecionar Ano de Serviço:</label>
+            <select id="serviceYearSelect" onchange="loadSelectedServiceYear()">
+                </select>
+
+            <label for="campaignTypeSelect">Tipo de Campanha:</label>
+            <select id="campaignTypeSelect" onchange="loadSelectedServiceYear()">
                 </select>
         </div>
 
@@ -195,27 +240,27 @@
             <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
             <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
-                        <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
-                        <th colspan="2" class="main-header">Designado para</th>
-                        <th colspan="2" class="main-header">Designado para</th>
-                        <th colspan="2" class="main-header">Designado para</th>
-                        <th colspan="2" class="main-header">Designado para</th>
-                    </tr>
-                    <tr>
-                        <th>Data da designação</th><th>Data da conclusão</th>
-                        <th>Data da designação</th><th>Data da conclusão</th>
-                        <th>Data da designação</th><th>Data da conclusão</th>
-                        <th>Data da designação</th><th>Data da conclusão</th>
-                    </tr>
-                </thead>
-                <tbody id="archived_territory_table_body">
-                </tbody>
-            </table>
-            <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
+            <div class="table-responsive"> <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
+                            <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                        </tr>
+                        <tr>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archived_territory_table_body">
+                    </tbody>
+                </table>
+            </div> <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
             <p class="form-id">S-13-T (Visualização de Arquivados)</p>
         </div>
     </div>
@@ -263,14 +308,15 @@
             return null;
         }
 
-        async function populateCycleSelect() {
-            const cycleSelect = document.getElementById('cycleSelect');
-            cycleSelect.innerHTML = '';
+        async function populateServiceYearSelect() {
+            const serviceYearSelect = document.getElementById('serviceYearSelect');
+            serviceYearSelect.innerHTML = '';
 
             try {
                 const snapshot = await db.ref('historico_arquivado').once('value');
                 const allArchivedData = snapshot.val();
                 const availableYears = new Set();
+                const campaignsByYear = {};
 
                 if (allArchivedData) {
                     for (const key in allArchivedData) {
@@ -284,6 +330,18 @@
 
                         if (recordYear) {
                             availableYears.add(recordYear);
+
+                            if (record.tipoCiclo) {
+                                if (!campaignsByYear[recordYear]) {
+                                    campaignsByYear[recordYear] = new Set();
+                                }
+                                campaignsByYear[recordYear].add(record.tipoCiclo);
+                            } else {
+                                if (!campaignsByYear[recordYear]) {
+                                    campaignsByYear[recordYear] = new Set();
+                                }
+                                campaignsByYear[recordYear].add("Padrão");
+                            }
                         }
                     }
                 }
@@ -294,8 +352,9 @@
                     const option = document.createElement('option');
                     option.value = '';
                     option.textContent = 'Nenhum ano de serviço disponível';
-                    cycleSelect.appendChild(option);
-                    cycleSelect.disabled = true;
+                    serviceYearSelect.appendChild(option);
+                    serviceYearSelect.disabled = true;
+                    document.getElementById('campaignTypeSelect').disabled = true;
                     return;
                 }
 
@@ -303,38 +362,70 @@
                     const option = document.createElement('option');
                     option.value = year;
                     option.textContent = `Ano ${year}`;
-                    cycleSelect.appendChild(option);
+                    serviceYearSelect.appendChild(option);
                 });
 
                 const currentYear = new Date().getFullYear();
                 let defaultYear = '';
-                // Since current year is 2025, default to it if available.
-                // Otherwise, fall back to the latest available year.
                 if (sortedYears.includes(currentYear)) {
                     defaultYear = currentYear;
                 } else if (sortedYears.length > 0) {
-                    defaultYear = sortedYears[sortedYears.length - 1]; // Último ano disponível
+                    defaultYear = sortedYears[sortedYears.length - 1];
                 }
                 
                 if (defaultYear) {
-                    cycleSelect.value = defaultYear;
+                    serviceYearSelect.value = defaultYear;
                 }
+
+                window.availableCampaignsByYear = campaignsByYear;
+
+                populateCampaignSelect(defaultYear);
                 loadSelectedServiceYear();
+
             } catch (error) {
-                console.error("Erro ao carregar anos de serviço:", error);
+                console.error("Erro ao carregar anos de serviço e campanhas:", error);
                 const option = document.createElement('option');
                 option.value = '';
                 option.textContent = 'Erro ao carregar anos';
-                cycleSelect.appendChild(option);
-                cycleSelect.disabled = true;
+                serviceYearSelect.appendChild(option);
+                serviceYearSelect.disabled = true;
+                document.getElementById('campaignTypeSelect').disabled = true;
             }
         }
 
+        function populateCampaignSelect(selectedYear) {
+            const campaignTypeSelect = document.getElementById('campaignTypeSelect');
+            campaignTypeSelect.innerHTML = '';
+
+            const campaignsForSelectedYear = window.availableCampaignsByYear[selectedYear] || new Set();
+            
+            const allOption = document.createElement('option');
+            allOption.value = 'Todos';
+            allOption.textContent = 'Todos os Tipos';
+            campaignTypeSelect.appendChild(allOption);
+
+            const sortedCampaigns = Array.from(campaignsForSelectedYear).sort();
+            sortedCampaigns.forEach(campaign => {
+                const option = document.createElement('option');
+                option.value = campaign;
+                option.textContent = campaign;
+                campaignTypeSelect.appendChild(option);
+            });
+
+            campaignTypeSelect.disabled = sortedCampaigns.length === 0;
+        }
+
         function loadSelectedServiceYear() {
-            const cycleSelect = document.getElementById('cycleSelect');
-            const selectedYear = cycleSelect.value;
+            const serviceYearSelect = document.getElementById('serviceYearSelect');
+            const campaignTypeSelect = document.getElementById('campaignTypeSelect');
+
+            const selectedYear = serviceYearSelect.value;
+            const selectedCampaignType = campaignTypeSelect.value;
+
+            populateCampaignSelect(selectedYear); // Re-popula as campanhas para o ano
+
             if (selectedYear) {
-                loadAndRenderArchivedData(selectedYear);
+                loadAndRenderArchivedData(selectedYear, selectedCampaignType);
             } else {
                 const tbody = document.getElementById('archived_territory_table_body');
                 const serviceYearHeader = document.getElementById('serviceYearHeader');
@@ -381,7 +472,7 @@
             }
         }
 
-        async function loadAndRenderArchivedData(selectedServiceYear) {
+        async function loadAndRenderArchivedData(selectedServiceYear, selectedCampaignType) {
             const tbody = document.getElementById('archived_territory_table_body');
             const serviceYearHeader = document.getElementById('serviceYearHeader');
 
@@ -391,8 +482,8 @@
                 return;
             }
 
-            serviceYearHeader.textContent = `Ano de Serviço: ${selectedServiceYear}`;
-            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ano ' + selectedServiceYear + '...</td></tr>';
+            serviceYearHeader.textContent = `Ano de Serviço: ${selectedServiceYear}` + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` (${selectedCampaignType})` : '');
+            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ano ' + selectedServiceYear + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` e campanha ${selectedCampaignType}` : '') + '...</td></tr>';
 
             try {
                 const snapshot = await db.ref('historico_arquivado').once('value');
@@ -402,14 +493,19 @@
                 if (allArchivedData) {
                     for (const key in allArchivedData) {
                         const record = allArchivedData[key];
-                        let recordDateYear = null;
+                        let recordYear = null;
                         if (record.dataInicio) {
-                            recordDateYear = getYearFromDateString(record.dataInicio);
+                            recordYear = getYearFromDateString(record.dataInicio);
                         } else if (record.dataFim) {
-                            recordDateYear = getYearFromDateString(record.dataFim);
+                            recordYear = getYearFromDateString(record.dataFim);
                         }
 
-                        if (recordDateYear && String(recordDateYear) === String(selectedServiceYear)) {
+                        const isMatchingYear = recordYear && String(recordYear) === String(selectedServiceYear);
+                        // Verifica se o tipoCiclo do registro corresponde ao selecionado, ou se é 'Todos' ou 'Padrão' para registros sem tipoCiclo
+                        const recordTipoCiclo = record.tipoCiclo || 'Padrão'; // Trata registros sem tipoCiclo como 'Padrão'
+                        const isMatchingCampaign = selectedCampaignType === 'Todos' || String(recordTipoCiclo) === String(selectedCampaignType);
+
+                        if (isMatchingYear && isMatchingCampaign) {
                             if (!processedData[record.mapa]) {
                                 processedData[record.mapa] = {
                                     assignments: [],
@@ -492,7 +588,7 @@
                 });
 
                 if (!foundDataForYear && tbody.innerHTML === '') {
-                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ano: ${selectedServiceYear}.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ano: ${selectedServiceYear}` + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` e campanha ${selectedCampaignType}` : '') + `.</td></tr>`;
                 }
 
             } catch (error) {
@@ -511,12 +607,12 @@
                 filename: 'registro_de_designacao_territorio.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } /* ALTERADO AQUI: orientation: 'landscape' */
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             });
         }
 
         window.onload = function() {
-            populateCycleSelect();
+            populateServiceYearSelect();
         };
     </script>
 </body>
