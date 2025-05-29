@@ -395,7 +395,7 @@
       Ciclo Atual: <span id="current-cycle-display">Carregando...</span>
     </div>
     <div id="cycle-actions">
-      <button onclick="startNewCyclePrompt()" class="secondary-action">Começar Novo Ciclo</button>
+      <button onclick="startNewCyclePrompt()" class="secondary-action">Criar uma campanha</button>
       <button id="pause-cycle-btn" onclick="pauseActiveCycle()" style="display:none;">Pausar Ciclo Atual</button>
       <button id="continue-cycle-btn" onclick="continueCyclePrompt()" style="display:none;">Continuar Ciclo</button>
       <button id="exclude-cycle-btn" onclick="excludeCyclePrompt()" class="danger-action">Excluir Ciclo</button>
@@ -632,7 +632,7 @@
     }
     
     async function startNewCyclePrompt() {
-        const nomeNovoCiclo = prompt("Digite o nome para o novo ciclo:");
+        const nomeNovoCiclo = prompt("(OBS: Antes de continuar clique no botão pausar para não encerrar o ciclo atual) Digite um nome para a campanha:");
         if (!nomeNovoCiclo || nomeNovoCiclo.trim() === "") {
             alert("Nome do ciclo não pode ser vazio.");
             return;
