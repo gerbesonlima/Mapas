@@ -287,42 +287,67 @@ textarea {
     font-size: 0.8125rem; /* 13sp */
 }
 .enviar-btn:hover { background: #d32f2f; }
+/* style.css */
 
-/* Progresso (para id="progress-bar" em index.html) */
-.progress-container { 
-    padding: 16px;
-    margin: 16px 0; 
-    text-align: left; 
-    background: var(--surface); /* Adicionado para consistência com outros cards */
-    border-radius: var(--border-radius-standard); /* Adicionado */
-    box-shadow: var(--elevation-z1); /* Adicionado */
+.progress-container {
+    width: 100%;
+    /* max-width: 700px;  - Keep this from your original CSS if you want */
+    background-color: var(--divider-color); /* A light background for the whole container */
+    border-radius: 8px;
+    overflow: hidden; /* Ensures the inner bar respects border-radius */
+    margin-bottom: 20px; /* Add some space below the container */
+    box-shadow: var(--elevation-z1); /* Optional: add a subtle shadow */
 }
-.progress-container p { 
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
+
+.progress-container p {
+    text-align: center;
+    padding: 10px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0; /* Remove default paragraph margin */
 }
-/* Estilo para a div#progress-bar em index.html */
-#progress-bar { 
-    width: 0%; /* O JS controlará a largura do preenchimento real */
-    height: 24px; 
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    border-radius: var(--border-radius-standard); 
-    overflow: hidden; 
-    position: relative; 
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500; 
-    font-size: 0.875rem; 
-    line-height: 24px; 
-    text-align: center; 
-    transition: width 0.4s ease; 
+
+.progress-wrapper {
+    position: relative; /* This is key for positioning the text */
+    height: 30px; /* Height of your progress bar */
+    background-color: #e0e0e0; /* Background of the track */
+    border-radius: 8px; /* Match container border-radius */
+    margin: 0 10px 10px 10px; /* Adjust margin around the bar itself */
+    overflow: hidden; /* Ensure anything overflowing is hidden */
 }
-/* O estilo 'progress' e 'progress::-webkit-progress-bar' etc., são para o elemento <progress> nativo.
-   Se você não o estiver usando, pode remover essas regras específicas.
-   A barra em index.html é uma <div> com id="progress-bar", então as regras acima #progress-bar são as relevantes. */
+
+.progress-bar {
+    height: 100%; /* Fill the height of the wrapper */
+    width: 0%; /* Initial width */
+    background-color: var(--primary-color); /* Color of the progress fill */
+    border-radius: 8px; /* Match wrapper border-radius */
+    transition: width 0.5s ease-in-out; /* Smooth animation */
+    position: absolute; /* Position within the wrapper */
+    top: 0;
+    left: 0;
+}
+
+.progress-text {
+    position: absolute; /* Position the text absolutely within the wrapper */
+    top: 50%;
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for perfect centering */
+    color: var(--text-primary); /* Or a contrasting color like white if you want it over the bar */
+    font-weight: bold;
+    font-size: 1rem; /* Adjust font size as needed */
+    z-index: 1; /* Ensure text is above the progress bar */
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+/* Add some responsive adjustments if needed based on your existing media queries */
+@media (max-width: 600px) {
+    .progress-wrapper {
+        height: 25px; /* Slightly smaller on mobile */
+    }
+    .progress-text {
+        font-size: 0.9rem;
+    }
+}
 
 
 /* Container de Senha */
