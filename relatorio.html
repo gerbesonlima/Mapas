@@ -1010,131 +1010,159 @@ function atualizarBarraProgresso() {
         }
     }
 
+// Dentro da tag <script> do seu arquivo relatorio.html
 
-    function carregarDados() {
-      console.log("Carregando dados dos mapas...");
-      // Carregar Mapas em Andamento
-      db.ref("mapas").once("value").then(snap => {
+function carregarDados() {
+    console.log("Carregando dados dos mapas...");
+
+    const currentActiveCycleNumber = activeCycleData ? activeCycleData.numero : null;
+    console.log("Ciclo ativo atual (número):", currentActiveCycleNumber);
+
+    // Carregar Mapas em Andamento
+    db.ref("mapas").once("value").then(snap => {
         const tbody = document.getElementById("relatorio-body");
         tbody.innerHTML = "";
         const mapasData = snap.val();
         if (mapasData) {
             Object.entries(mapasData).forEach(([id, dados]) => {
-              if (!dados || typeof dados !== 'object') {
-                  return; 
-              }
+                if (!dados || typeof dados !== 'object') {
+                    return;
+                }
 
-              const mapId = id; 
-              
-              const nomePreenchido = dados.nome && String(dados.nome).trim() !== "";
-              const dataInicioPreenchida = dados.dataInicio && String(dados.dataInicio).trim() !== "";
-              const dataFimPreenchida = dados.dataFim && String(dados.dataFim).trim() !== "";
+                // IMPORTANT: Filter for the current active cycle
+                // If a map doesn't explicitly have a cycle assigned, or if it's not the active cycle,
+                // it should not be displayed in "Mapas em Andamento".
+                // Assuming 'mapas' node will eventually store 'ciclo' for consistency.
+                // For now, if 'ciclo' is not present in 'mapas' data, we will assume it implicitly belongs
+                // to the current cycle IF it's not yet in historico.
+                // However, the original logic for "Mapas em Andamento" doesn't filter by cycle,
+                // it just checks if fields are filled.
+                // To strictly show *only* maps designated for the *current* cycle:
+                // This part requires careful consideration of how 'mapas' node is populated.
+                // If a map in 'mapas' isn't explicitly linked to a cycle, how do we know it's for the current one?
+                // The current structure doesn't seem to store `ciclo` directly in `mapas` node.
+                // If you want "Mapas em Andamento" to *only* show maps started in the current cycle,
+                // you would need to add a 'ciclo' field to each map in the 'mapas' node when it's started/designated.
+                // For now, I'll keep the original behavior for "Mapas em Andamento" as it doesn't have a 'ciclo' field to filter by.
+                // If you intend to link "Mapas em Andamento" to the active cycle, you need to add a 'ciclo' field to each map entry.
 
-              if (nomePreenchido || dataInicioPreenchida || dataFimPreenchida) {
-                const tr = document.createElement("tr");
-                const nomeInputId = `nome-input-${mapId}`;
-                const saveButtonDisabled = (!activeCycleData || activeCycleData.status !== 'ativo');
-                
-                const botao = `<button ${saveButtonDisabled ? 'disabled title="Inicie ou continue um ciclo para salvar."' : ''} onclick="salvarNoHistorico('${mapId}', document.getElementById('${nomeInputId}').value, '${dados.dataInicio || ''}', '${dados.dataFim || ''}')">Salvar</button>`;
-                  
-                tr.innerHTML = `
-                  <td>${mapId}</td>
-                  <td><input type="text" id="${nomeInputId}" class="edit-input" value="${dados.nome || ''}" placeholder="Designado para"></td>
-                  <td>${formatarData(dados.dataInicio || '')}</td> 
-                  <td>${formatarData(dados.dataFim || '')}</td>   
-                  <td>${botao}</td>
-                `;
-                tbody.appendChild(tr);
-              }
+                const mapId = id;
+
+                const nomePreenchido = dados.nome && String(dados.nome).trim() !== "";
+                const dataInicioPreenchida = dados.dataInicio && String(dados.dataInicio).trim() !== "";
+                const dataFimPreenchida = dados.dataFim && String(dados.dataFim).trim() !== "";
+
+                // Display if any relevant field is filled, or if you introduce 'ciclo' in 'mapas' node,
+                // add: `&& dados.ciclo === currentActiveCycleNumber` here.
+                if (nomePreenchido || dataInicioPreenchida || dataFimPreenchida) {
+                    const tr = document.createElement("tr");
+                    const nomeInputId = `nome-input-${mapId}`;
+                    const saveButtonDisabled = (!activeCycleData || activeCycleData.status !== 'ativo');
+
+                    const botao = `<button ${saveButtonDisabled ? 'disabled title="Inicie ou continue um ciclo para salvar."' : ''} onclick="salvarNoHistorico('${mapId}', document.getElementById('${nomeInputId}').value, '${dados.dataInicio || ''}', '${dados.dataFim || ''}')">Salvar</button>`;
+
+                    tr.innerHTML = `
+                        <td>${mapId}</td>
+                        <td><input type="text" id="${nomeInputId}" class="edit-input" value="${dados.nome || ''}" placeholder="Designado para"></td>
+                        <td>${formatarData(dados.dataInicio || '')}</td>
+                        <td>${formatarData(dados.dataFim || '')}</td>
+                        <td>${botao}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             });
         }
-        atualizarBarraProgresso(); 
-      }).catch(error => console.error("Erro ao carregar mapas em andamento:", error));
+        atualizarBarraProgresso();
+    }).catch(error => console.error("Erro ao carregar mapas em andamento:", error));
 
-      // Carregar Histórico de Mapas Concluídos
-      db.ref("historicoMapas").once("value").then(snap => {
+    // Carregar Histórico de Mapas Concluídos
+    db.ref("historicoMapas").once("value").then(snap => {
         const tbodyHistorico = document.getElementById("historico-body");
         tbodyHistorico.innerHTML = "";
         const historico = snap.val() || {};
-        
-        Object.entries(historico)
-          .sort(([,a], [,b]) => { 
-            const cicloA = typeof a.ciclo === 'string' && a.ciclo === 'ciclo_1' ? 1 : (a.ciclo || 0);
-            const cicloB = typeof b.ciclo === 'string' && b.ciclo === 'ciclo_1' ? 1 : (b.ciclo || 0);
-            if (cicloA !== cicloB) return cicloA - cicloB;
-            return Number(a.mapa) - Number(b.mapa);
-          })
-          .forEach(([key, reg]) => {
-            if (typeof reg.mapa === 'undefined' || (typeof reg.ciclo === 'undefined' && reg.ciclo !== null) ) {
-                return; 
+
+        const filteredHistorico = Object.entries(historico)
+            .filter(([key, reg]) => {
+                // Filter out records that don't belong to the current active cycle
+                // Handle both number and string representations of cycle '1' and 'ciclo_1'
+                const regCiclo = String(reg.ciclo);
+                const activeCicloNum = String(currentActiveCycleNumber);
+
+                if (regCiclo === 'ciclo_1' && activeCicloNum === '1') {
+                    return true;
+                }
+                return regCiclo === activeCicloNum;
+            })
+            .sort(([, a], [, b]) => {
+                const cicloA = typeof a.ciclo === 'string' && a.ciclo === 'ciclo_1' ? 1 : (a.ciclo || 0);
+                const cicloB = typeof b.ciclo === 'string' && b.ciclo === 'ciclo_1' ? 1 : (b.ciclo || 0);
+                if (cicloA !== cicloB) return cicloA - cicloB;
+                return Number(a.mapa) - Number(b.mapa);
+            });
+
+        filteredHistorico.forEach(([key, reg]) => {
+            if (typeof reg.mapa === 'undefined' || (typeof reg.ciclo === 'undefined' && reg.ciclo !== null)) {
+                return;
             }
 
             const tr = document.createElement("tr");
             tr.setAttribute('data-key', key);
-            
-            let cicloDisplay = 'N/A';
-            const cicloValor = reg.ciclo; 
 
-            if (cicloValor === 'ciclo_1' && allCyclesMap[1]) { 
+            let cicloDisplay = 'N/A';
+            const cicloValor = reg.ciclo;
+
+            if (cicloValor === 'ciclo_1' && allCyclesMap[1]) {
                 const cicloInfo = allCyclesMap[1];
                 cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
             } else if (typeof cicloValor === 'number' && allCyclesMap[cicloValor]) {
-                const cicloInfo = allCyclesMap[cicloValor]; 
+                const cicloInfo = allCyclesMap[cicloValor];
                 cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
-            } else if (typeof cicloValor === 'number') { 
+            } else if (typeof cicloValor === 'number') {
                 cicloDisplay = `Nº ${cicloValor}`;
-            } else if (cicloValor === 'ciclo_1') { 
+            } else if (cicloValor === 'ciclo_1') {
                 cicloDisplay = `Nº 1`;
-            } else if (cicloValor) { 
-                if(allCyclesMap[cicloValor] && typeof allCyclesMap[cicloValor] === 'object' && allCyclesMap[cicloValor].numero !== undefined){ 
-                     const cicloInfo = allCyclesMap[cicloValor];
-                     cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
+            } else if (cicloValor) {
+                if (allCyclesMap[cicloValor] && typeof allCyclesMap[cicloValor] === 'object' && allCyclesMap[cicloValor].numero !== undefined) {
+                    const cicloInfo = allCyclesMap[cicloValor];
+                    cicloDisplay = `Nº ${cicloInfo.numero}: ${cicloInfo.nome}`;
                 } else {
-                    cicloDisplay = String(cicloValor); 
+                    cicloDisplay = String(cicloValor);
                 }
             }
-            
+
             let actionCellContent = '';
-            // Condições para mostrar o botão "Arquivar e Reabrir":
-            // 1. activeCycleData deve existir e ter um número.
-            // 2. O ciclo do registro (reg.ciclo) deve ser igual ao ciclo ativo.
-            // 3. O registro deve ter uma data de fim (reg.dataFim).
-            // 4. Não estar no modo de edição global (isHistoricoEditingGlobal === false).
-            if (activeCycleData && typeof activeCycleData.numero !== 'undefined' && 
-                String(reg.ciclo) === String(activeCycleData.numero) && 
-                reg.dataFim && String(reg.dataFim).trim() !== "" && 
+            if (activeCycleData && typeof activeCycleData.numero !== 'undefined' &&
+                String(reg.ciclo) === String(activeCycleData.numero) &&
+                reg.dataFim && String(reg.dataFim).trim() !== "" &&
                 !isHistoricoEditingGlobal) {
-                
-                // Prepara o objeto de dados para ser passado para a função.
-                // Usamos encodeURIComponent para garantir que a string JSON seja segura para o atributo HTML.
+
                 const regJsonString = encodeURIComponent(JSON.stringify(reg));
                 actionCellContent = `<button onclick='archiveAndReopenMap("${key}", "${regJsonString}")' class='secondary-action archive-btn' title='Arquiva este registro e libera o mapa para novo trabalho no formulário principal.'>Arquivar e Reabrir</button>`;
             }
 
-
             if (isHistoricoEditingGlobal) {
                 tr.innerHTML = `
-                  <td>${reg.mapa}</td>
-                  <td><input type="text" class="edit-input nome-input" value="${reg.nome || ''}"></td>
-                  <td><input type="date" class="edit-input dataInicio-input" value="${reg.dataInicio || ''}"></td>
-                  <td><input type="date" class="edit-input dataFim-input" value="${reg.dataFim || ''}"></td>
-                  <td>${cicloDisplay}</td>
-                  <td>${actionCellContent}</td> 
+                    <td>${reg.mapa}</td>
+                    <td><input type="text" class="edit-input nome-input" value="${reg.nome || ''}"></td>
+                    <td><input type="date" class="edit-input dataInicio-input" value="${reg.dataInicio || ''}"></td>
+                    <td><input type="date" class="edit-input dataFim-input" value="${reg.dataFim || ''}"></td>
+                    <td>${cicloDisplay}</td>
+                    <td>${actionCellContent}</td>
                 `;
             } else {
                 tr.innerHTML = `
-                  <td>${reg.mapa}</td>
-                  <td>${reg.nome || '—'}</td>
-                  <td>${formatarData(reg.dataInicio)}</td>
-                  <td>${formatarData(reg.dataFim)}</td>
-                  <td>${cicloDisplay}</td>
-                  <td>${actionCellContent}</td> 
+                    <td>${reg.mapa}</td>
+                    <td>${reg.nome || '—'}</td>
+                    <td>${formatarData(reg.dataInicio)}</td>
+                    <td>${formatarData(reg.dataFim)}</td>
+                    <td>${cicloDisplay}</td>
+                    <td>${actionCellContent}</td>
                 `;
             }
             tbodyHistorico.appendChild(tr);
-          });
-      }).catch(error => console.error("Erro ao carregar histórico de mapas:", error));
-    }
+        });
+    }).catch(error => console.error("Erro ao carregar histórico de mapas:", error));
+}   
 
     document.addEventListener("DOMContentLoaded", async () => {
       console.log("DOM Carregado. Iniciando sistema de ciclos...");
