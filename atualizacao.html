@@ -52,7 +52,7 @@
     <input type="text" id="estado" placeholder="Estado" required>
 
     <label for="complemento">Complemento:</label>
-    <input type="text" id="complemento" placeholder="Apartamento, bloco, ponto de referência...">
+    <input type="text" id="complemento" placeholder="Nome do conjunto, residencial ou ponto de referencia">
 
     <!-- Pergunta sobre cônjuge -->
     <label for="temConjuge">Tem cônjuge batizado ou publicador não batizado?</label>
@@ -80,10 +80,12 @@
       <input type="number" id="qtdFilhos" min="1" max="10" onchange="gerarCamposFilhos()">
     </div>
 
-    <div id="filhosFields"></div>
+    <div id="filhosFields"></div><br>
+
+    <strong>Antes de enviar verifique se as informações estão corretas!</strong> <br><br>
 
     <button onclick="cadastrarPessoa()">Enviar</button>
-    <p class="success-message" id="successMessage">Enviado com sucesso!</p>
+    <p class="success-message" id="successMessage">Enviado com sucesso!</p> 
   </div>
 
   <script>
