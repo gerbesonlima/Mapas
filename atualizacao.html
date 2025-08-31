@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro de Pessoas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 22px; }
+    label { font-size: 14px; margin-bottom: 5px; display: block; }
+    input, textarea, select {
+      width: 100%; padding: 10px; margin-bottom: 15px;
+      border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+    }
+    button { width: 100%; background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .success-message { display: none; text-align: center; margin-top: 10px; color: green; font-weight: bold; }
+    .hidden { display: none; }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Atualização dos irmãos do grupo 2</h1>
+    
+    <label for="nome">Nome Completo:</label>
+    <input type="text" id="nome" placeholder="Digite o nome completo" required>
+
+    <label for="telefone">Telefone:</label>
+    <input type="tel" id="telefone" placeholder="Digite o telefone" required>
+
+    <label for="cep">CEP:</label>
+    <input type="text" id="cep" placeholder="Digite o CEP" maxlength="9" onblur="buscarCEP()">
+
+    <label for="logradouro">Logradouro:</label>
+    <input type="text" id="logradouro" placeholder="Rua/Avenida" required>
+
+    <label for="numero">Número:</label>
+    <input type="text" id="numero" placeholder="Número" required>
+
+    <label for="bairro">Bairro:</label>
+    <input type="text" id="bairro" placeholder="Bairro" required>
+
+    <label for="cidade">Cidade:</label>
+    <input type="text" id="cidade" placeholder="Cidade" required>
+
+    <label for="estado">Estado:</label>
+    <input type="text" id="estado" placeholder="Estado" required>
+
+    <label for="complemento">Complemento:</label>
+    <input type="text" id="complemento" placeholder="Apartamento, bloco, ponto de referência...">
+
+    <!-- Pergunta sobre cônjuge -->
+    <label for="temConjuge">Tem cônjuge?</label>
+    <select id="temConjuge" onchange="mostrarConjuge()">
+      <option value="nao">Não</option>
+      <option value="sim">Sim</option>
+    </select>
+
+    <div id="conjugeFields" class="hidden">
+      <label for="nomeConjuge">Nome do Cônjuge:</label>
+      <input type="text" id="nomeConjuge" placeholder="Nome do cônjuge">
+      <label for="telConjuge">Telefone do Cônjuge:</label>
+      <input type="tel" id="telConjuge" placeholder="Telefone do cônjuge">
+    </div>
+
+    <!-- Pergunta sobre filhos -->
+    <label for="temFilhos">Tem filhos?</label>
+    <select id="temFilhos" onchange="mostrarFilhos()">
+      <option value="nao">Não</option>
+      <option value="sim">Sim</option>
+    </select>
+
+    <div id="qtdFilhosContainer" class="hidden">
+      <label for="qtdFilhos">Quantidade de filhos:</label>
+      <input type="number" id="qtdFilhos" min="1" max="10" onchange="gerarCamposFilhos()">
+    </div>
+
+    <div id="filhosFields"></div>
+
+    <button onclick="cadastrarPessoa()">Cadastrar</button>
+    <p class="success-message" id="successMessage">Cadastro realizado com sucesso!</p>
+  </div>
+
+  <script>
+    function buscarCEP() {
+      const cep = document.getElementById("cep").value.replace(/\D/g, '');
+      if (cep.length !== 8) return;
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.erro) {
+            document.getElementById("logradouro").value = data.logradouro || "";
+            document.getElementById("bairro").value = data.bairro || "";
+            document.getElementById("cidade").value = data.localidade || "";
+            document.getElementById("estado").value = data.uf || "";
+          }
+        })
+        .catch(() => alert("Erro ao buscar CEP."));
+    }
+
+    function mostrarConjuge() {
+      const temConjuge = document.getElementById("temConjuge").value;
+      document.getElementById("conjugeFields").classList.toggle("hidden", temConjuge !== "sim");
+    }
+
+    function mostrarFilhos() {
+      const temFilhos = document.getElementById("temFilhos").value;
+      document.getElementById("qtdFilhosContainer").classList.toggle("hidden", temFilhos !== "sim");
+      document.getElementById("filhosFields").innerHTML = "";
+    }
+
+    function gerarCamposFilhos() {
+      const qtd = parseInt(document.getElementById("qtdFilhos").value) || 0;
+      const container = document.getElementById("filhosFields");
+      container.innerHTML = "";
+      for (let i = 1; i <= qtd; i++) {
+        container.innerHTML += `
+          <div>
+            <label>Nome do Filho ${i}:</label>
+            <input type="text" id="filhoNome${i}" placeholder="Nome do filho ${i}">
+            <label>Telefone do Filho ${i} (opcional):</label>
+            <input type="tel" id="filhoTel${i}" placeholder="Telefone do filho ${i}">
+          </div>
+        `;
+      }
+    }
+
+    function cadastrarPessoa() {
+      const nome = document.getElementById("nome").value.trim();
+      const telefone = document.getElementById("telefone").value.trim();
+      const cep = document.getElementById("cep").value.trim();
+      const logradouro = document.getElementById("logradouro").value.trim();
+      const numero = document.getElementById("numero").value.trim();
+      const bairro = document.getElementById("bairro").value.trim();
+      const cidade = document.getElementById("cidade").value.trim();
+      const estado = document.getElementById("estado").value.trim();
+      const complemento = document.getElementById("complemento").value.trim();
+
+      if (!nome || !telefone || !cep || !logradouro || !numero || !bairro || !cidade || !estado) {
+        alert("Preencha todos os campos obrigatórios!");
+        return;
+      }
+
+      // Validação do cônjuge
+      const temConjuge = document.getElementById("temConjuge").value;
+      let conjuge = null;
+      if (temConjuge === "sim") {
+        const nomeConjuge = document.getElementById("nomeConjuge").value.trim();
+        const telConjuge = document.getElementById("telConjuge").value.trim();
+        if (!nomeConjuge || !telConjuge) {
+          alert("Preencha o nome e telefone do cônjuge!");
+          return;
+        }
+        conjuge = { nome: nomeConjuge, telefone: telConjuge };
+      }
+
+      // Validação dos filhos
+      const temFilhos = document.getElementById("temFilhos").value;
+      let filhos = [];
+      if (temFilhos === "sim") {
+        const qtd = parseInt(document.getElementById("qtdFilhos").value) || 0;
+        for (let i = 1; i <= qtd; i++) {
+          const nomeFilho = document.getElementById(`filhoNome${i}`).value.trim();
+          const telFilho = document.getElementById(`filhoTel${i}`).value.trim();
+          if (!nomeFilho) {
+            alert(`Preencha o nome do Filho ${i}!`);
+            return;
+          }
+          filhos.push({ nome: nomeFilho, telefone: telFilho || null });
+        }
+      }
+
+      const pessoa = {
+        nome,
+        telefone,
+        endereco: { cep, logradouro, numero, bairro, cidade, estado, complemento },
+        conjuge: conjuge,
+        filhos: filhos,
+        cadastradoEm: new Date().toISOString()
+      };
+
+      database.ref("pessoas").push(pessoa)
+        .then(() => {
+          document.getElementById("successMessage").style.display = "block";
+          document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+          document.getElementById("temConjuge").value = "nao";
+          document.getElementById("temFilhos").value = "nao";
+          document.getElementById("conjugeFields").classList.add("hidden");
+          document.getElementById("qtdFilhosContainer").classList.add("hidden");
+          document.getElementById("filhosFields").innerHTML = "";
+          setTimeout(() => document.getElementById("successMessage").style.display = "none", 2000);
+        })
+        .catch(error => alert("Erro ao cadastrar: " + error.message));
+    }
+  </script>
+</body>
+</html>

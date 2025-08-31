@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerenciar Cadastros</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { max-width: 1200px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #4CAF50; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    button { padding: 6px 10px; margin: 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .btn-copy { background: #2196F3; color: white; }
+    .btn-edit { background: #FFC107; color: white; }
+    .btn-delete { background: #F44336; color: white; }
+    .btn-export { background: #4CAF50; color: white; margin-bottom: 10px; padding: 10px; }
+    .hidden { display: none; }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Gerenciar Cadastros</h1>
+    <button class="btn-export" onclick="baixarExcel()">📥 Baixar Excel</button>
+    <div id="table-container">Carregando...</div>
+  </div>
+
+  <script>
+    const tableContainer = document.getElementById("table-container");
+    const ref = database.ref("pessoas");
+    let allData = {};
+
+    // Carregar dados do Firebase
+    ref.on("value", snapshot => {
+      const data = snapshot.val();
+      allData = data || {};
+      renderTable(data);
+    });
+
+    function renderTable(data) {
+      if (!data) {
+        tableContainer.innerHTML = "<p>Nenhum cadastro encontrado.</p>";
+        return;
+      }
+
+      let table = `<table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Endereço</th>
+            <th>Cônjuge</th>
+            <th>Filhos</th>
+            <th>Ações</th>
+          </tr>
+        </thead><tbody>`;
+
+      Object.entries(data).forEach(([id, pessoa]) => {
+        const end = pessoa.endereco || {};
+        const conjuge = pessoa.conjuge ? `${pessoa.conjuge.nome} (${pessoa.conjuge.telefone})` : "—";
+        const filhos = (pessoa.filhos || []).map(f => `${f.nome}${f.telefone ? " ("+f.telefone+")" : ""}`).join(", ") || "—";
+        const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""} (${end.cep || ""}) ${end.complemento || ""}`;
+
+        table += `<tr>
+          <td>${pessoa.nome}</td>
+          <td>${pessoa.telefone}</td>
+          <td>${enderecoStr}</td>
+          <td>${conjuge}</td>
+          <td>${filhos}</td>
+          <td>
+            <button class="btn-copy" onclick="copiarTexto('${id}')">📋 Copiar</button>
+            <button class="btn-edit" onclick="editarCadastro('${id}')">✏️ Editar</button>
+            <button class="btn-delete" onclick="excluirCadastro('${id}')">🗑️ Excluir</button>
+          </td>
+        </tr>`;
+      });
+
+      table += "</tbody></table>";
+      tableContainer.innerHTML = table;
+    }
+
+    // Função para copiar para WhatsApp
+    function copiarTexto(id) {
+      const p = allData[id];
+      if (!p) return;
+
+      const end = p.endereco || {};
+      const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""} (${end.cep || ""}) ${end.complemento || ""}`;
+      const conjuge = p.conjuge ? `Cônjuge: ${p.conjuge.nome} - ${p.conjuge.telefone}` : "Cônjuge: —";
+      const filhos = (p.filhos || []).map(f => `${f.nome}${f.telefone ? " - " + f.telefone : ""}`).join(", ") || "—";
+
+      const texto = `👤 ${p.nome}\n📞 ${p.telefone}\n🏠 ${enderecoStr}\n💍 ${conjuge}\n👶 Filhos: ${filhos}`;
+
+      navigator.clipboard.writeText(texto)
+        .then(() => alert("Informações copiadas!"))
+        .catch(() => alert("Erro ao copiar. Selecione manualmente."));
+    }
+
+    // Função para excluir cadastro
+    function excluirCadastro(id) {
+      if (!confirm("Tem certeza que deseja excluir este cadastro?")) return;
+      database.ref("pessoas/" + id).remove()
+        .then(() => alert("Cadastro excluído com sucesso!"))
+        .catch(err => alert("Erro ao excluir: " + err.message));
+    }
+
+    // Função para editar cadastro
+    function editarCadastro(id) {
+      const pessoa = allData[id];
+      if (!pessoa) return alert("Cadastro não encontrado.");
+      const novoNome = prompt("Nome:", pessoa.nome);
+      if (!novoNome) return;
+      const novoTel = prompt("Telefone:", pessoa.telefone);
+      pessoa.nome = novoNome;
+      pessoa.telefone = novoTel;
+      database.ref("pessoas/" + id).set(pessoa)
+        .then(() => alert("Cadastro atualizado!"));
+    }
+
+    // Função para baixar Excel
+    function baixarExcel() {
+      if (!allData || Object.keys(allData).length === 0) {
+        alert("Nenhum dado para exportar!");
+        return;
+      }
+
+      const rows = [["Nome", "Telefone", "Endereço", "Cônjuge", "Filhos"]];
+      Object.values(allData).forEach(p => {
+        const end = p.endereco || {};
+        const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""} (${end.cep || ""}) ${end.complemento || ""}`;
+        const conjuge = p.conjuge ? `${p.conjuge.nome} (${p.conjuge.telefone})` : "";
+        const filhos = (p.filhos || []).map(f => `${f.nome}${f.telefone ? " ("+f.telefone+")" : ""}`).join(", ");
+        rows.push([p.nome, p.telefone, enderecoStr, conjuge, filhos]);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, "Cadastros");
+      XLSX.writeFile(wb, "cadastros.xlsx");
+    }
+  </script>
+</body>
+</html>
