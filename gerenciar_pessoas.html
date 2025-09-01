@@ -17,6 +17,7 @@
     .btn-edit { background: #FFC107; color: white; }
     .btn-delete { background: #F44336; color: white; }
     .btn-export { background: #4CAF50; color: white; margin-bottom: 10px; padding: 10px; }
+    .btn-copyall { background: #673AB7; color: white; margin-bottom: 10px; padding: 10px; }
     .hidden { display: none; }
   </style>
   <!-- Firebase -->
@@ -29,6 +30,7 @@
   <div class="container">
     <h1>Gerenciar Cadastros</h1>
     <button class="btn-export" onclick="baixarExcel()">📥 Baixar Excel</button>
+    <button class="btn-copyall" onclick="copiarTudo()">📋 Copiar Tudo</button>
     <div id="table-container">Carregando...</div>
   </div>
 
@@ -86,7 +88,7 @@
       tableContainer.innerHTML = table;
     }
 
-    // Função para copiar para WhatsApp
+    // Função para copiar 1 pessoa
     function copiarTexto(id) {
       const p = allData[id];
       if (!p) return;
@@ -103,7 +105,29 @@
         .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
 
-    // Função para excluir cadastro
+    // Função para copiar todos
+    function copiarTudo() {
+      if (!allData || Object.keys(allData).length === 0) {
+        alert("Nenhum dado para copiar!");
+        return;
+      }
+
+      let texto = "📋 *Lista de Cadastros*\n\n";
+      Object.values(allData).forEach(p => {
+        const end = p.endereco || {};
+        const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""} (${end.cep || ""}) ${end.complemento || ""}`;
+        const conjuge = p.conjuge ? `Cônjuge: ${p.conjuge.nome} - ${p.conjuge.telefone}` : "Cônjuge: —";
+        const filhos = (p.filhos || []).map(f => `${f.nome}${f.telefone ? " - " + f.telefone : ""}`).join(", ") || "—";
+
+        texto += `👤 ${p.nome}\n📞 ${p.telefone}\n🏠 ${enderecoStr}\n💍 ${conjuge}\n👶 Filhos: ${filhos}\n\n`;
+      });
+
+      navigator.clipboard.writeText(texto)
+        .then(() => alert("Todos os cadastros foram copiados para WhatsApp!"))
+        .catch(() => alert("Erro ao copiar. Selecione manualmente."));
+    }
+
+    // Funções editar/excluir/baixarExcel permanecem iguais...
     function excluirCadastro(id) {
       if (!confirm("Tem certeza que deseja excluir este cadastro?")) return;
       database.ref("pessoas/" + id).remove()
@@ -111,7 +135,6 @@
         .catch(err => alert("Erro ao excluir: " + err.message));
     }
 
-    // Função para editar cadastro
     function editarCadastro(id) {
       const pessoa = allData[id];
       if (!pessoa) return alert("Cadastro não encontrado.");
@@ -124,7 +147,6 @@
         .then(() => alert("Cadastro atualizado!"));
     }
 
-    // Função para baixar Excel
     function baixarExcel() {
       if (!allData || Object.keys(allData).length === 0) {
         alert("Nenhum dado para exportar!");
