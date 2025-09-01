@@ -18,6 +18,7 @@
     .btn-delete { background: #F44336; color: white; }
     .btn-export { background: #4CAF50; color: white; margin-bottom: 10px; padding: 10px; }
     .btn-copyall { background: #673AB7; color: white; margin-bottom: 10px; padding: 10px; }
+    .btn-copynomes { background: #009688; color: white; margin-bottom: 10px; padding: 10px; }
     .hidden { display: none; }
   </style>
   <!-- Firebase -->
@@ -31,6 +32,7 @@
     <h1>Gerenciar Cadastros</h1>
     <button class="btn-export" onclick="baixarExcel()">📥 Baixar Excel</button>
     <button class="btn-copyall" onclick="copiarTudo()">📋 Copiar Tudo</button>
+    <button class="btn-copynomes" onclick="copiarNomes()">📋 Copiar Só Nomes</button>
     <div id="table-container">Carregando...</div>
   </div>
 
@@ -88,7 +90,7 @@
       tableContainer.innerHTML = table;
     }
 
-    // Função para copiar 1 pessoa
+    // Copiar uma pessoa
     function copiarTexto(id) {
       const p = allData[id];
       if (!p) return;
@@ -105,7 +107,7 @@
         .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
 
-    // Função para copiar todos
+    // Copiar todos os cadastros
     function copiarTudo() {
       if (!allData || Object.keys(allData).length === 0) {
         alert("Nenhum dado para copiar!");
@@ -123,18 +125,35 @@
       });
 
       navigator.clipboard.writeText(texto)
-        .then(() => alert("Todos os cadastros foram copiados para WhatsApp!"))
+        .then(() => alert("Todos os cadastros foram copiados!"))
         .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
 
-    // Funções editar/excluir/baixarExcel permanecem iguais...
-    function excluirCadastro(id) {
-      if (!confirm("Tem certeza que deseja excluir este cadastro?")) return;
-      database.ref("pessoas/" + id).remove()
-        .then(() => alert("Cadastro excluído com sucesso!"))
-        .catch(err => alert("Erro ao excluir: " + err.message));
+    // Copiar só nomes, cônjuges e filhos
+    function copiarNomes() {
+      if (!allData || Object.keys(allData).length === 0) {
+        alert("Nenhum nome para copiar!");
+        return;
+      }
+
+      let texto = "✅ *Irmãos que já preencheram o formulário*\n\n";
+      Object.values(allData).forEach(p => {
+        texto += `• ${p.nome}\n`;
+        if (p.conjuge) texto += `   💍 ${p.conjuge.nome}\n`;
+        if (p.filhos && p.filhos.length > 0) {
+          p.filhos.forEach(f => {
+            texto += `   👶 ${f.nome}\n`;
+          });
+        }
+        texto += "\n";
+      });
+
+      navigator.clipboard.writeText(texto)
+        .then(() => alert("Lista de nomes, cônjuges e filhos copiada!"))
+        .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
 
+    // Editar cadastro
     function editarCadastro(id) {
       const pessoa = allData[id];
       if (!pessoa) return alert("Cadastro não encontrado.");
@@ -147,6 +166,15 @@
         .then(() => alert("Cadastro atualizado!"));
     }
 
+    // Excluir cadastro
+    function excluirCadastro(id) {
+      if (!confirm("Tem certeza que deseja excluir este cadastro?")) return;
+      database.ref("pessoas/" + id).remove()
+        .then(() => alert("Cadastro excluído com sucesso!"))
+        .catch(err => alert("Erro ao excluir: " + err.message));
+    }
+
+    // Baixar Excel
     function baixarExcel() {
       if (!allData || Object.keys(allData).length === 0) {
         alert("Nenhum dado para exportar!");
