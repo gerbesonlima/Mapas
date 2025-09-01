@@ -107,27 +107,34 @@
         .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
 
-    // Copiar todos os cadastros
+        // Copiar todos os cadastros (formato WhatsApp atualizado)
     function copiarTudo() {
       if (!allData || Object.keys(allData).length === 0) {
         alert("Nenhum dado para copiar!");
         return;
       }
 
-      let texto = "📋 *Lista de Cadastros*\n\n";
+      let texto = "📋 *Todos os irmãos grupo 2*\n========================\n\n";
+
       Object.values(allData).forEach(p => {
         const end = p.endereco || {};
-        const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""} (${end.cep || ""}) ${end.complemento || ""}`;
-        const conjuge = p.conjuge ? `Cônjuge: ${p.conjuge.nome} - ${p.conjuge.telefone}` : "Cônjuge: —";
-        const filhos = (p.filhos || []).map(f => `${f.nome}${f.telefone ? " - " + f.telefone : ""}`).join(", ") || "—";
+        const enderecoStr = `${end.logradouro || ""}, ${end.numero || ""}, ${end.bairro || ""}, ${end.cidade || ""}-${end.estado || ""}\nCep: ${end.cep || ""} ${end.complemento || ""}`;
+        const conjuge = p.conjuge ? `${p.conjuge.nome} - (${p.conjuge.telefone})` : "-";
+        const filhos = (p.filhos || []).map(f => `${f.nome}${f.telefone ? " - " + f.telefone : ""}`).join(", ") || "-";
 
-        texto += `👤 ${p.nome}\n📞 ${p.telefone}\n🏠 ${enderecoStr}\n💍 ${conjuge}\n👶 Filhos: ${filhos}\n\n`;
+        texto += `*Nome:* ${p.nome}\n`;
+        texto += `*Telefone:* ${p.telefone || "-"}\n`;
+        texto += `*Cônjuge:* ${conjuge}\n`;
+        texto += `*Filhos:* ${filhos}\n\n`;
+        texto += `*Endereço:* ${enderecoStr}\n\n`;
+        texto += "==========================\n\n";
       });
 
       navigator.clipboard.writeText(texto)
         .then(() => alert("Todos os cadastros foram copiados!"))
         .catch(() => alert("Erro ao copiar. Selecione manualmente."));
     }
+
 
     // Copiar só nomes, cônjuges e filhos
     function copiarNomes() {
