@@ -5,19 +5,94 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-    .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    h1 { text-align: center; font-size: 22px; margin-bottom: 20px; }
-    label { display: block; margin-bottom: 5px; font-size: 14px; }
-    input, button {
-      width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
-    }
-    button { background: #4CAF50; color: #fff; font-size: 16px; cursor: pointer; }
-    button:hover { background: #45a049; }
-    .hidden { display: none; }
-    .dados { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
-    .btn-secondary { background: #007BFF; }
-    .btn-secondary:hover { background: #0069d9; }
+  
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #121212;
+    margin: 0;
+    padding: 0;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+  }
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #c8eded; /* Neon blue */
+    text-shadow: 0 0 5px #0babab;
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #b0b0b0;
+  }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #2b2b2b;
+    color: #e0e0e0;
+    box-sizing: border-box;
+  }
+  input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  }
+  button {
+    background: #00ffff;
+    color: #121212;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button:hover {
+    background: #00b0b0;
+    transform: translateY(-2px);
+  }
+  .hidden {
+    display: none;
+  }
+  .dados {
+    background: #2b2b2b;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    margin-bottom: 20px;
+  }
+  .dados p {
+    margin: 5px 0;
+  }
+  .dados strong {
+    color: #00ffff;
+  }
+  .btn-secondary {
+    background: #555;
+    color: #fff;
+  }
+  .btn-secondary:hover {
+    background: #777;
+  }
+
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -25,7 +100,9 @@
   <script src="firebase.js"></script>
 </head>
 <body>
+    
   <div class="container">
+  
     <h1>Login</h1>
     
     <!-- Passo 1: Digitar telefone -->
