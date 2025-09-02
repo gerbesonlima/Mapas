@@ -16,6 +16,8 @@
     button:hover { background: #45a049; }
     .hidden { display: none; }
     .dados { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
+    .btn-secondary { background: #007BFF; }
+    .btn-secondary:hover { background: #0069d9; }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -26,22 +28,26 @@
   <div class="container">
     <h1>Login</h1>
     
+    <!-- Passo 1: Digitar telefone -->
     <div id="step1">
       <label for="telefone">Digite seu telefone:</label>
       <input type="tel" id="telefone" placeholder="Ex: 86999999999">
       <button onclick="verificarTelefone()">Continuar</button>
     </div>
 
+    <!-- Passo 2: Digitar senha -->
     <div id="step2" class="hidden">
-      <label for="senha">Crie ou digite sua senha:</label>
+      <label for="senha">Digite sua senha:</label>
       <input type="password" id="senha" placeholder="Senha">
       <button onclick="login()">Entrar</button>
     </div>
 
+    <!-- Passo 3: Confirmar dados -->
     <div id="step3" class="hidden">
       <h3>Confirme seus dados</h3>
       <div id="dadosUsuario" class="dados"></div>
       <button onclick="confirmarDados()">Confirmar</button>
+      <button class="btn-secondary" onclick="editarDados()">Editar Dados</button>
     </div>
   </div>
 
@@ -56,6 +62,16 @@
 
       if (snapshot.exists()) {
         snapshot.forEach(snap => usuarioEncontrado = { id: snap.key, ...snap.val() });
+
+        // Se já logou antes, entra direto
+        // Dentro de verificarTelefone(), quando primeiroLogin === false:
+            if (usuarioEncontrado.primeiroLogin === false) {
+            localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
+            window.location.href = "sistema.html";
+            return;
+}
+
+
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
       } else {
@@ -67,13 +83,18 @@
 
     async function login() {
       const senha = document.getElementById('senha').value.trim();
-      if (!senha) return alert("Digite ou crie uma senha!");
+      if (!senha) return alert("Digite sua senha!");
 
-      await database.ref(`pessoas/${usuarioEncontrado.id}/senha`).set(senha);
+      // Se não tem senha no cadastro, salva a nova
+      if (!usuarioEncontrado.senha) {
+        await database.ref(`pessoas/${usuarioEncontrado.id}/senha`).set(senha);
+      } else if (usuarioEncontrado.senha !== senha) {
+        alert("Senha incorreta!");
+        return;
+      }
 
       document.getElementById('step2').classList.add('hidden');
       document.getElementById('step3').classList.remove('hidden');
-
       mostrarDados();
     }
 
@@ -91,9 +112,19 @@
       document.getElementById('dadosUsuario').innerHTML = html;
     }
 
-    function confirmarDados() {
-      alert("Dados confirmados! Redirecionando...");
-      window.location.href = "atalhos.html"; // Substitua por sua página do sistema
+   async function confirmarDados() {
+  await database.ref(`pessoas/${usuarioEncontrado.id}/primeiroLogin`).set(false);
+
+  // Salva telefone no localStorage
+  localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
+
+  alert("Dados confirmados! Redirecionando...");
+  window.location.href = "sistema.html";
+}
+
+    function editarDados() {
+      alert("Você será redirecionado para atualizar seus dados.");
+      window.location.href = "atualizacao.html";
     }
   </script>
 </body>

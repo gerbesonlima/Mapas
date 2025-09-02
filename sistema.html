@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      background: #222;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-top: 1px solid #444;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+      flex: 1;
+    }
+    nav button.active {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #4CAF50;
+      margin-bottom: 15px;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .upload-btn {
+      background: #007BFF;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .upload-btn:hover {
+      background: #0056b3;
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <header>Sistema</header>
+
+  <main id="conteudo">
+    <img id="fotoPerfil" class="profile-pic" src="https://via.placeholder.com/120" alt="Foto de perfil">
+    <br>
+    <label for="uploadFoto" class="upload-btn">Trocar Foto</label>
+    <input type="file" id="uploadFoto" accept="image/*">
+    <h2 id="boasVindas">Bem-vindo!</h2>
+  </main>
+
+  <nav>
+    <button onclick="navegar('pagina1')" id="btn1" class="active">Página 1</button>
+    <button onclick="navegar('pagina2')" id="btn2">Página 2</button>
+    <button onclick="navegar('pagina3')" id="btn3">Página 3</button>
+    <button onclick="navegar('pagina4')" id="btn4">Página 4</button>
+    <button onclick="navegar('pagina5')" id="btn5">Página 5</button>
+  </nav>
+
+  <script>
+    let usuarioId = null;
+
+    // Pega o usuário salvo no login
+    window.onload = async function() {
+      const telefone = localStorage.getItem("telefoneLogado");
+      if (!telefone) {
+        alert("Faça login novamente!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(telefone).once("value");
+      if (snapshot.exists()) {
+        snapshot.forEach(snap => {
+          usuarioId = snap.key;
+          const dados = snap.val();
+          document.getElementById("boasVindas").innerText = `Bem-vindo, ${dados.nome}!`;
+          if (dados.fotoPerfil) {
+            document.getElementById("fotoPerfil").src = dados.fotoPerfil;
+          }
+        });
+      }
+    }
+
+        // Trocar foto de perfil
+        document.getElementById("uploadFoto").addEventListener("change", async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            // Cria referência no Firebase Storage
+            const storageRef = firebase.storage().ref(`fotosPerfil/${usuarioId}/${file.name}`);
+            await storageRef.put(file);
+
+            // Pega URL pública da imagem
+            const url = await storageRef.getDownloadURL();
+
+            // Salva no Realtime Database
+            await database.ref(`pessoas/${usuarioId}/fotoPerfil`).set(url);
+
+            // Atualiza imagem na tela
+            document.getElementById("fotoPerfil").src = url;
+
+            alert("Foto de perfil atualizada com sucesso!");
+        } catch (error) {
+            console.error("Erro ao enviar foto:", error);
+            alert("Erro ao enviar foto: " + error.message);
+        }
+        });
+
+
+    function navegar(pagina) {
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("btn" + pagina.charAt(pagina.length-1)).classList.add("active");
+
+      let conteudo = document.getElementById("conteudo");
+      conteudo.innerHTML = `<h2>${pagina.toUpperCase()}</h2><p>Conteúdo da ${pagina} aqui!</p>`;
+    }
+  </script>
+</body>
+</html>
