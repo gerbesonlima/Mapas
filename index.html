@@ -159,6 +159,25 @@ span p::before {
             return days[todayIndex];
         }
 
+        /**
+         * NOVO: Formata uma data (string ISO ou objeto Date) para "dd/mm/aaaa às HH:MM".
+         */
+        function formatarData(dataISO) {
+            if (!dataISO) return "";
+            try {
+                const data = new Date(dataISO);
+                const dia = String(data.getDate()).padStart(2, '0');
+                const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês é 0-indexado
+                const ano = data.getFullYear();
+                const horas = String(data.getHours()).padStart(2, '0');
+                const minutos = String(data.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
+            } catch (e) {
+                console.error("Erro ao formatar data:", e);
+                return ""; // Retorna string vazia em caso de data inválida
+            }
+        }
+
         function carregarTerritoriosAbertos() {
             const container = document.getElementById("territorios-container");
             container.innerHTML = "<p>Carregando programação e territórios...</p>";
@@ -250,7 +269,6 @@ span p::before {
                 
                 container.innerHTML = scheduleHtml;
 
-                // *** NOVO ***: Adiciona o listener de clique AO TÍTULO DEPOIS QUE ELE FOI CRIADO
                 const tituloH2 = document.getElementById("titulo-programacao-dia");
                 if (tituloH2) {
                     tituloH2.addEventListener('click', abrirModalProgramacao);
@@ -303,7 +321,15 @@ span p::before {
                                 const mapaDiv = document.createElement("div");
                                 mapaDiv.className = "card mapa-card";
 
+                                // *** MUDANÇA 1: Lógica para exibir a data de atualização ***
                                 let anexoHtml = "";
+                                let dataAnexoHtml = ""; // Variável para a data
+
+                                // Formata a data se ela existir no banco
+                                if (mapa.dados.anexoData) {
+                                    dataAnexoHtml = `<p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${formatarData(mapa.dados.anexoData)}</p>`;
+                                }
+
                                 if (mapa.dados.anexoURL) {
                                     anexoHtml = `
                                         <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
@@ -312,11 +338,12 @@ span p::before {
                                                 <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" 
                                                      style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                             </a>
-                                        </div>
+                                            ${dataAnexoHtml} </div>
                                     `;
                                 } else {
                                     anexoHtml = `<div id="anexo-container-${mapa.id}"></div>`;
                                 }
+                                // *** FIM DA MUDANÇA 1 ***
 
                                 mapaDiv.innerHTML = `
                                     <h3><a href="${mapaInfo[mapa.id].link}" target="_blank">${mapaInfo[mapa.id].nome}</a></h3>
@@ -427,28 +454,41 @@ span p::before {
                 }, 
                 () => {
                     task.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        database.ref(`mapas/${mapaId}/anexoURL`).set(downloadURL)
-                            .then(() => {
-                                statusDiv.textContent = "Anexo salvo com sucesso!";
-                                const container = document.getElementById(`anexo-container-${mapaId}`);
-                                container.innerHTML = `
-                                    <p><strong>Anexo Atual:</strong></p>
-                                    <a href="${downloadURL}" target="_blank">
-                                        <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
-                                             style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
-                                    </a>
-                                `;
-                                input.value = "";
-                            })
-                            .catch((err) => {
-                                 statusDiv.textContent = "Erro ao salvar URL no banco: " + err.message;
-                            });
+                        
+                        // *** MUDANÇA 2: Salvar a data atual no Firebase ***
+                        const dataAtual = new Date().toISOString(); // Pega a data/hora exata
+                        const dataFormatada = formatarData(dataAtual); // Formata para exibição
+
+                        // Salva a URL e a Data ao mesmo tempo usando .update()
+                        database.ref(`mapas/${mapaId}`).update({
+                            anexoURL: downloadURL,
+                            anexoData: dataAtual 
+                        })
+                        .then(() => {
+                            statusDiv.textContent = "Anexo salvo com sucesso!";
+                            const container = document.getElementById(`anexo-container-${mapaId}`);
+                            
+                            // Atualiza o HTML para incluir a data formatada
+                            container.innerHTML = `
+                                <p><strong>Anexo Atual:</strong></p>
+                                <a href="${downloadURL}" target="_blank">
+                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
+                                            style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
+                                </a>
+                                <p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${dataFormatada}</p>
+                            `;
+                            input.value = "";
+                        })
+                        .catch((err) => {
+                                statusDiv.textContent = "Erro ao salvar URL no banco: " + err.message;
+                        });
+                        // *** FIM DA MUDANÇA 2 ***
                     });
                 }
             );
         }
 
-        // --- NOVAS FUNÇÕES PARA O MODAL ---
+        // --- FUNÇÕES DO MODAL ---
 
         function fecharModalProgramacao() {
             const modal = document.getElementById("modal-programacao");
@@ -464,7 +504,6 @@ span p::before {
             modal.style.display = "block";
             modalConteudo.innerHTML = "<p>Carregando...</p>";
 
-            // Buscar os dados da programação completa (do configcampo.html)
             database.ref("schedules/field").once("value", snapshot => {
                 const programacaoSemanal = snapshot.val() || [];
                 
@@ -473,7 +512,6 @@ span p::before {
                     return;
                 }
 
-                // Criar uma tabela simples para exibir os dados
                 let tabelaHtml = `
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                         <thead style="background-color: #f0f0f0;">
