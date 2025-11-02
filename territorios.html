@@ -1,0 +1,779 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Territórios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body class="container">
+<!-- Substituir a seção .destaque-principal existente -->
+<div class="destaque-principal">
+      <h1 >Saída de Campo</h1>
+      
+    <div class="card field-schedule">
+      
+       <div class="info-item">
+            <span class="info-label">Dia:</span>
+            <span class="info-value" id="current-day">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Local de saída:</span>
+            <span class="info-value" id="field-location">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Horário da consideração:</span>
+            <span class="info-value" id="field-time">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Dirigente:</span>
+            <span class="info-value" id="field-leader">Carregando...</span>
+        </div>
+
+        <div id="open-territories-container">
+            <button id="open-territories-btn" class="animated-btn" onclick="window.location.href='open_territories.html'">Ver onde trabalhar</button>
+        </div>
+    </div>
+
+            
+    </div>
+
+    <div id="mapas-container"></div>
+
+    <script>
+let currentDate = new Date();
+let backupMapas = null;
+let lastUpdatedDate = null; // Rastreia a última data atualizada
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadFieldServiceData();
+    carregarMapasDesignados();
+    checkTimeAndUpdateDate(); // Inicia a verificação de horário
+});
+
+function getCurrentDay(date) {
+    const days = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'];
+    return days[date.getDay()];
+}
+
+// ✅ CORRIGIDO: avança 1 dia depois de 12h
+function getNextDay(date) {
+    const nextDate = new Date(date);
+
+    if (date.getHours() >= 12) {
+        nextDate.setDate(date.getDate() + 1); // Avança só 1 dia após meio-dia
+    }
+
+    return getCurrentDay(nextDate);
+}
+
+// ✅ Atualiza a data e recarrega as informações do Firebase
+function checkTimeAndUpdateDate() {
+    const now = new Date();
+    const currentDateString = now.toDateString();
+
+    if (now.getHours() >= 12 && lastUpdatedDate !== currentDateString) {
+        currentDate = new Date(now.setDate(now.getDate() + 0));
+        lastUpdatedDate = currentDate.toDateString();
+        console.log("Data atualizada para:", currentDate.toDateString());
+        loadFieldServiceData();
+        carregarMapasDesignados();
+    } else if (lastUpdatedDate !== currentDateString) {
+        currentDate = new Date();
+        lastUpdatedDate = currentDate.toDateString();
+        console.log("Data ajustada para o dia atual:", currentDate.toDateString());
+        loadFieldServiceData();
+        carregarMapasDesignados();
+    }
+
+    setTimeout(checkTimeAndUpdateDate, 60000);
+}
+
+function loadFieldServiceData() {
+    const now = new Date();
+    let displayDay;
+
+    if (now.getHours() < 12) {
+        displayDay = getNextDay(new Date());
+    } else {
+        displayDay = getNextDay(currentDate);
+    }
+
+    console.log("Carregando dados para o dia:", displayDay, "com currentDate:", currentDate.toDateString(), "e hora atual:", now.getHours());
+    document.getElementById('current-day').textContent = displayDay;
+
+    document.getElementById('field-location').textContent = 'Carregando...';
+    document.getElementById('field-time').textContent = 'Carregando...';
+    document.getElementById('field-leader').textContent = 'Carregando...';
+
+    database.ref('schedules/field').once('value', (snapshot) => {
+        const data = snapshot.val() || [];
+        console.log("Dados brutos do Firebase:", data);
+        const dayData = data.find(d => d.day === displayDay) || {};
+        console.log("Dados do dia encontrados:", dayData);
+
+        document.getElementById('field-location').textContent = dayData.location || 'Não definido';
+        document.getElementById('field-time').textContent = dayData.time || 'Não definido';
+        document.getElementById('field-leader').textContent = dayData.leader || 'Não definido';
+    }).catch(error => {
+        console.error("Erro ao carregar dados de saída de campo:", error);
+        alert("Erro ao carregar dados de saída de campo: " + error.message);
+        document.getElementById('field-location').textContent = 'Não definido';
+        document.getElementById('field-time').textContent = 'Não definido';
+        document.getElementById('field-leader').textContent = 'Não definido';
+    });
+}
+
+function carregarMapasDesignados() {
+    const container = document.getElementById("mapas-container");
+    database.ref("mapasDesignados").on("value", snapshot => {
+        container.innerHTML = "";
+        const mapas = snapshot.val();
+        if (mapas) {
+            Object.keys(mapas).forEach(id => {
+                const mapa = mapas[id];
+                const mapaDiv = document.createElement("div");
+                mapaDiv.className = "mapa-item";
+                mapaDiv.id = `mapa-designado-${id}`;
+                mapaDiv.innerHTML = `
+                    <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
+                    <label for="observacao-designado-${id}">Observações:</label>
+                    <p id="observacao-designado-${id}" class="observacao-designada">${mapa.observacao || ""}</p>
+                    <button class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
+                container.appendChild(mapaDiv);
+            });
+        } else {
+            console.log("Nenhum mapa designado encontrado.");
+        }
+    }, error => {
+        console.error("Erro ao carregar mapas designados:", error);
+        alert("Erro ao carregar mapas designados: " + error.message);
+    });
+}
+    </script>
+
+    <script src="firebase.js"></script>
+
+    <h1>Mapas dos Territórios</h1>
+
+    <div class="container">
+        <div id="password-container">
+            <label for="senha">Digite a senha</label>
+            <input type="password" id="senha" placeholder="Senha">
+            <button onclick="verificarSenha()">Entrar</button>
+            <button id="sair-btn" style="display: none;" onclick="sair()">Salvar e Sair</button>
+            <button id="limpar-tudo-btn" style="display: none;" onclick="limparTudo()">Limpar Tudo</button>
+            <button id="recuperar-dados-btn" style="display: none;" onclick="recuperarDados()">Recuperar Dados</button>
+            <button id="relatorio-btn" style="display: none;" onclick="window.location.href='relatorio.html'">Ver Relatório</button>
+            <button id="editar-campo-btn" style="display: none;" onclick="window.location.href='configcampo.html'">Editar Campo</button>
+        </div>
+    <div id="cycle-selection-area" style="margin-top: 10px;"></div>
+   
+  <div class="progress-container">
+    <p>Mapas concluidos</p>
+    <div class="progress-wrapper"> <div class="progress-bar" id="progress-bar"></div> <span class="progress-text" id="progress-text"></span> </div>
+</div>
+
+        <!-- Grupo 02 -->
+        <div class="grupo"> 
+            <div class="grupo-titulo" onclick="toggleList('grupo1')">Grupo 02 - Saída casa do Robson</div>
+            
+            <div class="grupo-lista" id="grupo1"> 
+            
+                <div class="mapa-item">
+                    <a href="https://goo.gl/maps/Md49jEyZRj3EvN6v9">1 Conjunto São Paulo <span id="status-1">Status: Não iniciado</span></a>
+                    <label for="observacao-1">Observações:</label>
+                    <textarea id="observacao-1" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(1)"></textarea>
+                    <div class="info">
+                        <label for="designado-1">Designado para:</label>
+                        <!--Colocar aqui o campo para inserir o nme da pessoa-->
+                        <label for="data-inicio-1">Aberto em:</label>
+                        <input type="date" id="data-inicio-1" onchange="atualizarStatus(1)">
+                        <label for="data-fim-1">Fechado em:</label>
+                        <input type="date" id="data-fim-1" onchange="atualizarStatus(1)">
+                        
+                    </div>
+
+                  
+                </div>
+                <div class="mapa-item"> 
+                    <a href="https://www.google.com/maps/d/edit?mid=1r6jF2LI2ux7isdXChAk4B4nROMWCICg&usp=sharing">2 Curva São Paulo <span id="status-2">Status: Não iniciado</span></a>
+                    
+                    <label for="observacao-2">Observações:</label>
+                    <textarea id="observacao-2" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(2)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-2">Aberto em:</label>
+                        <input type="date" id="data-inicio-2" onchange="atualizarStatus(2)">
+                        <label for="data-fim-2">Fechado em:</label>
+                        <input type="date" id="data-fim-2" onchange="atualizarStatus(2)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=12PrxH_RXHnTg3Hrp8zp8oD3bpQvhG_c&usp=sharing">3 Vila Beira Rio <span id="status-3">Status: Não iniciado</span></a>
+                    <label for="observacao-3">Observações:</label>
+                    <textarea id="observacao-3" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(3)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-3">Aberto em:</label>
+                        <input type="date" id="data-inicio-3" onchange="atualizarStatus(3)">
+                        <label for="data-fim-3">Fechado em:</label>
+                        <input type="date" id="data-fim-3" onchange="atualizarStatus(3)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=195rUyTh_G2LjbtAkXVp2LvBEwv997Po&usp=sharing">4 Res Araguaia (parte A) <span id="status-4">Status: Não iniciado</span></a>
+                    <label for="observacao-4">Observações:</label>
+                    <textarea id="observacao-4" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(4)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-4">Aberto em:</label>
+                        <input type="date" id="data-inicio-4" onchange="atualizarStatus(4)">
+                        <label for="data-fim-4">Fechado em:</label>
+                        <input type="date" id="data-fim-4" onchange="atualizarStatus(4)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=12gcziapB8ifTF4qB0JIERIbZO1dNKIw&usp=sharing">5 Res Araguaia (parte B) <span id="status-5">Status: Não iniciado</span></a>
+                    <label for="observacao-5">Observações:</label>
+                    <textarea id="observacao-5" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(5)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-5">Aberto em:</label>
+                        <input type="date" id="data-inicio-5" onchange="atualizarStatus(5)">
+                        <label for="data-fim-5">Fechado em:</label>
+                        <input type="date" id="data-fim-5" onchange="atualizarStatus(5)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1MYrUYQJ1id99b_MZ7-xi5hrfKlyMAKE&usp=sharing">6 Vila Bagda <span id="status-6">Status: Não iniciado</span></a>
+                    <label for="observacao-6">Observações:</label>
+                    <textarea id="observacao-6" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(6)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-6">Aberto em:</label>
+                        <input type="date" id="data-inicio-6" onchange="atualizarStatus(6)">
+                        <label for="data-fim-6">Fechado em:</label>
+                        <input type="date" id="data-fim-6" onchange="atualizarStatus(6)">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grupo 03 -->
+        <div class="grupo">
+            <div class="grupo-titulo" onclick="toggleList('grupo3')">Grupo 03 - Saída casa da Raimundinha</div> 
+           
+
+
+            <div class="grupo-lista" id="grupo3">
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/viewer?mid=18Wxukw79C2pPGSVY3Ql8vD2n1oCEAis&hl=pt-BR&usp=sharing">7 Vila Firmino (parte A) <span id="status-7">Status: Não iniciado</span></a>
+                    <label for="observacao-7">Observações:</label>
+                    <textarea id="observacao-7" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(7)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-7">Aberto em:</label>
+                        <input type="date" id="data-inicio-7" onchange="atualizarStatus(7)">
+                        <label for="data-fim-7">Fechado em:</label>
+                        <input type="date" id="data-fim-7" onchange="atualizarStatus(7)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/viewer?mid=1GOBDMjUsQ1wS1sbzGHKeR-DS5kIkKGs&usp=sharing">8 Vila Firmino (parte B) <span id="status-8">Status: Não iniciado</span></a>
+                    <label for="observacao-8">Observações:</label>
+                    <textarea id="observacao-8" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(8)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-8">Aberto em:</label>
+                        <input type="date" id="data-inicio-8" onchange="atualizarStatus(8)">
+                        <label for="data-fim-8">Fechado em:</label>
+                        <input type="date" id="data-fim-8" onchange="atualizarStatus(8)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=19ZUY-pf4uECpRL1FVBb7QEpJTBCyZ4k&usp=sharing">9 Parque Poty (parte A) <span id="status-9">Status: Não iniciado</span></a>
+                    <label for="observacao-9">Observações:</label>
+                    <textarea id="observacao-9" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(9)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-9">Aberto em:</label>
+                        <input type="date" id="data-inicio-9" onchange="atualizarStatus(9)">
+                        <label for="data-fim-9">Fechado em:</label>
+                        <input type="date" id="data-fim-9" onchange="atualizarStatus(9)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1ghYlY5uOxIulSEhXv8EasZ8WYd7M_z0&usp=sharing">10 Parque Poty (parte B) <span id="status-10">Status: Não iniciado</span></a>
+                    <label for="observacao-10">Observações:</label>
+                    <textarea id="observacao-10" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(10)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-10">Aberto em:</label>
+                        <input type="date" id="data-inicio-10" onchange="atualizarStatus(10)">
+                        <label for="data-fim-10">Fechado em:</label>
+                        <input type="date" id="data-fim-10" onchange="atualizarStatus(10)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1u5nwR0cBiF3FK23HfZKwMqHjBO6SgZk&usp=sharing">11 Parque Poty (parte C) <span id="status-11">Status: Não iniciado</span></a>
+                    <label for="observacao-11">Observações:</label>
+                    <textarea id="observacao-11" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(11)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-11">Aberto em:</label>
+                        <input type="date" id="data-inicio-11" onchange="atualizarStatus(11)">
+                        <label for="data-fim-11">Fechado em:</label>
+                        <input type="date" id="data-fim-11" onchange="atualizarStatus(11)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1o7VZi5ay3WxZ9NOn--yQTeJwmpAnbc8&usp=sharing">12 Vila Poty <span id="status-12">Status: Não iniciado</span></a>
+                    <label for="observacao-12">Observações:</label>
+                    <textarea id="observacao-12" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(12)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-12">Aberto em:</label>
+                        <input type="date" id="data-inicio-12" onchange="atualizarStatus(12)">
+                        <label for="data-fim-12">Fechado em:</label>
+                        <input type="date" id="data-fim-12" onchange="atualizarStatus(12)">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grupo 04 -->
+        <div class="grupo">
+            <div class="grupo-titulo" onclick="toggleList('grupo4')">Grupo 04 - Saída casa do José Lopes</div> 
+
+            <div class="grupo-lista" id="grupo4">
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=10O9KCa9g8fKSbOwHPP8OY414bXSo-m8&usp=sharing">13 Sales <span id="status-13">Status: Não iniciado</span></a>
+                    <label for="observacao-13">Observações:</label>
+                    <textarea id="observacao-13" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(13)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-13">Aberto em:</label>
+                        <input type="date" id="data-inicio-13" onchange="atualizarStatus(13)">
+                        <label for="data-fim-13">Fechado em:</label>
+                        <input type="date" id="data-fim-13" onchange="atualizarStatus(13)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=19nBg9H9jwTf3bDDtOLTaAd2K3l_KWG0&usp=sharing">14 Cidade Nova <span id="status-14">Status: Não iniciado</span></a>
+                    <label for="observacao-14">Observações:</label>
+                    <textarea id="observacao-14" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(14)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-14">Aberto em:</label>
+                        <input type="date" id="data-inicio-14" onchange="atualizarStatus(14)">
+                        <label for="data-fim-14">Fechado em:</label>
+                        <input type="date" id="data-fim-14" onchange="atualizarStatus(14)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1cydoQcQmHEk-1R95mH0ez_Fbt3m3vek&usp=sharing">15 Porto Rico <span id="status-15">Status: Não iniciado</span></a>
+                    <label for="observacao-15">Observações:</label>
+                    <textarea id="observacao-15" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(15)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-15">Aberto em:</label>
+                        <input type="date" id="data-inicio-15" onchange="atualizarStatus(15)">
+                        <label for="data-fim-15">Fechado em:</label>
+                        <input type="date" id="data-fim-15" onchange="atualizarStatus(15)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1rAwcQRSe44yrG_ZLlQzrXmDvF8-yMfw&usp=sharing">16 Renascença I (parte A) <span id="status-16">Status: Não iniciado</span></a>
+                    <label for="observacao-16">Observações:</label>
+                    <textarea id="observacao-16" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(16)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-16">Aberto em:</label>
+                        <input type="date" id="data-inicio-16" onchange="atualizarStatus(16)">
+                        <label for="data-fim-16">Fechado em:</label>
+                        <input type="date" id="data-fim-16" onchange="atualizarStatus(16)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=14NQMSbb4rPc0GPbpnaCYJ5OoqaDfdTI&usp=sharing">17 Renascença I (parte B) <span id="status-17">Status: Não iniciado</span></a>
+                    <label for="observacao-17">Observações:</label>
+                    <textarea id="observacao-17" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(17)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-17">Aberto em:</label>
+                        <input type="date" id="data-inicio-17" onchange="atualizarStatus(17)">
+                        <label for="data-fim-17">Fechado em:</label>
+                        <input type="date" id="data-fim-17" onchange="atualizarStatus(17)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1IJ26ZGFo4xZ9WmYLXXJhOkRssvn2JXk&usp=sharing">18 Renascença I (parte C) <span id="status-18">Status: Não iniciado</span></a>
+                    <label for="observacao-18">Observações:</label>
+                    <textarea id="observacao-18" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(18)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-18">Aberto em:</label>
+                        <input type="date" id="data-inicio-18" onchange="atualizarStatus(18)">
+                        <label for="data-fim-18">Fechado em:</label>
+                        <input type="date" id="data-fim-18" onchange="atualizarStatus(18)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1EIREpoiY8jwoNDiS3TLWOSxiYnIOjSc&usp=sharing">19 Renascença I (parte D) <span id="status-19">Status: Não iniciado</span></a>
+                    <label for="observacao-19">Observações:</label>
+                    <textarea id="observacao-19" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(19)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-19">Aberto em:</label>
+                        <input type="date" id="data-inicio-19" onchange="atualizarStatus(19)">
+                        <label for="data-fim-19">Fechado em:</label>
+                        <input type="date" id="data-fim-19" onchange="atualizarStatus(19)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=14yxkw5es33dESFQOouLKK3ds_Wdl_u8&usp=sharing">20 Renascença III <span id="status-20">Status: Não iniciado</span></a>
+                    <label for="observacao-20">Observações:</label>
+                    <textarea id="observacao-20" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(20)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-20">Aberto em:</label>
+                        <input type="date" id="data-inicio-20" onchange="atualizarStatus(20)">
+                        <label for="data-fim-20">Fechado em:</label>
+                        <input type="date" id="data-fim-20" onchange="atualizarStatus(20)">
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grupo 01 (Segunda Parte) -->
+        <div class="grupo">
+            <div class="grupo-titulo" onclick="toggleList('grupo1-2')">Grupo 01 - Saída do Salão do Reino</div>
+
+            <div class="grupo-lista" id="grupo1-2">
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=19iTJEvALPSSiz2sk2PZTdq0Gx8rddeY&usp=sharing">21 Loteamento Renascença <span id="status-21">Status: Não iniciado</span></a>
+                    <label for="observacao-21">Observações:</label>
+                    <textarea id="observacao-21" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(21)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-21">Aberto em:</label>
+                        <input type="date" id="data-inicio-21" onchange="atualizarStatus(21)">
+                        <label for="data-fim-21">Fechado em:</label>
+                        <input type="date" id="data-fim-21" onchange="atualizarStatus(21)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1gqqoO9XvooYc7Ozm0uZwxoUl_wiTwCM&usp=sharing">22 Renascença III 3⁰ Etapa <span id="status-22">Status: Não iniciado</span></a>
+                    <label for="observacao-22">Observações:</label>
+                    <textarea id="observacao-22" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(22)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-22">Aberto em:</label>
+                        <input type="date" id="data-inicio-22" onchange="atualizarStatus(22)">
+                        <label for="data-fim-22">Fechado em:</label>
+                        <input type="date" id="data-fim-22" onchange="atualizarStatus(22)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1uUPptiKOFxj6jr4gc0ku8teVwuZ2Wjo&usp=sharing">23 Porto Rico II <span id="status-23">Status: Não iniciado</span></a>
+                    <label for="observacao-23">Observações:</label>
+                    <textarea id="observacao-23" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(23)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-23">Aberto em:</label>
+                        <input type="date" id="data-inicio-23" onchange="atualizarStatus(23)">
+                        <label for="data-fim-23">Fechado em:</label>
+                        <input type="date" id="data-fim-23" onchange="atualizarStatus(23)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1xTWvVNf-Wudt0VM7J_8WtYPCtBk8g0g&usp=sharing">24 Andaraí <span id="status-24">Status: Não iniciado</span></a>
+                    <label for="observacao-24">Observações:</label>
+                    <textarea id="observacao-24" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(24)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-24">Aberto em:</label>
+                        <input type="date" id="data-inicio-24" onchange="atualizarStatus(24)">
+                        <label for="data-fim-24">Fechado em:</label>
+                        <input type="date" id="data-fim-24" onchange="atualizarStatus(24)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1aw4myYx_sUH76nCOY8bUfZxbf3j-R-I&usp=sharing">25 Jardim dos Pássaros <span id="status-25">Status: Não iniciado</span></a>
+                    <label for="observacao-25">Observações:</label>
+                    <textarea id="observacao-25" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(25)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-25">Aberto em:</label>
+                        <input type="date" id="data-inicio-25" onchange="atualizarStatus(25)">
+                        <label for="data-fim-25">Fechado em:</label>
+                        <input type="date" id="data-fim-25" onchange="atualizarStatus(25)">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grupo 05 -->
+        <div class="grupo">
+            <div class="grupo-titulo" onclick="toggleList('grupo5')">Grupo 05 - Saída do Fernando</div> 
+
+            <div class="grupo-lista" id="grupo5">
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1xY6AlAJwHOR1VW_ekWPu9M3v2_7npYI&usp=sharing">26 Washington <span id="status-26">Status: Não iniciado</span></a>
+                    <label for="observacao-26">Observações:</label>
+                    <textarea id="observacao-26" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(26)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-26">Aberto em:</label>
+                        <input type="date" id="data-inicio-26" onchange="atualizarStatus(26)">
+                        <label for="data-fim-26">Fechado em:</label>
+                        <input type="date" id="data-fim-26" onchange="atualizarStatus(26)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=117QRT5AACiwZ-tNsqOq0sSU3n5mEdLE&usp=sharing">27 Vitória Régia <span id="status-27">Status: Não iniciado</span></a>
+                    <label for="observacao-27">Observações:</label>
+                    <textarea id="observacao-27" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(27)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-27">Aberto em:</label>
+                        <input type="date" id="data-inicio-27" onchange="atualizarStatus(27)">
+                        <label for="data-fim-27">Fechado em:</label>
+                        <input type="date" id="data-fim-27" onchange="atualizarStatus(27)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1quh983OQt37GZs5RahXmJyeIfMBOis0&usp=sharing">28 Sertãozinho <span id="status-28">Status: Não iniciado</span></a>
+                    <label for="observacao-28">Observações:</label>
+                    <textarea id="observacao-28" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(28)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-28">Aberto em:</label>
+                        <input type="date" id="data-inicio-28" onchange="atualizarStatus(28)">
+                        <label for="data-fim-28">Fechado em:</label>
+                        <input type="date" id="data-fim-28" onchange="atualizarStatus(28)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1cxAHyg2XURDmuAVGuLvuq-5U6YBwjyo&usp=sharing">29 Canaxuê <span id="status-29">Status: Não iniciado</span></a>
+                    <label for="observacao-29">Observações:</label>
+                    <textarea id="observacao-29" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(29)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-29">Aberto em:</label>
+                        <input type="date" id="data-inicio-29" onchange="atualizarStatus(29)">
+                        <label for="data-fim-29">Fechado em:</label>
+                        <input type="date" id="data-fim-29" onchange="atualizarStatus(29)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1znUWTVMYYisszT4fKNk_WGloUuxXn7g&usp=sharing">30 Conj Novo Milênio <span id="status-30">Status: Não iniciado</span></a>
+                    <label for="observacao-30">Observações:</label>
+                    <textarea id="observacao-30" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(30)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-30">Aberto em:</label>
+                        <input type="date" id="data-inicio-30" onchange="atualizarStatus(30)">
+                        <label for="data-fim-30">Fechado em:</label>
+                        <input type="date" id="data-fim-30" onchange="atualizarStatus(30)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1gG8DSODaWwh7gj6fNskS-wnC3KCQ2v0&usp=sharing">31 Conj Todos os Santos (parte A) <span id="status-31">Status: Não iniciado</span></a>
+                    <label for="observacao-31">Observações:</label>
+                    <textarea id="observacao-31" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(31)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-31">Aberto em:</label>
+                        <input type="date" id="data-inicio-31" onchange="atualizarStatus(31)">
+                        <label for="data-fim-31">Fechado em:</label>
+                        <input type="date" id="data-fim-31" onchange="atualizarStatus(31)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1B6-oEvxA5OFqWjx76mHH-43f70xCG84&usp=sharing">32 Conj Todos os Santos (parte B) <span id="status-32">Status: Não iniciado</span></a>
+                    <label for="observacao-32">Observações:</label>
+                    <textarea id="observacao-32" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(32)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-32">Aberto em:</label>
+                        <input type="date" id="data-inicio-32" onchange="atualizarStatus(32)">
+                        <label for="data-fim-32">Fechado em:</label>
+                        <input type="date" id="data-fim-32" onchange="atualizarStatus(32)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1mtWN7CxW5O4rAff2zKvBcg61HWs_ZN4&usp=sharing">33 Deus Proverá <span id="status-33">Status: Não iniciado</span></a>
+                    <label for="observacao-33">Observações:</label>
+                    <textarea id="observacao-33" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(33)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-33">Aberto em:</label>
+                        <input type="date" id="data-inicio-33" onchange="atualizarStatus(33)">
+                        <label for="data-fim-33">Fechado em:</label>
+                        <input type="date" id="data-fim-33" onchange="atualizarStatus(33)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1jLQTSHKy-5v8P2QwKl3lY1ioduf4omg&usp=sharing">34 Loteamento Todos os Santos Lado Direito <span id="status-34">Status: Não iniciado</span></a>
+                    <label for="observacao-34">Observações:</label>
+                    <textarea id="observacao-34" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(34)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-34">Aberto em:</label>
+                        <input type="date" id="data-inicio-34" onchange="atualizarStatus(34)">
+                        <label for="data-fim-34">Fechado em:</label>
+                        <input type="date" id="data-fim-34" onchange="atualizarStatus(34)">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grupo 06 -->
+        <div class="grupo">
+            <div class="grupo-titulo" onclick="toggleList('grupo6')">Grupo 06 - Saída Casa do Walter</div>
+
+            <div class="grupo-lista" id="grupo6">
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1leexMDhfwg5Cc6GuNkcteXCfXVHz-g8&usp=sharing">35 Povoado Jumento - Continuação <span id="status-35">Status: Não iniciado</span></a>
+                    <label for="observacao-35">Observações:</label>
+                    <textarea id="observacao-35" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(35)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-35">Aberto em:</label>
+                        <input type="date" id="data-inicio-35" onchange="atualizarStatus(35)">
+                        <label for="data-fim-35">Fechado em:</label>
+                        <input type="date" id="data-fim-35" onchange="atualizarStatus(35)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1rKdGXPe1SY79wpA-MCY8xkmck6_cjuI&usp=sharing">36 Pedro Balzi - Vila Nova Esperança <span id="status-36">Status: Não iniciado</span></a>
+                    <label for="observacao-36">Observações:</label>
+                    <textarea id="observacao-36" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(36)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-36">Aberto em:</label>
+                        <input type="date" id="data-inicio-36" onchange="atualizarStatus(36)">
+                        <label for="data-fim-36">Fechado em:</label>
+                        <input type="date" id="data-fim-36" onchange="atualizarStatus(36)">
+                        
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1U3TgYkyojIu1TMzdcsdz5ykKL1xiTpo&usp=sharing">37 Pedro Balzi - Frente para o Conjunto <span id="status-37">Status: Não iniciado</span></a>
+                    <label for="observacao-37">Observações:</label>
+                    <textarea id="observacao-37" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(37)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-37">Aberto em:</label>
+                        <input type="date" id="data-inicio-37" onchange="atualizarStatus(37)">
+                        <label for="data-fim-37">Fechado em:</label>
+                        <input type="date" id="data-fim-37" onchange="atualizarStatus(37)">
+                       
+                    </div>
+                </div>
+                <div class="mapa-item">
+                    <a href="https://www.google.com/maps/d/edit?mid=1hosg_pJqzj_2GK2pgJEI6xl5nX_RnPU&usp=sharing">38 Pedro Balzi - Parte de Cima do Morro <span id="status-38">Status: Não iniciado</span></a>
+                    <label for="observacao-38">Observações:</label>
+                    <textarea id="observacao-38" placeholder="Escreva suas observações aqui" oninput="atualizarStatus(38)"></textarea>
+                    <div class="info">
+                        <label for="data-inicio-38">Aberto em:</label>
+                        <input type="date" id="data-inicio-38" onchange="atualizarStatus(38)">
+                        <label for="data-fim-38">Fechado em:</label>
+                        <input type="date" id="data-fim-38" onchange="atualizarStatus(38)">
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="instrucoes.html">Instruções de uso</a>
+            <a href="https://drive.google.com/drive/folders/17xHF437Jhg3uzSI7jQRcs7rSoj15lCdn?usp=drive_link">Mapas do Drive</a>
+        </div>
+        <a href="https://www.google.com/maps/d/edit?mid=1FON3gzyF0S1UcXrQl67SnU0Rp0Af4TU&usp=sharing">Mapa geral dos Territórios</a>
+        <p>© 2025 Mapas dos Territórios</p>
+        
+
+    </footer>
+
+    <script>
+ //Barra de Progresso
+function atualizarBarraProgresso() {
+    const bar = document.getElementById("progress-bar");
+    if (!activeCycleData || typeof activeCycleData.numero === 'undefined') {
+        bar.style.width = "0%";
+        bar.textContent = "Nenhum ciclo ativo";
+        return;
+    }
+
+    const cicloAtualNumero = activeCycleData.numero;
+    // Presumindo que totalMapasGlobal de firebase.js (38) é o total para um ciclo.
+    // Se este valor puder mudar, você pode querer torná-lo dinâmico.
+    const totalMapasNoCiclo = 38; 
+
+    // Promise para buscar mapas concluídos do historicoMapas principal
+    const promiseHistorico = db.ref("historicoMapas")
+        .orderByChild("ciclo")
+        .equalTo(cicloAtualNumero) // Busca apenas do ciclo ativo
+        .once("value");
+
+    // Promise para buscar mapas concluídos do historico_arquivado
+    // Atenção: Isso busca todo o nó 'historico_arquivado'.
+    // Se este nó se tornar muito grande, essa abordagem pode ficar lenta,
+    // pois o filtro por ciclo será feito no lado do cliente.
+    const promiseArquivado = db.ref("historico_arquivado")
+        .once("value");
+
+    Promise.all([promiseHistorico, promiseArquivado]).then(snapshots => {
+        const historicoSnap = snapshots[0];
+        const arquivadoSnap = snapshots[1];
+
+        let completedMapIds = new Set(); // Usaremos um Set para contar IDs de mapas únicos
+
+        // Processar historicoMapas principal
+        if (historicoSnap.exists()) {
+            historicoSnap.forEach(childSnap => {
+                const registro = childSnap.val();
+                // Considera apenas se tem dataFim e pertence ao ciclo atual (já filtrado pela query)
+                if (registro && registro.dataFim && String(registro.dataFim).trim() !== "" && registro.mapa) {
+                    completedMapIds.add(String(registro.mapa));
+                }
+            });
+        }
+
+        // Processar historico_arquivado
+        if (arquivadoSnap.exists()) {
+            arquivadoSnap.forEach(childSnap => {
+                const registroArchived = childSnap.val();
+                // Filtra para garantir que o registro arquivado pertence ao ciclo ativo e tem dataFim
+                if (registroArchived && 
+                    String(registroArchived.ciclo) === String(cicloAtualNumero) && 
+                    registroArchived.dataFim && String(registroArchived.dataFim).trim() !== "" &&
+                    registroArchived.mapa) {
+                    completedMapIds.add(String(registroArchived.mapa));
+                }
+            });
+        }
+
+        const mapasCompletosUnicos = completedMapIds.size;
+        const percent = totalMapasNoCiclo > 0 ? Math.round((mapasCompletosUnicos / totalMapasNoCiclo) * 100) : 0;
+        
+        const cycleName = activeCycleData.nome || `Ciclo ${activeCycleData.numero}`;
+        bar.style.width = percent + "%";
+        bar.textContent = `${cycleName} — ${percent}% (${mapasCompletosUnicos}/${totalMapasNoCiclo})`;
+
+    }).catch(error => {
+        console.error("Erro ao atualizar barra de progresso:", error);
+        bar.style.width = "0%";
+        bar.textContent = "Erro ao carregar progresso";
+    });
+}
+</script>
+
+
+</body>
+</html>
