@@ -9,7 +9,6 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <script src="firebase.js"></script>
@@ -60,16 +59,19 @@ span p::before {
     </style>
      <a href="territorios.html"><button>inicio</button></a> <br>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
 </head>
 
 
 <body class="container">
-      
 
+    <button id="botao-instalar" style="display: none; width: 90%; max-width: 400px; margin: 15px auto; padding: 14px; font-size: 16px; font-weight: bold; background-color: #0a6f0e; color: white; border: none; border-radius: 8px; cursor: pointer; text-align: center;">
+        Instalar Aplicativo
+    </button>
+    
     <div id="territorios-container">
-        </div>
+    </div>
+      
     <footer>
         <div class="footer-links">
             <a href="instrucoes.html">Instruções de uso</a>
@@ -80,7 +82,60 @@ span p::before {
     </footer>
 
 <script>
+        // Variável global para guardar o evento de instalação
+        let deferredPrompt;
+
         document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- LÓGICA DE INSTALAÇÃO DO PWA ---
+            const btnInstalar = document.getElementById('botao-instalar');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('beforeinstallprompt disparado');
+                // Previne o mini-infobar de aparecer
+                e.preventDefault();
+                // Guarda o evento para ser usado depois
+                deferredPrompt = e;
+                // Mostra o nosso botão customizado
+                if(btnInstalar) {
+                    btnInstalar.style.display = 'block';
+                }
+            });
+
+            if(btnInstalar) {
+                btnInstalar.addEventListener('click', () => {
+                    console.log('Botão de instalar clicado');
+                    // Esconde o nosso botão
+                    btnInstalar.style.display = 'none';
+                    
+                    if (deferredPrompt) {
+                        // Mostra o prompt de instalação real do navegador
+                        deferredPrompt.prompt();
+                        // Espera pela escolha do usuário
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('Usuário aceitou a instalação');
+                            } else {
+                                console.log('Usuário recusou a instalação');
+                            }
+                            deferredPrompt = null;
+                        });
+                    }
+                });
+            }
+            
+            window.addEventListener('appinstalled', () => {
+                // Esconde o botão se o app for instalado
+                if(btnInstalar) {
+                    btnInstalar.style.display = 'none';
+                }
+                deferredPrompt = null;
+                console.log('PWA foi instalado');
+            });
+            // --- FIM DA LÓGICA DE INSTALAÇÃO ---
+
+
+            // O resto do seu código de carregar territórios
             carregarTerritoriosAbertos();
         });
 
@@ -97,7 +152,7 @@ span p::before {
             const container = document.getElementById("territorios-container");
             container.innerHTML = "<p>Carregando programação e territórios...</p>";
 
-            // Definições de grupos e mapas (como no seu arquivo original)
+            // Definições de grupos e mapas
             const grupos = [
                 { id: "grupo2", nome: "Grupo 02 - Saída casa do Robson", mapaIds: [1, 2, 3, 4, 5, 6] },
                 { id: "grupo3", nome: "Grupo 03 - Saída casa da Raimundinha", mapaIds: [7, 8, 9, 10, 11, 12] },
@@ -226,7 +281,7 @@ span p::before {
                                 if (mapa.dados.anexoURL) {
                                     anexoHtml = `
                                         <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
-                                            <p><strong>territorio atual:</strong></p>
+                                            <p><strong>Anexo Atual:</strong></p>
                                             <a href="${mapa.dados.anexoURL}" target="_blank">
                                                 <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" 
                                                      style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
@@ -251,7 +306,7 @@ span p::before {
 
                                     <label for="anexo-input-${mapa.id}" style="display: block; margin-top: 12px; font-weight: bold;">Substituir Anexo (Imagem):</label>
                                     <input type="file" id="anexo-input-${mapa.id}" accept="image/*" style="display: block; margin-top: 4px; width: 100%;">
-                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Enviar print</button>
+                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Enviar Anexo</button>
                                     
                                     <div id="upload-status-${mapa.id}" style="font-size: 0.9em; color: #555; margin-top: 4px;"></div>
                                 `;
@@ -319,9 +374,6 @@ span p::before {
                 });
         }
 
-        /**
-         * Faz upload de um anexo de imagem para o Firebase Storage.
-         */
         function salvarAnexo(mapaId) {
             const input = document.getElementById(`anexo-input-${mapaId}`);
             const file = input.files[0];
@@ -334,39 +386,24 @@ span p::before {
 
             statusDiv.textContent = "Enviando imagem...";
 
-            // MUDANÇA 2: Caminho do arquivo padronizado para substituir o anterior
-            // Em vez de usar file.name, usamos um nome fixo.
             const filePath = `anexos/mapa_${mapaId}/anexo_principal`;
-            
-            // 'storage' é a variável global do firebase.js
             const storageRef = storage.ref(filePath);
-
-            // 2. Fazer o upload do arquivo
             const task = storageRef.put(file);
 
-            // 3. Acompanhar o progresso do upload
             task.on('state_changed', 
                 (snapshot) => {
-                    // Progresso
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     statusDiv.textContent = 'Enviando... ' + Math.round(progress) + '%';
                 }, 
                 (error) => {
-                    // Erro
                     console.error("Erro no upload:", error);
                     statusDiv.textContent = "Erro ao enviar: " + error.message;
                 }, 
                 () => {
-                    // Sucesso no upload
-                    // 4. Obter a URL de download do arquivo
                     task.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        
-                        // 5. Salvar essa URL no Realtime Database
                         database.ref(`mapas/${mapaId}/anexoURL`).set(downloadURL)
                             .then(() => {
                                 statusDiv.textContent = "Anexo salvo com sucesso!";
-                                
-                                // 6. Atualizar a imagem na tela
                                 const container = document.getElementById(`anexo-container-${mapaId}`);
                                 container.innerHTML = `
                                     <p><strong>Anexo Atual:</strong></p>
@@ -375,7 +412,7 @@ span p::before {
                                              style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                     </a>
                                 `;
-                                input.value = ""; // Limpar o campo de input
+                                input.value = "";
                             })
                             .catch((err) => {
                                  statusDiv.textContent = "Erro ao salvar URL no banco: " + err.message;
@@ -384,21 +421,21 @@ span p::before {
                 }
             );
         }
-    </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(registration => {
-              console.log('Service Worker registrado com sucesso.');
-            })
-            .catch(error => {
-              console.error('Falha ao registrar Service Worker:', error);
-            });
-        });
-      }
-    </script>
-</body>
-</html>
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js') // Certifique-se que o arquivo 'sw.js' existe
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso.');
+          })
+          .catch(error => {
+            console.error('Falha ao registrar Service Worker:', error);
+          });
+      });
+    }
+</script>
+
 </body>
 </html>
