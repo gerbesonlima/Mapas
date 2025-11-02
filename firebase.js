@@ -3,8 +3,8 @@ const firebaseConfig = {
     authDomain: "territorios-3d0bb.firebaseapp.com",
     projectId: "territorios-3d0bb",
     
-    // CORREÇÃO 1: Este é o valor correto que vimos no seu print
-    storageBucket: "territorios-3d0bb.appspot.com", 
+    // ESTA É A LINHA CORRIGIDA
+    storageBucket: "territorios-3d0bb.firebasestorage.app", 
     
     messagingSenderId: "712377474662",
     appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
@@ -17,7 +17,7 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database(); // Use 'database' consistently
 const db = database; // Alias for convenience if used elsewhere in existing code
 
-// CORREÇÃO 2: Adicionamos a variável global 'storage'
+// Adicionamos a variável global 'storage'
 const storage = firebase.storage();
 
 const senhaCorreta = "1234";
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Load active cycle details first, which will then call carregarDadosEAtualizarProgressoIndex
         loadActiveCycleDetailsForIndex();
     }
-});
+}); // <-- FIM DO 'DOMContentLoaded'
 
 // Função para redimensionar automaticamente o textarea
 function autoResizeTextarea() {
@@ -68,6 +68,9 @@ function toggleList(id) {
         titulo.classList.remove("active");
     }
 }
+
+// --- (O RESTO DE TODAS AS SUAS OUTRAS FUNÇÕES) ---
+// (verificarSenha, sair, limparTudo, etc. ...)
 
 function verificarSenha() {
     const senha = document.getElementById("senha").value.trim();
