@@ -2,7 +2,10 @@ const firebaseConfig = {
     apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
     authDomain: "territorios-3d0bb.firebaseapp.com",
     projectId: "territorios-3d0bb",
-    storageBucket: "territorios-3d0bb.firebasestorage.app", // Corrected: .firebasestorage.app, not .appspot.com for general config
+    
+    // CORREÇÃO 1: Este é o valor correto que vimos no seu print
+    storageBucket: "territorios-3d0bb.appspot.com", 
+    
     messagingSenderId: "712377474662",
     appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
     measurementId: "G-DME60YZGXX",
@@ -14,6 +17,9 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database(); // Use 'database' consistently
 const db = database; // Alias for convenience if used elsewhere in existing code
 
+// CORREÇÃO 2: Adicionamos a variável global 'storage'
+const storage = firebase.storage();
+
 const senhaCorreta = "1234";
 const totalMapasGlobal = 38; // Use a more descriptive global name
 
@@ -21,20 +27,27 @@ let activeCycleDataIndex = null; // To store active cycle data for index.html
 
 // Oculta apenas os campos de data e botões de designar inicialmente
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
-    document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
-    document.getElementById("sair-btn").style.display = "none";
-    document.getElementById("limpar-tudo-btn").style.display = "none";
-    document.getElementById("relatorio-btn").style.display = "none";
-    document.getElementById("recuperar-dados-btn").style.display = "none";
-    document.getElementById("editar-campo-btn").style.display = "none";
+    // Tenta executar o código de administração.
+    // Se os elementos não existirem (como na 'index.html' dos anexos), 
+    // ele apenas pulará essa parte sem dar erro.
     
-    document.querySelectorAll("textarea").forEach(textarea => {
-        textarea.addEventListener("input", autoResizeTextarea);
-    });
-    
-    // Load active cycle details first, which will then call carregarDadosEAtualizarProgressoIndex
-    loadActiveCycleDetailsForIndex();
+    const senhaBtn = document.getElementById("senha"); // Check if admin page
+    if (senhaBtn) {
+        document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
+        document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
+        document.getElementById("sair-btn").style.display = "none";
+        document.getElementById("limpar-tudo-btn").style.display = "none";
+        document.getElementById("relatorio-btn").style.display = "none";
+        document.getElementById("recuperar-dados-btn").style.display = "none";
+        document.getElementById("editar-campo-btn").style.display = "none";
+        
+        document.querySelectorAll("textarea").forEach(textarea => {
+            textarea.addEventListener("input", autoResizeTextarea);
+        });
+        
+        // Load active cycle details first, which will then call carregarDadosEAtualizarProgressoIndex
+        loadActiveCycleDetailsForIndex();
+    }
 });
 
 // Função para redimensionar automaticamente o textarea
@@ -225,7 +238,8 @@ async function atualizarProgressoGeralIndex() {
     const progressBar = document.getElementById("progress-bar"); 
     
     if (!progressBar) {
-        console.warn("Elemento da barra de progresso (progress-bar) não encontrado em index.html");
+        // Isso não é um erro se estivermos na página de anexos
+        // console.warn("Elemento da barra de progresso (progress-bar) não encontrado.");
         return;
     }
 
@@ -291,15 +305,6 @@ async function atualizarProgressoGeralIndex() {
         // Exibe o progresso da volta atual (ex: se 39 concluídos, mostra 3% (1/38))
         progressBar.textContent = `${percent}% (${mapasNaVoltaAtualDisplay}/${totalMapasGlobal})`;
 
-        // Opcional: se você quiser indicar qual "volta" é (ex: "Volta 2: 3% (1/38)")
-        // const numeroDaVolta = Math.floor((totalConclusoesNoCiclo -1) / totalMapasGlobal) + 1;
-        // if (totalConclusoesNoCiclo > 0) {
-        //     progressBar.textContent = `Volta ${numeroDaVolta}: ${percent}% (${mapasNaVoltaAtualDisplay}/${totalMapasGlobal})`;
-        // } else {
-        //     progressBar.textContent = `0% (0/${totalMapasGlobal})`;
-        // }
-
-
     } catch (error) {
         console.error("Index Page: Erro ao atualizar barra de progresso:", error);
         progressBar.style.width = "0%";
@@ -329,7 +334,12 @@ async function carregarDadosEAtualizarProgressoIndex() {
             const dataFimElement = document.getElementById(`data-fim-${i}`);
             const observacaoElement = document.getElementById(`observacao-${i}`);
 
-            if (!statusElement || !dataInicioElement || !dataFimElement || !observacaoElement) {
+            if (!statusElement) {
+                // Se não encontrar o 'status-i', provavelmente não está na página de admin
+                // E podemos parar de processar (ou pular para o próximo)
+                continue; 
+            }
+            if (!dataInicioElement || !dataFimElement || !observacaoElement) {
                 continue;
             }
 
@@ -387,8 +397,6 @@ isFromHistory = true;
 
         if (dataFimVal) {
             statusText = "Status: Concluído (Pronto p/ Relatório)";
-            // Exemplo de como usar a data formatada no status, se desejado:
-            // statusText = `Status: Concluído (Pronto p/ Relatório em ${dataFimFormatadaElse})`;
         } else if (dataInicioVal) {
             statusText = "Status: Em andamento";
         }
@@ -400,10 +408,8 @@ isFromHistory = true;
             dataFimElement.value = dataFimVal;
             observacaoElement.value = observacaoVal;
 
-            // Optionally make fields read-only if loaded from history
             dataInicioElement.readOnly = isFromHistory;
             dataFimElement.readOnly = isFromHistory;
-            // observacaoElement.readOnly = isFromHistory; // Keep observations editable, or make readOnly too
 
             if (typeof autoResizeTextarea === 'function' && observacaoElement.value) {
                  observacaoElement.style.height = "auto"; 
@@ -422,11 +428,7 @@ function atualizarStatus(id) {
     const dataInicioElement = document.getElementById(`data-inicio-${id}`);
     const dataFimElement = document.getElementById(`data-fim-${id}`);
 
-    // Prevent changes if the map is loaded from history and marked as readOnly
     if (dataInicioElement && dataInicioElement.readOnly) {
-        // alert("Este mapa foi carregado do histórico e não pode ser editado aqui. Modifique no relatório se necessário.");
-        // Optionally revert to historical values if needed, or simply do nothing.
-        // For now, we just prevent saving if it's readOnly.
         return;
     }
 
@@ -445,7 +447,6 @@ function atualizarStatus(id) {
             if (dataInicio) {
                  currentStatusText = "Status: Em andamento";
             }
-            // Save cleared dataFim to Firebase immediately.
             database.ref(`mapas/${id}`).update({ dataFim: "" , status: currentStatusText })
                 .catch(e => console.error("Error updating cleared dataFim:", e));
             if (statusElement) statusElement.textContent = currentStatusText;
@@ -467,14 +468,7 @@ function atualizarStatus(id) {
         console.error("Erro ao salvar dados:", error);
         alert("Erro ao salvar dados: " + error.message);
     });
-    // The main progress bar (atualizarProgressoGeralIndex) is updated based on historicoMapas,
-    // so changes here (to `mapas/{id}`) do not directly affect it until saved via relatorio.html.
 }
-
-
-// Functions designarMapa, enviarMapa, compartilharLink, limparHistorico 
-// are mostly related to 'designados.html' or specific actions not directly tied to the core status sync.
-// They should remain as they are unless they also need cycle-awareness.
 
 function designarMapa(id, link, nome) {
     const observacao = document.getElementById(`observacao-${id}`).value;

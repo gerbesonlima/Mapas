@@ -6,9 +6,14 @@
     <link rel="stylesheet" href="style.css">
     <title>Territórios Abertos</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
     <script src="firebase.js"></script>
+    
     <style>
         span {
     display: block;
@@ -61,10 +66,7 @@ span p::before {
       
 
     <div id="territorios-container">
-        <!-- Grupos serão adicionados dinamicamente -->
-       
-
-    </div>
+        </div>
     <footer>
         <div class="footer-links">
             <a href="instrucoes.html">Instruções de uso</a>
@@ -74,8 +76,10 @@ span p::before {
         <p>© 2025 Mapas dos Territórios</p>
     </footer>
 
- <script>
+<script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Agora não precisamos mais inicializar o storage aqui,
+            // pois o firebase.js (Passo 2) já faz isso.
             carregarTerritoriosAbertos();
         });
 
@@ -88,6 +92,7 @@ span p::before {
             return days[todayIndex];
         }
 
+        // Não precisa mais receber (storage)
         function carregarTerritoriosAbertos() {
             const container = document.getElementById("territorios-container");
             container.innerHTML = "<p>Carregando programação e territórios...</p>";
@@ -146,12 +151,12 @@ span p::before {
             const todayString = getTodayDayName();
 
             // --- ETAPA 1: Buscar a programação do dia ---
+            // 'database' é a variável global do firebase.js
             database.ref("schedules/field").once("value", scheduleSnapshot => {
                 const scheduleData = scheduleSnapshot.val() || [];
                 const todaySchedule = scheduleData.find(item => item.day === todayString);
 
                 let scheduleHtml = "";
-                // (Usei style inline para não precisar mexer no seu CSS)
                 if (todaySchedule) {
                     scheduleHtml = `
                         <div class="schedule-today" style="background-color: #f0f9ff; border-left: 5px solid #0ea5e9; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
@@ -170,14 +175,12 @@ span p::before {
                     `;
                 }
                 
-                // Limpa o container e adiciona a programação do dia
                 container.innerHTML = scheduleHtml;
 
-                // --- ETAPA 2: Determinar quais grupos processar (NOVA LÓGICA) ---
+                // --- ETAPA 2: Determinar quais grupos processar ---
                 let gruposParaProcessar = [];
                 let locationName = "";
                 
-                // Tenta encontrar um grupo correspondente ao "Local de Saída"
                 if (todaySchedule && todaySchedule.location && todaySchedule.location.trim() !== "") {
                     locationName = todaySchedule.location.trim();
                     const matchingGroup = grupos.find(g => 
@@ -189,10 +192,9 @@ span p::before {
                     }
                 }
 
-                // Se NENHUM grupo foi encontrado pelo local E for Domingo, mostrar todos.
                 if (gruposParaProcessar.length === 0 && todayString === "Domingo") {
-                    gruposParaProcessar = grupos; // Todos os grupos
-                    locationName = "Todos os grupos"; // Para a mensagem de feedback
+                    gruposParaProcessar = grupos; 
+                    locationName = "Todos os grupos"; 
                 }
 
                 // --- ETAPA 3: Buscar os mapas e filtrar ---
@@ -200,16 +202,14 @@ span p::before {
                     const mapas = mapsSnapshot.val() || {};
                     let hasOpenTerritories = false;
 
-                    // Iterar sobre os grupos determinados (um, todos, ou nenhum)
                     gruposParaProcessar.forEach(grupo => {
-                        // Filtrar mapas abertos (apenas Em andamento) para este grupo
                         const mapasAbertos = grupo.mapaIds
                             .map(id => ({ id, dados: mapas[id] }))
                             .filter(mapa => mapa.dados && mapa.dados.status === "Status: Em andamento");
 
                         if (mapasAbertos.length > 0) {
                             hasOpenTerritories = true;
-                            // Criar grupo
+                            
                             const grupoDiv = document.createElement("div");
                             grupoDiv.className = "grupo";
                             grupoDiv.innerHTML = `
@@ -219,43 +219,61 @@ span p::before {
                             `;
                             const lista = grupoDiv.querySelector(`#${grupo.id}`);
 
-                            // Adicionar mapas abertos como cards
                             mapasAbertos.forEach(mapa => {
                                 const mapaDiv = document.createElement("div");
                                 mapaDiv.className = "card mapa-card";
+
+                                let anexoHtml = "";
+                                if (mapa.dados.anexoURL) {
+                                    anexoHtml = `
+                                        <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
+                                            <p><strong>Anexo Atual:</strong></p>
+                                            <a href="${mapa.dados.anexoURL}" target="_blank">
+                                                <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" style="width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #ddd;">
+                                            </a>
+                                        </div>
+                                    `;
+                                } else {
+                                    anexoHtml = `<div id="anexo-container-${mapa.id}"></div>`;
+                                }
+
                                 mapaDiv.innerHTML = `
                                     <h3><a href="${mapaInfo[mapa.id].link}" target="_blank">${mapaInfo[mapa.id].nome}</a></h3>
                                     <p><strong>Status:</strong> Em andamento</p>
+                                    
                                     <label for="observacao-${mapa.id}"><strong>Observações:</strong></label>
                                     <textarea id="observacao-${mapa.id}" class="observacao-input" placeholder="Digite suas observações">${mapa.dados.observacao || ""}</textarea>
-                                    <button class="save-btn" onclick="salvarObservacao(${mapa.id})">Salvar</button>
+                                    <button class="save-btn" onclick="salvarObservacao(${mapa.id})">Salvar Observação</button>
+
+                                    <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
+
+                                    ${anexoHtml}
+
+                                    <label for="anexo-input-${mapa.id}" style="display: block; margin-top: 12px; font-weight: bold;">Substituir Anexo (Imagem):</label>
+                                    <input type="file" id="anexo-input-${mapa.id}" accept="image/*" style="display: block; margin-top: 4px; width: 100%;">
+                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Enviar Anexo</button>
+                                    
+                                    <div id="upload-status-${mapa.id}" style="font-size: 0.9em; color: #555; margin-top: 4px;"></div>
                                 `;
                                 lista.appendChild(mapaDiv);
                             });
 
-                            container.appendChild(grupoDiv); // Adiciona o grupo ao container
+                            container.appendChild(grupoDiv); 
                         }
                     });
 
                     // --- ETAPA 4: Exibir mensagem se nada for encontrado ---
                     let message = "";
                     if (gruposParaProcessar.length === 0) {
-                        // Nenhum grupo foi processado
                         if (todaySchedule && todaySchedule.location) {
                              message = `Nenhum grupo encontrado para o local de saída de hoje: "${todaySchedule.location}". Verifique a configuração.`;
                         } else if (!todaySchedule && todayString !== "Domingo") {
-                            // Não é domingo e não tem schedule
                             message = "Nenhum local de saída programado para hoje.";
                         }
-                        // (Se for domingo e o local estiver vazio, o gruposParaProcessar não será 0, então não cai aqui)
-                    
                     } else if (!hasOpenTerritories) {
-                        // Grupos foram processados, mas nenhum tinha mapa "Em andamento"
                         if (gruposParaProcessar.length > 1) {
-                            // Caso do Domingo com local vazio
                             message = "Não há territórios abertos (em andamento) em nenhum grupo no momento.";
                         } else {
-                            // Caso de dia de semana ou domingo com local específico
                              message = `O grupo de hoje (${gruposParaProcessar[0].nome}) não possui territórios abertos (em andamento) no momento.`;
                         }
                     }
@@ -263,7 +281,7 @@ span p::before {
                     if (message) {
                         const noMapsMessage = document.createElement("p");
                         noMapsMessage.textContent = message;
-                        container.appendChild(noMapsMessage); // Adiciona a mensagem ao container
+                        container.appendChild(noMapsMessage);
                     }
 
                 }).catch(error => {
@@ -299,6 +317,71 @@ span p::before {
                     console.error("Erro ao salvar observação:", error);
                     alert("Erro ao salvar observação: " + error.message);
                 });
+        }
+
+        /**
+         * --- NOVA FUNÇÃO ---
+         * Faz upload de um anexo de imagem para o Firebase Storage.
+         */
+        function salvarAnexo(mapaId) {
+            const input = document.getElementById(`anexo-input-${mapaId}`);
+            const file = input.files[0];
+            const statusDiv = document.getElementById(`upload-status-${mapaId}`);
+            
+            if (!file) {
+                statusDiv.textContent = "Por favor, selecione um arquivo de imagem.";
+                return;
+            }
+
+            statusDiv.textContent = "Enviando imagem...";
+
+            // 1. Criar uma referência única no Storage
+            const filePath = `anexos/mapa_${mapaId}/${file.name}`;
+            
+            // 'storage' é a variável global do firebase.js
+            const storageRef = storage.ref(filePath);
+
+            // 2. Fazer o upload do arquivo
+            const task = storageRef.put(file);
+
+            // 3. Acompanhar o progresso do upload
+            task.on('state_changed', 
+                (snapshot) => {
+                    // Progresso
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    statusDiv.textContent = 'Enviando... ' + Math.round(progress) + '%';
+                }, 
+                (error) => {
+                    // Erro
+                    console.error("Erro no upload:", error);
+                    statusDiv.textContent = "Erro ao enviar: " + error.message;
+                }, 
+                () => {
+                    // Sucesso no upload
+                    // 4. Obter a URL de download do arquivo
+                    task.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        
+                        // 5. Salvar essa URL no Realtime Database
+                        database.ref(`mapas/${mapaId}/anexoURL`).set(downloadURL)
+                            .then(() => {
+                                statusDiv.textContent = "Anexo salvo com sucesso!";
+                                
+                                // 6. Atualizar a imagem na tela
+                                const container = document.getElementById(`anexo-container-${mapaId}`);
+                                container.innerHTML = `
+                                    <p><strong>Anexo Atual:</strong></p>
+                                    <a href="${downloadURL}" target="_blank">
+                                        <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" style="width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #ddd;">
+                                    </a>
+                                `;
+                                input.value = ""; // Limpar o campo de input
+                            })
+                            .catch((err) => {
+                                 statusDiv.textContent = "Erro ao salvar URL no banco: " + err.message;
+                            });
+                    });
+                }
+            );
         }
     </script>
 </body>
