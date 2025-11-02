@@ -6,8 +6,11 @@
     <title>Instalar Aplicativo de Territórios</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css"> <style>
-        /* Estilos para a página de instalação */
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos para a página de instalação (agora independentes) */
         body {
             font-family: 'Roboto', sans-serif;
             display: flex;
@@ -16,6 +19,7 @@
             flex-direction: column;
             text-align: center;
             min-height: 100vh;
+            margin: 0;
             background-color: #f4f7f6;
             padding: 20px;
             box-sizing: border-box;
@@ -26,16 +30,20 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 400px;
+            width: 100%;
         }
-        h1 {
+        /* Corrigido: classes específicas para o título e texto */
+        .install-title {
             font-size: 1.5rem;
             font-weight: 500;
             color: #333;
+            margin: 0 0 15px 0; /* Espaçamento corrigido */
         }
-        p {
+        .install-text {
             font-size: 1rem;
             color: #555;
             margin-bottom: 25px;
+            line-height: 1.5;
         }
         .install-button {
             display: none; /* Começa escondido */
@@ -65,8 +73,8 @@
 <body>
 
     <div class="install-container">
-        <h1>Aplicativo de Territórios</h1>
-        <p>Para a melhor experiência, instale o aplicativo em seu dispositivo. Ele é leve e funciona offline.</p>
+        <h1 class="install-title">Aplicativo de Territórios</h1>
+        <p class="install-text">Para a melhor experiência, instale o aplicativo em seu dispositivo. Ele é leve e funciona offline.</p>
         
         <button id="botao-instalar-app" class="install-button">
             Instalar Aplicativo
@@ -84,11 +92,10 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // 1. VERIFICAR SE JÁ ESTÁ NO MODO APP
-            // Se o usuário abriu o app (standalone), vá direto para o index.
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 console.log('Já está em modo standalone. Redirecionando para index.html');
                 window.location.href = 'index.html';
-                return; // Para a execução
+                return;
             }
 
             const btnInstalar = document.getElementById('botao-instalar-app');
@@ -100,8 +107,6 @@
                 e.preventDefault();
                 deferredPrompt = e;
                 
-                // O navegador confirmou que o app PODE ser instalado.
-                // Mostramos nosso botão e escondemos o link fallback.
                 if (btnInstalar) btnInstalar.style.display = 'block';
                 if (linkContinuar) linkContinuar.style.display = 'none';
             });
@@ -114,15 +119,12 @@
                         return;
                     }
 
-                    // Mostra o pop-up de instalação do navegador
                     deferredPrompt.prompt();
 
-                    // Espera pela escolha do usuário
                     deferredPrompt.userChoice.then((choiceResult) => {
                         if (choiceResult.outcome === 'accepted') {
                             console.log('Usuário aceitou a instalação');
                             // 4. REDIRECIONAR APÓS INSTALAR
-                            // Espera um segundo e redireciona para a página principal
                             setTimeout(() => {
                                 window.location.href = 'index.html';
                             }, 1000);
@@ -137,7 +139,6 @@
             // 5. O QUE ACONTECE SE O APP FOR INSTALADO (por outros meios)
             window.addEventListener('appinstalled', () => {
                 console.log('PWA foi instalado');
-                // Redireciona se for instalado
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 500);
