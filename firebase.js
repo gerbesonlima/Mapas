@@ -1,11 +1,10 @@
+// CONTEÚDO CORRETO PARA: firebase.js
+
 const firebaseConfig = {
     apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
     authDomain: "territorios-3d0bb.firebaseapp.com",
     projectId: "territorios-3d0bb",
-    
-    // ESTA É A LINHA CORRIGIDA
     storageBucket: "territorios-3d0bb.firebasestorage.app", 
-    
     messagingSenderId: "712377474662",
     appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
     measurementId: "G-DME60YZGXX",
@@ -14,25 +13,56 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database(); // Use 'database' consistently
-const db = database; // Alias for convenience if used elsewhere in existing code
-
-// Adicionamos a variável global 'storage'
+const database = firebase.database(); 
+const db = database; 
 const storage = firebase.storage();
+// REMOVEMOS O 'messaging' e 'functions' daqui
+
+// ==========================================================
+// FUNÇÃO SHOWTOAST (COM FALLBACK)
+// (Necessária para o configcampo.html, se ele a usar)
+// ==========================================================
+let toastTimer; 
+
+function showToast(message, isError = false) {
+    let toast = document.getElementById("toast-notification");
+    
+    if (!toast) {
+        alert(message); // Fallback para admin
+        return;
+    }
+
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.className = "show"; 
+
+    if (isError) {
+        toast.classList.add("error");
+    } else {
+        toast.classList.remove("error");
+    }
+
+    toastTimer = setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+        setTimeout(() => { toast.classList.remove("error"); }, 500); 
+    }, 3000);
+}
+// ==========================================================
+
+
+// Bloco de notificação (que você removeu) FOI REMOVIDO DE PROPÓSITO
+
 
 const senhaCorreta = "1234";
-const totalMapasGlobal = 38; // Use a more descriptive global name
+const totalMapasGlobal = 38; 
 
-let activeCycleDataIndex = null; // To store active cycle data for index.html
+let activeCycleDataIndex = null; 
 
-// Oculta apenas os campos de data e botões de designar inicialmente
 document.addEventListener("DOMContentLoaded", () => {
-    // Tenta executar o código de administração.
-    // Se os elementos não existirem (como na 'index.html' dos anexos), 
-    // ele apenas pulará essa parte sem dar erro.
     
-    const senhaBtn = document.getElementById("senha"); // Check if admin page
+    const senhaBtn = document.getElementById("senha"); 
     if (senhaBtn) {
+        // ESTAMOS NA PÁGINA DE ADMIN (territorios.html)
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
         document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
         document.getElementById("sair-btn").style.display = "none";
@@ -45,18 +75,15 @@ document.addEventListener("DOMContentLoaded", () => {
             textarea.addEventListener("input", autoResizeTextarea);
         });
         
-        // Load active cycle details first, which will then call carregarDadosEAtualizarProgressoIndex
         loadActiveCycleDetailsForIndex();
     }
-}); // <-- FIM DO 'DOMContentLoaded'
+});
 
-// Função para redimensionar automaticamente o textarea
 function autoResizeTextarea() {
-    this.style.height = "auto"; // Reseta a altura para recalcular
-    this.style.height = `${this.scrollHeight}px`; // Define a altura com base no conteúdo
+    this.style.height = "auto"; 
+    this.style.height = `${this.scrollHeight}px`; 
 }
 
-// Expandir Lista
 function toggleList(id) {
     const lista = document.getElementById(id);
     const titulo = lista.previousElementSibling;
@@ -68,9 +95,8 @@ function toggleList(id) {
         titulo.classList.remove("active");
     }
 }
-// --- (O RESTO DE TODAS AS SUAS OUTRAS FUNÇÕES) ---
-// (verificarSenha, sair, limparTudo, etc. ...)
 
+// ... (todas as suas outras funções: verificarSenha, sair, limparTudo, etc.) ...
 function verificarSenha() {
     const senha = document.getElementById("senha").value.trim();
     if (senha === senhaCorreta) {
@@ -81,7 +107,6 @@ function verificarSenha() {
         document.getElementById("relatorio-btn").style.display = "inline";
         document.getElementById("editar-campo-btn").style.display = "inline";
         document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
-        // Assuming 'remover-designado-btn' is for the designados.html context, handle if present
         const removerBtn = document.getElementById("remover-designado-btn");
         if(removerBtn) removerBtn.style.display = "inline-block";
        
@@ -119,12 +144,11 @@ function limparTudo() {
     if (confirm("Tem certeza que deseja limpar TODOS os dados de datas e observações dos mapas em edição (não afeta o histórico de ciclos)? Esta ação não pode ser desfeita, mas você poderá recuperar os dados com o botão 'Recuperar Dados'.")) {
         database.ref("mapas").once("value", snapshot => {
             const mapasData = snapshot.val();
-            // Backup 'progressoGeral' if it exists, though it's being deprecated by cycle-based progress
             database.ref("progressoGeral").once("value", progressoSnapshot => {
                 const progressoData = progressoSnapshot.val();
-                database.ref("backup").set({ // This backup is for the 'mapas' node
+                database.ref("backup").set({ 
                     mapas: mapasData || {},
-                    progressoGeral: progressoData || { progresso: 0 } // Keep for legacy restore if needed
+                    progressoGeral: progressoData || { progresso: 0 } 
                 }).then(() => {
                     for (let i = 1; i <= totalMapasGlobal; i++) {
                         const dataInicioEl = document.getElementById(`data-inicio-${i}`);
@@ -137,10 +161,8 @@ function limparTudo() {
                         if(observacaoEl) observacaoEl.value = "";
                         if(statusEl) statusEl.textContent = "Status: Não iniciado";
                     }
-                    database.ref(`mapas`).remove(); // Clears the 'mapas' node for editing data
+                    database.ref(`mapas`).remove(); 
                     
-                    // Update UI based on cleared data; progress bar will reflect empty 'mapas'
-                    // and historico for current cycle.
                     carregarDadosEAtualizarProgressoIndex(); 
                     
                     const recuperarBtn = document.getElementById("recuperar-dados-btn");
@@ -160,11 +182,10 @@ function limparTudo() {
 
 function recuperarDados() {
     if (confirm("Tem certeza que deseja recuperar os dados de edição de mapas salvos? Isso substituirá os dados de edição atuais.")) {
-        database.ref("backup/mapas").once("value", snapshot => { // Specifically restore 'mapas'
+        database.ref("backup/mapas").once("value", snapshot => { 
             const backupMapas = snapshot.val();
             if (backupMapas) {
                  database.ref(`mapas`).set(backupMapas).then(() => {
-                    // Reload data into UI after restoring to Firebase
                     carregarDadosEAtualizarProgressoIndex();
                     alert("Dados de edição recuperados com sucesso!");
                     const recuperarBtn = document.getElementById("recuperar-dados-btn");
@@ -197,9 +218,8 @@ async function loadActiveCycleDetailsForIndex() {
                 console.warn("Index Page: cicloAtualId aponta para um ciclo inexistente.");
             }
         } else {
-            // Fallback to legacy 'cicloAtual' if 'cicloAtualId' is not present
             const legacyCicloAtualSnap = await db.ref("cicloAtual").once("value");
-            const legacyCicloKey = legacyCicloAtualSnap.val(); // Could be number or string like "ciclo_1"
+            const legacyCicloKey = legacyCicloAtualSnap.val(); 
             if (legacyCicloKey) {
                 if (typeof legacyCicloKey === 'number') {
                     const ciclosSnap = await db.ref('ciclos').orderByChild('numero').equalTo(legacyCicloKey).limitToFirst(1).once('value');
@@ -207,7 +227,6 @@ async function loadActiveCycleDetailsForIndex() {
                         const foundCycleId = Object.keys(ciclosSnap.val())[0];
                         activeCycleDataIndex = { id: foundCycleId, ...ciclosSnap.val()[foundCycleId] };
                     } else {
-                         // If no matching cycle in /ciclos, create a placeholder
                         activeCycleDataIndex = { numero: legacyCicloKey, nome: `Ciclo ${legacyCicloKey} (Legado)`, status: 'ativo', id: `legacy_${legacyCicloKey}` };
                     }
                 } else if (typeof legacyCicloKey === 'string' && legacyCicloKey.startsWith('ciclo_')) {
@@ -215,7 +234,6 @@ async function loadActiveCycleDetailsForIndex() {
                      if (cycleSnap.exists()) {
                         activeCycleDataIndex = { id: legacyCicloKey, ...cycleSnap.val() };
                      } else {
-                        // Create a placeholder for "ciclo_1", "ciclo_2" etc. if not in /ciclos
                         const num = parseInt(legacyCicloKey.split('_')[1]);
                         activeCycleDataIndex = { numero: num, nome: `Ciclo ${num} (Importado/Legado)`, status: 'ativo', id: legacyCicloKey };
                      }
@@ -229,19 +247,14 @@ async function loadActiveCycleDetailsForIndex() {
         console.error("Index Page: Error loading active cycle details:", error);
         activeCycleDataIndex = null;
     }
-    // After loading, update UI elements that depend on the active cycle
     await carregarDadosEAtualizarProgressoIndex();
 }
 
-// Dentro do seu arquivo firebase.js
-// Substitua a função atualizarProgressoGeralIndex existente por esta:
 
 async function atualizarProgressoGeralIndex() {
     const progressBar = document.getElementById("progress-bar"); 
     
     if (!progressBar) {
-        // Isso não é um erro se estivermos na página de anexos
-        // console.warn("Elemento da barra de progresso (progress-bar) não encontrado.");
         return;
     }
 
@@ -292,25 +305,23 @@ async function atualizarProgressoGeralIndex() {
         }
 
         let percent = 0;
-        let mapasNaVoltaAtualDisplay = 0; // Quantos mapas contar para a barra na volta atual
+        let mapasNaVoltaAtualDisplay = 0; 
 
         if (totalConclusoesNoCiclo === 0) {
             percent = 0;
             mapasNaVoltaAtualDisplay = 0;
         } else {
-            // Calcula quantos mapas foram concluídos na "volta" atual de 0-38
             mapasNaVoltaAtualDisplay = ((totalConclusoesNoCiclo - 1) % totalMapasGlobal) + 1;
             percent = totalMapasGlobal > 0 ? Math.round((mapasNaVoltaAtualDisplay / totalMapasGlobal) * 100) : 0;
         }
         
         progressBar.style.width = percent + "%";
-        // Exibe o progresso da volta atual (ex: se 39 concluídos, mostra 3% (1/38))
         progressBar.textContent = `${percent}% (${mapasNaVoltaAtualDisplay}/${totalMapasGlobal})`;
 
     } catch (error) {
         console.error("Index Page: Erro ao atualizar barra de progresso:", error);
         progressBar.style.width = "0%";
-        progressBar.textContent = "Erro"; // Ou "0% (0/38)"
+        progressBar.textContent = "Erro"; 
     }
 }
 
@@ -337,8 +348,6 @@ async function carregarDadosEAtualizarProgressoIndex() {
             const observacaoElement = document.getElementById(`observacao-${i}`);
 
             if (!statusElement) {
-                // Se não encontrar o 'status-i', provavelmente não está na página de admin
-                // E podemos parar de processar (ou pular para o próximo)
                 continue; 
             }
             if (!dataInicioElement || !dataFimElement || !observacaoElement) {
@@ -360,50 +369,45 @@ async function carregarDadosEAtualizarProgressoIndex() {
             }
 
            if (historyEntry && historyEntry.dataFim && String(historyEntry.dataFim).trim() !== "") {
-    statusText = "Status: Concluído (Histórico)";
-    dataInicioVal = historyEntry.dataInicio || "";
-    dataFimVal = historyEntry.dataFim || "";
+                statusText = "Status: Concluído (Histórico)";
+                dataInicioVal = historyEntry.dataInicio || "";
+                dataFimVal = historyEntry.dataFim || "";
 
-    // Formata a dataFim para o padrão brasileiro
-let dataFimFormatada = "";
-if (historyEntry.dataFim) {
-    const data = new Date(historyEntry.dataFim);
-    // Usando métodos UTC para evitar conversão de fuso horário local
-    const dia = String(data.getUTCDate()).padStart(2, '0');
-    const mes = String(data.getUTCMonth() + 1).padStart(2, '0'); // Janeiro é 0!
-    const ano = data.getUTCFullYear();
-    dataFimFormatada = `${dia}/${mes}/${ano}`;
-}
+                let dataFimFormatada = "";
+                if (historyEntry.dataFim) {
+                    const data = new Date(historyEntry.dataFim);
+                    const dia = String(data.getUTCDate()).padStart(2, '0');
+                    const mes = String(data.getUTCMonth() + 1).padStart(2, '0'); 
+                    const ano = data.getUTCFullYear();
+                    dataFimFormatada = `${dia}/${mes}/${ano}`;
+                }
 
-observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${dataFimFormatada}` : "");
-isFromHistory = true;
+                observacaoVal = historyEntry.observacao || (historyEntry.nome ? `Concluído em: ${dataFimFormatada}` : "");
+                isFromHistory = true;
 
-} else {
-    const dadosMapaAtual = mapasEmAndamento[i];
-    if (dadosMapaAtual) {
-        dataInicioVal = dadosMapaAtual.dataInicio || "";
-        dataFimVal = dadosMapaAtual.dataFim || "";
-        observacaoVal = dadosMapaAtual.observacao || "";
+            } else {
+                const dadosMapaAtual = mapasEmAndamento[i];
+                if (dadosMapaAtual) {
+                    dataInicioVal = dadosMapaAtual.dataInicio || "";
+                    dataFimVal = dadosMapaAtual.dataFim || "";
+                    observacaoVal = dadosMapaAtual.observacao || "";
 
-        // Formata a dataFim para o padrão brasileiro também aqui, se necessário
-        let dataFimFormatadaElse = "";
-        if (dataFimVal) {
-            const dataElse = new Date(dataFimVal);
-            const diaElse = String(dataElse.getDate()).padStart(2, '0');
-            const mesElse = String(dataElse.getMonth() + 1).padStart(2, '0');
-            const anoElse = dataElse.getFullYear();
-            dataFimFormatadaElse = `${diaElse}/${mesElse}/${anoElse}`;
-            // Você pode querer usar dataFimFormatadaElse na observacaoVal ou em outro lugar
-        }
+                    let dataFimFormatadaElse = "";
+                    if (dataFimVal) {
+                        const dataElse = new Date(dataFimVal);
+                        const diaElse = String(dataElse.getDate()).padStart(2, '0');
+                        const mesElse = String(dataElse.getMonth() + 1).padStart(2, '0');
+                        const anoElse = dataElse.getFullYear();
+                        dataFimFormatadaElse = `${diaElse}/${mesElse}/${anoElse}`;
+                    }
 
-
-        if (dataFimVal) {
-            statusText = "Status: Concluído (Pronto p/ Relatório)";
-        } else if (dataInicioVal) {
-            statusText = "Status: Em andamento";
-        }
-    }
-}
+                    if (dataFimVal) {
+                        statusText = "Status: Concluído (Pronto p/ Relatório)";
+                    } else if (dataInicioVal) {
+                        statusText = "Status: Em andamento";
+                    }
+                }
+            }
             
             statusElement.textContent = statusText;
             dataInicioElement.value = dataInicioVal;
@@ -418,12 +422,12 @@ isFromHistory = true;
                  observacaoElement.style.height = `${observacaoElement.scrollHeight}px`;
             }
         }
-        atualizarProgressoGeralIndex(); // Update progress bar after map data is processed
+        atualizarProgressoGeralIndex(); 
     }, error => {
         console.error("Index Page: Erro ao carregar dados de 'mapas':", error);
     });
 
-    await atualizarProgressoGeralIndex(); // Initial call
+    await atualizarProgressoGeralIndex(); 
 }
 
 function atualizarStatus(id) {
@@ -445,7 +449,7 @@ function atualizarStatus(id) {
         const dataFimObj = new Date(dataFim);
         if (dataInicioObj && dataFimObj < dataInicioObj) {
             alert("A data de fim não pode ser menor que a data de início!");
-            dataFimElement.value = ""; // Clear invalid date
+            dataFimElement.value = ""; 
             if (dataInicio) {
                  currentStatusText = "Status: Em andamento";
             }
@@ -481,7 +485,7 @@ function designarMapa(id, link, nome) {
     }).then(() => {
         alert(`Mapa ${nome} designado com sucesso!`);
         const dataAtual = new Date().toISOString().slice(0, 10);
-        database.ref("historicoDesignacoes").push({ // This is a different history
+        database.ref("historicoDesignacoes").push({ 
             mapaId: id,
             nome: nome,
             link: link,

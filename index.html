@@ -10,13 +10,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
 
     <link rel="manifest" href="manifest.json">
+
+    <link rel="manifest" href="manifest.json">
     
-    <script src="firebase.js"></script>
+
     
     <style>
         span {
@@ -198,8 +199,88 @@ ESTILOS DO MODAL DE PERMISSÃO
 <script>
         // Variável global para guardar o evento de instalação
         let deferredPrompt;
-        // As variáveis 'toastTimer' e 'showToast' estão agora no firebase.js
-        // As variáveis 'functions' e 'messaging' também estão no firebase.js
+        // Variável global para o timer do toast
+        let toastTimer;
+
+        // ==========================================================
+        // CONFIGURAÇÃO DO FIREBASE (LOCAL PARA ESTA PÁGINA)
+        // ==========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app", 
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Inicializar todos os serviços necessários para ESTA PÁGINA
+        const database = firebase.database();
+        const storage = firebase.storage();
+        const messaging = firebase.messaging();
+        const functions = firebase.functions();
+        const vapidKey = "BEfYRfUWuPgJUiLBFdLY53K_L6yRc2V0k2mhOgaZ_ySh9E2NHmt0om81q-TBExLUi1Q8-5FSUGlQW8SheD_qkNs";
+        // ==========================================================
+
+
+        /**
+         * Exibe uma notificação toast
+         */
+        function showToast(message, isError = false) {
+            const toast = document.getElementById("toast-notification");
+            if (!toast) return; // Esta página TEM o toast
+
+            clearTimeout(toastTimer);
+            toast.textContent = message;
+            toast.className = "show"; 
+
+            if (isError) {
+                toast.classList.add("error");
+            } else {
+                toast.classList.remove("error");
+            }
+
+            toastTimer = setTimeout(() => {
+                toast.className = toast.className.replace("show", "");
+                setTimeout(() => { toast.classList.remove("error"); }, 500); 
+            }, 3000);
+        }
+
+        /**
+         * Lógica de Notificação (Específica do index.html)
+         */
+        function solicitarPermissaoNotificacao() {
+            console.log("Pedindo permissão para notificações...");
+            
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    console.log('Permissão concedida. A obter token...');
+                    messaging.getToken({ vapidKey: vapidKey })
+                        .then((currentToken) => {
+                            if (currentToken) {
+                                console.log('Token do utilizador:', currentToken);
+                                database.ref('subscriptions/' + currentToken).set(true);
+                                showToast("Notificações ativadas!", false); 
+                            } else {
+                                console.log('Não foi possível obter o token.');
+                                showToast("Permita as notificações nas definições do seu navegador.", true); 
+                            }
+                        }).catch((err) => {
+                            console.error('Ocorreu um erro ao obter o token.', err);
+                            showToast("Erro ao ativar notificações.", true); 
+                        });
+                } else if (permission === 'denied') {
+                    console.log('Permissão negada.');
+                    showToast("Você bloqueou as notificações. Ative-as nas definições do navegador.", true); 
+                } else {
+                    console.log('Permissão ignorada.');
+                }
+            });
+        }
 
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -268,7 +349,7 @@ ESTILOS DO MODAL DE PERMISSÃO
 
             if(btnNotifSim) {
                 btnNotifSim.addEventListener('click', () => {
-                    solicitarPermissaoNotificacao(); // Esta função ESTÁ no firebase.js
+                    solicitarPermissaoNotificacao(); // Esta função está agora neste script
                     modalNotif.style.display = "none";
                 });
             }
@@ -383,11 +464,9 @@ ESTILOS DO MODAL DE PERMISSÃO
                 if (todaySchedule) {
                     scheduleHtml = `
                         <div class="schedule-today" style="background-color: #f0f9ff; border-left: 5px solid #0ea5e9; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            
                             <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #0c4a6e; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
                                 Programação de Campo para (${todayString})
                             </h2>
-                            
                             <p style="font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Local de Saída:</strong> ${todaySchedule.location || 'Não definido'}</p>
                             <p style"font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Horário:</strong> ${todaySchedule.time || 'Não definido'}</p>
                             <p style="font-size: 1.1rem; margin: 0; color: #333;"><strong>Dirigente:</strong> ${todaySchedule.leader || 'Não definido'}</p>
@@ -396,11 +475,9 @@ ESTILOS DO MODAL DE PERMISSÃO
                 } else {
                     scheduleHtml = `
                         <div class="schedule-today" style="background-color: #fffbeb; border-left: 5px solid #facc15; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            
                             <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #713f12; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
                                 Programação de Hoje (${todayString})
                             </h2>
-                            
                             <p style="font-size: 1.1rem; margin: 0; color: #333;">Nenhuma programação de campo encontrada para hoje.</p>
                         </div>
                     `;
@@ -412,7 +489,6 @@ ESTILOS DO MODAL DE PERMISSÃO
                 if (tituloH2) {
                     tituloH2.addEventListener('click', abrirModalProgramacao);
                 }
-
 
                 let gruposParaProcessar = [];
                 let locationName = "";
@@ -552,11 +628,11 @@ ESTILOS DO MODAL DE PERMISSÃO
             const observacao = document.getElementById(`observacao-${mapaId}`).value.trim();
             database.ref(`mapas/${mapaId}/observacao`).set(observacao)
                 .then(() => {
-                    showToast("Observação salva com sucesso!"); // Usa o toast global
+                    showToast("Observação salva com sucesso!"); 
                 })
                 .catch(error => {
                     console.error("Erro ao salvar observação:", error);
-                    showToast("Erro ao salvar observação: " + error.message, true); // Usa o toast global
+                    showToast("Erro ao salvar observação: " + error.message, true); 
                 });
         }
 
@@ -601,17 +677,19 @@ ESTILOS DO MODAL DE PERMISSÃO
                             showToast("Anexo salvo com sucesso!");
                             
                             const container = document.getElementById(`anexo-container-${mapaId}`);
+                            
+                            // *** ESTA É A LINHA CORRIGIDA ***
+                            // (Eu tinha escrito 'mapa.id' por engano, o correto é 'mapaId')
                             container.innerHTML = `
                                 <p><strong>Anexo Atual:</strong></p>
                                 <a href="${downloadURL}" target="_blank">
-                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapa.id}" 
+                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
                                             style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                 </a>
                                 <p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${dataFormatada}</p>
                             `;
                             input.value = "";
 
-                            // *** CHAMA A FUNÇÃO DE NOTIFICAR ***
                             notificarEnvioDeAnexo(mapaId);
 
                         })
@@ -629,7 +707,6 @@ ESTILOS DO MODAL DE PERMISSÃO
          */
         function notificarEnvioDeAnexo(mapaId) {
             
-            // (Re-declaramos o mapaInfo aqui para esta função ter acesso)
             const mapaInfo = {
                 1: { nome: "1 Conjunto São Paulo" }, 2: { nome: "2 Curva São Paulo" }, 3: { nome: "3 Vila Beira Rio" }, 4: { nome: "4 Res Araguaia (parte A)" }, 5: { nome: "5 Res Araguaia (parte B)" }, 6: { nome: "6 Vila Bagda" }, 7: { nome: "7 Vila Firmino (parte A)" }, 8: { nome: "8 Vila Firmino (parte B)" }, 9: { nome: "9 Parque Poty (parte A)" }, 10: { nome: "10 Parque Poty (parte B)" }, 11: { nome: "11 Parque Poty (parte C)" }, 12: { nome: "12 Vila Poty" }, 13: { nome: "13 Sales" }, 14: { nome: "14 Cidade Nova" }, 15: { nome: "15 Porto Rico" }, 16: { nome: "16 Renascença I (parte A)" }, 17: { nome: "17 Renascença I (parte B)" }, 18: { nome: "18 Renascença I (parte C)" }, 19: { nome: "19 Renascença I (parte D)" }, 20: { nome: "20 Renascença III" }, 21: { nome: "21 Loteamento Renascença" }, 22: { nome: "22 Renascença III 3⁰ Etapa" }, 23: { nome: "23 Porto Rico II" }, 24: { nome: "24 Andaraí" }, 25: { nome: "25 Jardim dos Pássaros" }, 26: { nome: "26 Washington" }, 27: { nome: "27 Vitória Régia" }, 28: { nome: "28 Sertãozinho" }, 29: { nome: "29 Canaxuê" }, 30: { nome: "30 Conj Novo Milênio" }, 31: { nome: "31 Conj Todos os Santos (parte A)" }, 32: { nome: "32 Conj Todos os Santos (parte B)" }, 33: { nome: "33 Deus Proverá" }, 34: { nome: "34 Loteamento Todos os Santos Lado Direito" }, 35: { nome: "35 Povoado Jumento - Continuação" }, 36: { nome: "36 Pedro Balzi - Vila Nova Esperança" }, 37: { nome: "37 Pedro Balzi - Frente para o Conjunto" }, 38: { nome: "38 Pedro Balzi - Parte de Cima do Morro" }
             };
@@ -640,13 +717,6 @@ ESTILOS DO MODAL DE PERMISSÃO
             const corpo = `Um novo anexo foi enviado para o ${nomeMapa}. Abra a app para ver.`;
 
             showToast("A enviar notificação para todos...");
-
-            // 'functions' é a variável global do firebase.js
-            // Verifica se 'functions' foi inicializado com sucesso
-            if (!functions) {
-                showToast("Erro: Serviço de funções não carregado.", true);
-                return;
-            }
             
             const enviarNotificacaoPush = functions.httpsCallable('enviarNotificacaoPush');
             
