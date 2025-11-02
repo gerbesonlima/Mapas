@@ -10,8 +10,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+
     <link rel="manifest" href="manifest.json">
-    <script src="firebase.js"></script>
     
     <script src="firebase.js"></script>
     
@@ -58,10 +61,43 @@ span p::before {
     }
 }
 
-/* ... (seus estilos existentes para 'span', 'toast', etc.) ... */
+/* ====================================================================
+ESTILOS DO TOAST (NOTIFICAÇÃO)
+(Movidos para aqui para garantir que carregam,
+embora o ideal fosse estarem no style.css)
+====================================================================
+*/
+#toast-notification {
+    visibility: hidden; 
+    min-width: 250px;
+    max-width: 90%;
+    background-color: #4CAF50; /* Verde sucesso */
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 2000;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: visibility 0.5s, opacity 0.5s, bottom 0.5s ease-out;
+    opacity: 0;
+}
+#toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 50px;
+}
+#toast-notification.error {
+    background-color: #D32F2F; /* Vermelho erro */
+}
+
 
 /* ====================================================================
-NOVOS ESTILOS DO MODAL DE PERMISSÃO
+ESTILOS DO MODAL DE PERMISSÃO
 ====================================================================
 */
 .modal-overlay {
@@ -147,7 +183,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
     </div>
       
     <footer>
-       <footer>
         <div class="footer-links">
             <a href="instrucoes.html">Instruções de uso</a>
             <a href="https://drive.google.com/drive/folders/17xHF437Jhg3uzSI7jQRcs7rSoj15lCdn?usp=drive_link">Mapas do Drive</a>
@@ -163,32 +198,8 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
 <script>
         // Variável global para guardar o evento de instalação
         let deferredPrompt;
-        // Variável global para o timer do toast
-        let toastTimer;
-
-
-        /**
-         * Exibe uma notificação toast
-         */
-        function showToast(message, isError = false) {
-            const toast = document.getElementById("toast-notification");
-            if (!toast) return;
-
-            clearTimeout(toastTimer);
-            toast.textContent = message;
-            toast.className = "show"; 
-
-            if (isError) {
-                toast.classList.add("error");
-            } else {
-                toast.classList.remove("error");
-            }
-
-            toastTimer = setTimeout(() => {
-                toast.className = toast.className.replace("show", "");
-                setTimeout(() => { toast.classList.remove("error"); }, 500); 
-            }, 3000);
-        }
+        // As variáveis 'toastTimer' e 'showToast' estão agora no firebase.js
+        // As variáveis 'functions' e 'messaging' também estão no firebase.js
 
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -250,15 +261,14 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
             // --- FIM LÓGICA MODAL PROGRAMAÇÃO ---
 
 
-            // *** NOVA LÓGICA: MODAL DE PERMISSÃO DE NOTIFICAÇÃO ***
+            // *** LÓGICA: MODAL DE PERMISSÃO DE NOTIFICAÇÃO ***
             const modalNotif = document.getElementById("modal-notificacao");
             const btnNotifSim = document.getElementById("notificacao-sim");
             const btnNotifNao = document.getElementById("notificacao-nao");
 
             if(btnNotifSim) {
                 btnNotifSim.addEventListener('click', () => {
-                    // O utilizador aceitou no nosso modal, agora pedimos a permissão real
-                    solicitarPermissaoNotificacao(); // Esta função está no firebase.js
+                    solicitarPermissaoNotificacao(); // Esta função ESTÁ no firebase.js
                     modalNotif.style.display = "none";
                 });
             }
@@ -268,10 +278,7 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                 });
             }
 
-            // Verifica se a app está no modo "instalado" (standalone)
-            // E se a permissão ainda não foi pedida ('default')
             if (window.matchMedia('(display-mode: standalone)').matches && Notification.permission === 'default') {
-                // Espera 2 segundos após carregar para mostrar o pop-up
                 setTimeout(() => {
                     if (modalNotif) modalNotif.style.display = "block";
                 }, 2000);
@@ -307,7 +314,7 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                 return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
             } catch (e) {
                 console.error("Erro ao formatar data:", e);
-                return ""; // Retorna string vazia em caso de data inválida
+                return ""; 
             }
         }
 
@@ -368,7 +375,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
 
             const todayString = getTodayDayName();
 
-            // --- ETAPA 1: Buscar a programação do dia ---
             database.ref("schedules/field").once("value", scheduleSnapshot => {
                 const scheduleData = scheduleSnapshot.val() || [];
                 const todaySchedule = scheduleData.find(item => item.day === todayString);
@@ -408,7 +414,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                 }
 
 
-                // --- ETAPA 2: Determinar quais grupos processar ---
                 let gruposParaProcessar = [];
                 let locationName = "";
                 
@@ -428,7 +433,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                     locationName = "Todos os grupos"; 
                 }
 
-                // --- ETAPA 3: Buscar os mapas e filtrar ---
                 database.ref("mapas").once("value", mapsSnapshot => {
                     const mapas = mapsSnapshot.val() || {};
                     let hasOpenTerritories = false;
@@ -454,9 +458,8 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                                 const mapaDiv = document.createElement("div");
                                 mapaDiv.className = "card mapa-card";
 
-                                // Lógica para exibir a data de atualização
                                 let anexoHtml = "";
-                                let dataAnexoHtml = ""; // Variável para a data
+                                let dataAnexoHtml = ""; 
 
                                 if (mapa.dados.anexoData) {
                                     dataAnexoHtml = `<p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${formatarData(mapa.dados.anexoData)}</p>`;
@@ -501,7 +504,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                         }
                     });
 
-                    // --- ETAPA 4: Exibir mensagem se nada for encontrado ---
                     let message = "";
                     if (gruposParaProcessar.length === 0) {
                         if (todaySchedule && todaySchedule.location) {
@@ -550,13 +552,11 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
             const observacao = document.getElementById(`observacao-${mapaId}`).value.trim();
             database.ref(`mapas/${mapaId}/observacao`).set(observacao)
                 .then(() => {
-                    // MUDANÇA: Substituído alert() por showToast()
-                    showToast("Observação salva com sucesso!");
+                    showToast("Observação salva com sucesso!"); // Usa o toast global
                 })
                 .catch(error => {
                     console.error("Erro ao salvar observação:", error);
-                    // MUDANÇA: Substituído alert() por showToast()
-                    showToast("Erro ao salvar observação: " + error.message, true);
+                    showToast("Erro ao salvar observação: " + error.message, true); // Usa o toast global
                 });
         }
 
@@ -566,7 +566,6 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
             const statusDiv = document.getElementById(`upload-status-${mapaId}`);
             
             if (!file) {
-                // MUDANÇA: Substituído .textContent por showToast()
                 showToast("Por favor, selecione um arquivo de imagem.", true);
                 return;
             }
@@ -584,8 +583,7 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                 }, 
                 (error) => {
                     console.error("Erro no upload:", error);
-                    // MUDANÇA: Substituído .textContent por showToast()
-                    statusDiv.textContent = ""; // Limpa o "Enviando..."
+                    statusDiv.textContent = ""; 
                     showToast("Erro ao enviar: " + error.message, true);
                 }, 
                 () => {
@@ -599,29 +597,71 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
                             anexoData: dataAtual 
                         })
                         .then(() => {
-                            // MUDANÇA: Substituído .textContent por showToast()
-                            statusDiv.textContent = ""; // Limpa o "Enviando..."
+                            statusDiv.textContent = ""; 
                             showToast("Anexo salvo com sucesso!");
                             
                             const container = document.getElementById(`anexo-container-${mapaId}`);
                             container.innerHTML = `
                                 <p><strong>Anexo Atual:</strong></p>
                                 <a href="${downloadURL}" target="_blank">
-                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
+                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapa.id}" 
                                             style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                 </a>
                                 <p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${dataFormatada}</p>
                             `;
                             input.value = "";
+
+                            // *** CHAMA A FUNÇÃO DE NOTIFICAR ***
+                            notificarEnvioDeAnexo(mapaId);
+
                         })
                         .catch((err) => {
-                                // MUDANÇA: Substituído .textContent por showToast()
                                 statusDiv.textContent = "";
                                 showToast("Erro ao salvar URL no banco: " + err.message, true);
                         });
                     });
                 }
             );
+        }
+
+        /**
+         * Prepara e chama a Cloud Function de notificação
+         */
+        function notificarEnvioDeAnexo(mapaId) {
+            
+            // (Re-declaramos o mapaInfo aqui para esta função ter acesso)
+            const mapaInfo = {
+                1: { nome: "1 Conjunto São Paulo" }, 2: { nome: "2 Curva São Paulo" }, 3: { nome: "3 Vila Beira Rio" }, 4: { nome: "4 Res Araguaia (parte A)" }, 5: { nome: "5 Res Araguaia (parte B)" }, 6: { nome: "6 Vila Bagda" }, 7: { nome: "7 Vila Firmino (parte A)" }, 8: { nome: "8 Vila Firmino (parte B)" }, 9: { nome: "9 Parque Poty (parte A)" }, 10: { nome: "10 Parque Poty (parte B)" }, 11: { nome: "11 Parque Poty (parte C)" }, 12: { nome: "12 Vila Poty" }, 13: { nome: "13 Sales" }, 14: { nome: "14 Cidade Nova" }, 15: { nome: "15 Porto Rico" }, 16: { nome: "16 Renascença I (parte A)" }, 17: { nome: "17 Renascença I (parte B)" }, 18: { nome: "18 Renascença I (parte C)" }, 19: { nome: "19 Renascença I (parte D)" }, 20: { nome: "20 Renascença III" }, 21: { nome: "21 Loteamento Renascença" }, 22: { nome: "22 Renascença III 3⁰ Etapa" }, 23: { nome: "23 Porto Rico II" }, 24: { nome: "24 Andaraí" }, 25: { nome: "25 Jardim dos Pássaros" }, 26: { nome: "26 Washington" }, 27: { nome: "27 Vitória Régia" }, 28: { nome: "28 Sertãozinho" }, 29: { nome: "29 Canaxuê" }, 30: { nome: "30 Conj Novo Milênio" }, 31: { nome: "31 Conj Todos os Santos (parte A)" }, 32: { nome: "32 Conj Todos os Santos (parte B)" }, 33: { nome: "33 Deus Proverá" }, 34: { nome: "34 Loteamento Todos os Santos Lado Direito" }, 35: { nome: "35 Povoado Jumento - Continuação" }, 36: { nome: "36 Pedro Balzi - Vila Nova Esperança" }, 37: { nome: "37 Pedro Balzi - Frente para o Conjunto" }, 38: { nome: "38 Pedro Balzi - Parte de Cima do Morro" }
+            };
+
+            const nomeMapa = mapaInfo[mapaId] ? mapaInfo[mapaId].nome : `Mapa ${mapaId}`;
+
+            const titulo = "Novo Anexo Enviado";
+            const corpo = `Um novo anexo foi enviado para o ${nomeMapa}. Abra a app para ver.`;
+
+            showToast("A enviar notificação para todos...");
+
+            // 'functions' é a variável global do firebase.js
+            // Verifica se 'functions' foi inicializado com sucesso
+            if (!functions) {
+                showToast("Erro: Serviço de funções não carregado.", true);
+                return;
+            }
+            
+            const enviarNotificacaoPush = functions.httpsCallable('enviarNotificacaoPush');
+            
+            enviarNotificacaoPush({ titulo: titulo, corpo: corpo })
+                .then((result) => {
+                    if (result.data.sucesso) {
+                        showToast(`Notificação enviada para ${result.data.totalEnviado} dispositivo(s)!`);
+                    } else {
+                        showToast('Erro ao enviar notificação: ' + result.data.erro, true);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Erro ao chamar a Cloud Function:', error);
+                    showToast('Erro grave ao enviar notificação.', true);
+                });
         }
 
         // --- FUNÇÕES DO MODAL ---
@@ -681,6 +721,7 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
             });
         }
 </script>
+
 <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -694,6 +735,7 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
       });
     }
 </script>
+
 <div id="modal-notificacao" class="modal-overlay">
     <div class="modal-content">
         <h2>Ativar Notificações?</h2>
@@ -705,16 +747,12 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
     </div>
 </div>
 
-<div id="modal-programacao" style="display: none;">
-    </div>
-
-
 <div id="modal-programacao" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
     <div style="background-color: #fefefe; margin: 20% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
         
-        <span id="fechar-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+        <span id="fechar-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;">×</span>
         
-        <h2 style="font-size: 1.3rem; font-weight: 500; color: #333; margin-top: 0; margin-bottom: 15px;">Programação de Campo</h2>
+        <h2 style="font-size: 1.3rem; font-weight: 500; color: #333; margin-top: 0; margin-bottom: 15px;">Programação Semanal Completa</h2>
         
         <div id="modal-conteudo-programacao" style="max-height: 400px; overflow-y: auto;">
             <p>Carregando...</p>
@@ -722,8 +760,8 @@ NOVOS ESTILOS DO MODAL DE PERMISSÃO
     </div>
 </div>
 
-</body>
-</html>
+<div id="toast-notification"></div>
+
 
 </body>
 </html>
