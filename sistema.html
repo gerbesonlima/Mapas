@@ -201,7 +201,7 @@
       const conteudo = document.getElementById("conteudo");
       
       if (pagina === 'pagina1') {
-        conteudo.innerHTML = "<h2>Lista de Membros</h2><p>A carregar...</p>";
+        conteudo.innerHTML = "<h2></h2><p>A carregar...</p>";
         
         try {
           const snapshot = await database.ref("pessoas").once("value");
