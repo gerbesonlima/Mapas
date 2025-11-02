@@ -6,11 +6,9 @@
     <title>Instalar Aplicativo de Territórios</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilos para a página de instalação (agora independentes) */
         body {
             font-family: 'Roboto', sans-serif;
             display: flex;
@@ -32,12 +30,11 @@
             max-width: 400px;
             width: 100%;
         }
-        /* Corrigido: classes específicas para o título e texto */
         .install-title {
             font-size: 1.5rem;
             font-weight: 500;
             color: #333;
-            margin: 0 0 15px 0; /* Espaçamento corrigido */
+            margin: 0 0 15px 0;
         }
         .install-text {
             font-size: 1rem;
@@ -62,19 +59,20 @@
             background-color: #085a0b;
         }
         .fallback-link {
-            display: block; /* Mostrado se o PWA não puder ser instalado */
+            display: block;
             margin-top: 20px;
             color: #4a90e2;
             text-decoration: none;
             font-size: 0.9rem;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 
     <div class="install-container">
-        <h1 class="install-title">Aplicativo de Territórios</h1>
-        <p class="install-text">Para a melhor experiência, instale o aplicativo em seu dispositivo. Ele é leve e funciona offline.</p>
+        <h1 id="install-title" class="install-title">Aplicativo de Territórios</h1>
+        <p id="install-text" class="install-text">Para a melhor experiência, instale o aplicativo em seu dispositivo. Ele é leve e funciona offline.</p>
         
         <button id="botao-instalar-app" class="install-button">
             Instalar Aplicativo
@@ -86,12 +84,13 @@
     </div>
 
     <script>
-        // Variável global para guardar o evento
         let deferredPrompt;
+        let installButtonVisible = false;
 
         document.addEventListener('DOMContentLoaded', () => {
 
             // 1. VERIFICAR SE JÁ ESTÁ NO MODO APP
+            // Se o utilizador abriu o app pelo ícone, vai direto para o index.
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 console.log('Já está em modo standalone. Redirecionando para index.html');
                 window.location.href = 'index.html';
@@ -106,7 +105,9 @@
                 console.log('beforeinstallprompt disparado');
                 e.preventDefault();
                 deferredPrompt = e;
+                installButtonVisible = true;
                 
+                // O navegador confirmou que o app PODE ser instalado.
                 if (btnInstalar) btnInstalar.style.display = 'block';
                 if (linkContinuar) linkContinuar.style.display = 'none';
             });
@@ -114,22 +115,17 @@
             // 3. O QUE ACONTECE AO CLICAR NO BOTÃO
             if (btnInstalar) {
                 btnInstalar.addEventListener('click', () => {
-                    if (!deferredPrompt) {
-                        console.log('Nenhum prompt de instalação disponível.');
-                        return;
-                    }
-
+                    if (!deferredPrompt) return;
                     deferredPrompt.prompt();
-
                     deferredPrompt.userChoice.then((choiceResult) => {
                         if (choiceResult.outcome === 'accepted') {
-                            console.log('Usuário aceitou a instalação');
+                            console.log('Utilizador aceitou a instalação');
                             // 4. REDIRECIONAR APÓS INSTALAR
                             setTimeout(() => {
                                 window.location.href = 'index.html';
                             }, 1000);
                         } else {
-                            console.log('Usuário recusou a instalação');
+                            console.log('Utilizador recusou a instalação');
                         }
                         deferredPrompt = null;
                     });
@@ -143,6 +139,22 @@
                     window.location.href = 'index.html';
                 }, 500);
             });
+
+            // 6. *** NOVA LÓGICA ***
+            // Se depois de 2 segundos, o evento 'beforeinstallprompt' não disparou,
+            // assumimos que a app já está instalada ou o navegador não é compatível.
+            setTimeout(() => {
+                if (!installButtonVisible) {
+                    console.log('Botão de instalação não apareceu. Assumindo que já está instalado.');
+                    const title = document.getElementById('install-title');
+                    const text = document.getElementById('install-text');
+                    const link = document.getElementById('link-continuar-web');
+
+                    if (title) title.textContent = 'Aplicação Pronta!';
+                    if (text) text.textContent = 'A aplicação já está instalada no seu dispositivo. Abra-a pelo ícone no seu telemóvel ou clique abaixo para aceder.';
+                    if (link) link.textContent = 'Abrir aplicação &rarr;';
+                }
+            }, 2000); // Espera 2 segundos
         });
     </script>
     
@@ -150,8 +162,8 @@
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-              .then(registration => console.log('SW registrado.'))
-              .catch(error => console.error('Falha ao registrar SW:', error));
+              .then(registration => console.log('SW registado.'))
+              .catch(error => console.error('Falha ao registar SW:', error));
           });
         }
     </script>
