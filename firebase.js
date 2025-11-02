@@ -20,44 +20,7 @@ const db = database; // Alias for convenience if used elsewhere in existing code
 // Adicionamos a variável global 'storage'
 const storage = firebase.storage();
 
-// *** NOVA LÓGICA DE NOTIFICAÇÃO ***
-const messaging = firebase.messaging();
-// Esta "Key" é a sua "Web push certificate" que está no Console do Firebase
-// Vá em: Configurações do Projeto -> Cloud Messaging -> Certificados Web push -> Gerar Par de Chaves
-const vapidKey = "BEfYRfUWuPgJUiLBFdLY53K_L6yRc2V0k2mhOgaZ_ySh9E2NHmt0om81q-TBExLUi1Q8-5FSUGlQW8SheD_qkNs"; // <-- MUDE ISTO
 
-function solicitarPermissaoNotificacao() {
-    console.log("Pedindo permissão para notificações...");
-    
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('Permissão concedida. A obter token...');
-            
-            // Obter o token do utilizador
-            messaging.getToken({ vapidKey: vapidKey })
-                .then((currentToken) => {
-                    if (currentToken) {
-                        console.log('Token do utilizador:', currentToken);
-                        // Salvar o token na base de dados para uso futuro
-                        database.ref('subscriptions/' + currentToken).set(true);
-                        showToast("Notificações ativadas!", false);
-                    } else {
-                        console.log('Não foi possível obter o token. O utilizador precisa de permitir no navegador.');
-                        showToast("Permita as notificações nas definições do seu navegador.", true);
-                    }
-                }).catch((err) => {
-                    console.error('Ocorreu um erro ao obter o token.', err);
-                    showToast("Erro ao ativar notificações.", true);
-                });
-
-        } else if (permission === 'denied') {
-            console.log('Permissão negada.');
-            showToast("Você bloqueou as notificações. Ative-as nas definições do navegador.", true);
-        } else {
-            console.log('Permissão ignorada.');
-        }
-    });
-}
 
 const senhaCorreta = "1234";
 const totalMapasGlobal = 38; // Use a more descriptive global name
