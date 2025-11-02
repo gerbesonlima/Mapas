@@ -59,6 +59,9 @@ span p::before {
 
     </style>
      <a href="territorios.html"><button>inicio</button></a> <br>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
 </head>
 
 
@@ -223,7 +226,7 @@ span p::before {
                                 if (mapa.dados.anexoURL) {
                                     anexoHtml = `
                                         <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
-                                            <p><strong>Anexo Atual:</strong></p>
+                                            <p><strong>territorio atual:</strong></p>
                                             <a href="${mapa.dados.anexoURL}" target="_blank">
                                                 <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" 
                                                      style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
@@ -248,7 +251,7 @@ span p::before {
 
                                     <label for="anexo-input-${mapa.id}" style="display: block; margin-top: 12px; font-weight: bold;">Substituir Anexo (Imagem):</label>
                                     <input type="file" id="anexo-input-${mapa.id}" accept="image/*" style="display: block; margin-top: 4px; width: 100%;">
-                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Enviar Anexo</button>
+                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Enviar print</button>
                                     
                                     <div id="upload-status-${mapa.id}" style="font-size: 0.9em; color: #555; margin-top: 4px;"></div>
                                 `;
