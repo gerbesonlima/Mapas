@@ -35,7 +35,8 @@
     main {
       flex: 1;
       padding: 20px;
-      text-align: center;
+      text-align: left; 
+      overflow-y: auto; 
     }
     nav {
       background: #222;
@@ -61,11 +62,54 @@
       color: #4CAF50;
       font-weight: bold;
     }
+    main h2 {
+        text-align: center;
+        color: #333;
+    }
+    .user-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .user-card {
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .user-card:hover {
+        transform: translateY(-2px);
+    }
+    .user-card img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+        border: 1px solid #eee;
+    }
+    .user-card p {
+        font-size: 14px;
+        color: #333;
+        margin: 0;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .user-list-link {
+        text-decoration: none;
+    }
   </style>
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  
+  <script src="firebase.js"></script> 
 </head>
 <body>
   <header>
@@ -74,8 +118,9 @@
   </header>
 
   <main id="conteudo">
-    <h2 id="boasVindas">Bem-vindo!</h2>
-  </main>
+    </main>
+
+  <input type="file" id="uploadFotoInput" onchange="uploadNovaFoto(event)" accept="image/*" style="display: none;">
 
   <nav>
     <button onclick="navegar('pagina1')" id="btn1" class="active">Página 1</button>
@@ -87,6 +132,11 @@
 
   <script>
     let usuarioId = null;
+    let dadosUsuario = null; 
+
+    // *** LINHA REMOVIDA DAQUI ***
+    // const storage = firebase.storage(); 
+    // (Isto já foi definido no firebase.js)
 
     // Carregar dados do usuário
     window.onload = async function() {
@@ -101,30 +151,100 @@
       if (snapshot.exists()) {
         snapshot.forEach(snap => {
           usuarioId = snap.key;
-          const dados = snap.val();
-          document.getElementById("boasVindas").innerText = `Bem-vindo, ${dados.nome}!`;
-          if (dados.fotoPerfil) {
-            document.getElementById("fotoPerfil").src = dados.fotoPerfil;
-          }
+          dadosUsuario = snap.val(); 
         });
+
+        document.getElementById("tituloSistema").innerText = `Olá, ${dadosUsuario.nome.split(' ')[0]}!`;
+        if (dadosUsuario.fotoPerfil) {
+          document.getElementById("fotoPerfil").src = dadosUsuario.fotoPerfil;
+        }
+
+        navegar('pagina1');
       }
     }
 
-    // Alterar foto pedindo um link
-    async function alterarFoto() {
-      const novaFoto = prompt("Cole o link da sua foto (Google Fotos, Drive, etc.):");
-      if (!novaFoto) return;
-
-      await database.ref(`pessoas/${usuarioId}/fotoPerfil`).set(novaFoto);
-      document.getElementById("fotoPerfil").src = novaFoto;
-      alert("Foto atualizada com sucesso!");
+    // Esta função agora será encontrada porque o script não vai falhar
+    function alterarFoto() {
+      document.getElementById('uploadFotoInput').click();
     }
 
-    function navegar(pagina) {
-      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
-      document.getElementById("btn" + pagina.charAt(pagina.length-1)).classList.add("active");
+    // Nova função de upload
+    async function uploadNovaFoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!usuarioId) return alert("Erro: ID de usuário não encontrado.");
 
-      document.getElementById("conteudo").innerHTML = `<h2>${pagina.toUpperCase()}</h2><p>Conteúdo da ${pagina} aqui!</p>`;
+      alert("A enviar a foto... Por favor, aguarde.");
+      
+      // A variável 'storage' está a vir do ficheiro firebase.js
+      const fotoPerfilRef = storage.ref(`fotosPerfil/${usuarioId}/${file.name}`);
+      
+      try {
+        const snapshot = await fotoPerfilRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        await database.ref(`pessoas/${usuarioId}/fotoPerfil`).set(downloadURL);
+        
+        document.getElementById("fotoPerfil").src = downloadURL;
+        alert("Foto atualizada com sucesso!");
+
+      } catch (error) {
+        console.error("Erro ao fazer upload da foto:", error);
+        alert("Erro ao enviar foto.");
+      }
+    }
+
+    // Nova função de navegação
+    async function navegar(pagina) {
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("btn" + pagina.charAt(pagina.length - 1)).classList.add("active");
+
+      const conteudo = document.getElementById("conteudo");
+      
+      if (pagina === 'pagina1') {
+        conteudo.innerHTML = "<h2>Lista de Membros</h2><p>A carregar...</p>";
+        
+        try {
+          const snapshot = await database.ref("pessoas").once("value");
+          if (!snapshot.exists()) {
+            conteudo.innerHTML = "<h2>Lista de Membros</h2><p>Nenhuma pessoa encontrada.</p>";
+            return;
+          }
+          
+          let html = '<h2>Lista de Membros</h2><div class="user-list">';
+          
+          snapshot.forEach(snap => {
+            const pessoa = snap.val();
+            
+            if (pessoa.telefone === dadosUsuario.telefone) {
+                return; 
+            }
+
+            const foto = pessoa.fotoPerfil || 'https://via.placeholder.com/60';
+            const nome = pessoa.nome.split(' ')[0]; 
+            const telefoneLimpo = pessoa.telefone.replace(/\D/g, ''); 
+            
+            html += `
+              <a href="https://wa.me/55${telefoneLimpo}" target="_blank" class="user-list-link">
+                <div class="user-card">
+                  <img src="${foto}" alt="${nome}">
+                  <p>${nome}</p>
+                </div>
+              </a>
+            `;
+          });
+          
+          html += '</div>';
+          conteudo.innerHTML = html; 
+
+        } catch (error) {
+          console.error("Erro ao carregar pessoas:", error);
+          conteudo.innerHTML = "<h2>Lista de Membros</h2><p>Erro ao carregar a lista.</p>";
+        }
+
+      } else {
+        // Comportamento padrão para as outras páginas
+        conteudo.innerHTML = `<h2>${pagina.toUpperCase()}</h2><p>Conteúdo da ${pagina} aqui!</p>`;
+      }
     }
   </script>
 </body>
