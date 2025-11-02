@@ -94,7 +94,6 @@
   }
 
   </style>
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="firebase.js"></script>
@@ -105,21 +104,18 @@
   
     <h1>Login</h1>
     
-    <!-- Passo 1: Digitar telefone -->
     <div id="step1">
-      <label for="telefone">Digite seu telefone:</label>
-      <input type="tel" id="telefone" placeholder="Ex: 86999999999">
+      <label for="telefone">Digite seu telefone (com DDD):</label>
+      <input type="tel" id="telefone" placeholder="Ex: (86) 99999-9999">
       <button onclick="verificarTelefone()">Continuar</button>
     </div>
 
-    <!-- Passo 2: Digitar senha -->
     <div id="step2" class="hidden">
       <label for="senha">Digite sua senha:</label>
       <input type="password" id="senha" placeholder="Senha">
       <button onclick="login()">Entrar</button>
     </div>
 
-    <!-- Passo 3: Confirmar dados -->
     <div id="step3" class="hidden">
       <h3>Confirme seus dados</h3>
       <div id="dadosUsuario" class="dados"></div>
@@ -131,32 +127,43 @@
   <script>
     let usuarioEncontrado = null;
 
+    // --- FUNÇÃO VERIFICAR TELEFONE (ATUALIZADA) ---
     async function verificarTelefone() {
-      const tel = document.getElementById('telefone').value.trim();
-      if (!tel) return alert("Digite o número do telefone!");
+      const telefoneInput = document.getElementById('telefone').value;
+      
+      // 1. Limpa o telefone de tudo o que não for número (parênteses, espaços, traços)
+      const telefoneLimpo = telefoneInput.replace(/\D/g, ''); 
 
-      const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(tel).once("value");
+      // 2. Verifica se o número limpo tem 11 dígitos
+      if (telefoneLimpo.length !== 11) {
+          alert("Telefone inválido!\n\nPor favor, verifique se o número tem 11 dígitos (DDD + 9 na frente).\nExemplo: 86999998888");
+          return; // Para a execução da função
+      }
+
+      // 3. A procura no Firebase agora usa o 'telefoneLimpo'
+      const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(telefoneLimpo).once("value");
 
       if (snapshot.exists()) {
         snapshot.forEach(snap => usuarioEncontrado = { id: snap.key, ...snap.val() });
 
         // Se já logou antes, entra direto
-        // Dentro de verificarTelefone(), quando primeiroLogin === false:
-            if (usuarioEncontrado.primeiroLogin === false) {
+        if (usuarioEncontrado.primeiroLogin === false) {
             localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
             window.location.href = "sistema.html";
             return;
-}
+        }
 
-
+        // Se for o primeiro login, mostra o passo da senha
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
       } else {
+        // Se o telefone (já limpo) não for encontrado
         alert("Telefone não encontrado! Vou enviar uma mensagem para liberar o cadastro.");
-        const msg = `Olá! O telefone ${tel} não está no sistema. Pode liberar o cadastro?`;
+        const msg = `Olá! O telefone ${telefoneLimpo} não está no sistema. Pode liberar o cadastro?`;
         window.open(`https://wa.me/5586994142411?text=${encodeURIComponent(msg)}`, "_blank");
       }
     }
+    // --- FIM DA FUNÇÃO ATUALIZADA ---
 
     async function login() {
       const senha = document.getElementById('senha').value.trim();
@@ -165,6 +172,7 @@
       // Se não tem senha no cadastro, salva a nova
       if (!usuarioEncontrado.senha) {
         await database.ref(`pessoas/${usuarioEncontrado.id}/senha`).set(senha);
+        usuarioEncontrado.senha = senha; // Atualiza o objeto local
       } else if (usuarioEncontrado.senha !== senha) {
         alert("Senha incorreta!");
         return;
@@ -190,14 +198,14 @@
     }
 
    async function confirmarDados() {
-  await database.ref(`pessoas/${usuarioEncontrado.id}/primeiroLogin`).set(false);
+      await database.ref(`pessoas/${usuarioEncontrado.id}/primeiroLogin`).set(false);
 
-  // Salva telefone no localStorage
-  localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
+      // Salva telefone no localStorage
+      localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
 
-  alert("Dados confirmados! Redirecionando...");
-  window.location.href = "sistema.html";
-}
+      alert("Dados confirmados! Redirecionando...");
+      window.location.href = "sistema.html";
+    }
 
     function editarDados() {
       alert("Você será redirecionado para atualizar seus dados.");

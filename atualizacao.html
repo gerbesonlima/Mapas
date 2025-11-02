@@ -12,13 +12,13 @@
     input, textarea, select {
       width: 100%; padding: 10px; margin-bottom: 15px;
       border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+      box-sizing: border-box; /* Garante que o padding não quebre o layout */
     }
     button { width: 100%; background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
     button:hover { background: #45a049; }
     .success-message { display: none; text-align: center; margin-top: 10px; color: green; font-weight: bold; }
     .hidden { display: none; }
   </style>
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="firebase.js"></script>
@@ -30,8 +30,8 @@
     <label for="nome">Nome Completo:</label>
     <input type="text" id="nome" placeholder="Digite o nome completo" required>
 
-    <label for="telefone">Telefone:</label>
-    <input type="tel" id="telefone" placeholder="Digite o telefone" required>
+    <label for="telefone">Telefone (com DDD):</label>
+    <input type="tel" id="telefone" placeholder="Ex: (86) 99999-8888" required>
 
     <label for="cep">CEP:</label>
     <input type="text" id="cep" placeholder="Digite o CEP" maxlength="9" onblur="buscarCEP()">
@@ -54,7 +54,6 @@
     <label for="complemento">Complemento:</label>
     <input type="text" id="complemento" placeholder="Nome do conjunto, residencial ou ponto de referencia">
 
-    <!-- Pergunta sobre cônjuge -->
     <label for="temConjuge">Tem cônjuge batizado ou publicador não batizado?</label>
     <select id="temConjuge" onchange="mostrarConjuge()">
       <option value="nao">Não</option>
@@ -68,7 +67,6 @@
       <input type="tel" id="telConjuge" placeholder="Telefone do cônjuge">
     </div>
 
-    <!-- Pergunta sobre filhos -->
     <label for="temFilhos">Tem filhos?(Que moram com voce e que faz parte do grupo 2)</label>
     <select id="temFilhos" onchange="mostrarFilhos()">
       <option value="nao">Não</option>
@@ -132,9 +130,23 @@
       }
     }
 
-    function cadastrarPessoa() {
+    // --- FUNÇÃO DE CADASTRO ATUALIZADA ---
+    async function cadastrarPessoa() {
       const nome = document.getElementById("nome").value.trim();
-      const telefone = document.getElementById("telefone").value.trim();
+      
+      // --- LÓGICA DE VALIDAÇÃO DO TELEFONE ---
+      const telefoneInput = document.getElementById("telefone").value;
+      
+      // 1. Limpa o telefone de tudo o que não for número
+      const telefoneLimpo = telefoneInput.replace(/\D/g, ''); 
+
+      // 2. Verifica se o número limpo tem 11 dígitos
+      if (telefoneLimpo.length !== 11) {
+          alert("Telefone inválido!\n\nPor favor, verifique se o número tem 11 dígitos (DDD + 9 na frente).\nExemplo: 86999998888");
+          return; // Para a execução da função
+      }
+      // --- FIM DA LÓGICA DE VALIDAÇÃO ---
+
       const cep = document.getElementById("cep").value.trim();
       const logradouro = document.getElementById("logradouro").value.trim();
       const numero = document.getElementById("numero").value.trim();
@@ -143,7 +155,8 @@
       const estado = document.getElementById("estado").value.trim();
       const complemento = document.getElementById("complemento").value.trim();
 
-      if (!nome || !telefone || !cep || !logradouro || !numero || !bairro || !cidade || !estado) {
+      // 3. A verificação principal agora usa o 'telefoneLimpo'
+      if (!nome || !telefoneLimpo || !cep || !logradouro || !numero || !bairro || !cidade || !estado) {
         alert("Preencha todos os campos obrigatórios!");
         return;
       }
@@ -177,27 +190,58 @@
         }
       }
 
+      // 4. O objeto 'pessoa' agora salva o número limpo
       const pessoa = {
         nome,
-        telefone,
+        telefone: telefoneLimpo, // Salva o número padronizado
         endereco: { cep, logradouro, numero, bairro, cidade, estado, complemento },
         conjuge: conjuge,
-        filhos: filhos,
-        cadastradoEm: new Date().toISOString()
+        filhos: filhos
       };
 
-      database.ref("pessoas").push(pessoa)
-        .then(() => {
-          document.getElementById("successMessage").style.display = "block";
-          document.querySelectorAll("input, textarea").forEach(el => el.value = "");
-          document.getElementById("temConjuge").value = "nao";
-          document.getElementById("temFilhos").value = "nao";
-          document.getElementById("conjugeFields").classList.add("hidden");
-          document.getElementById("qtdFilhosContainer").classList.add("hidden");
-          document.getElementById("filhosFields").innerHTML = "";
-          setTimeout(() => document.getElementById("successMessage").style.display = "none", 2000);
-        })
-        .catch(error => alert("Erro ao cadastrar: " + error.message));
+      const successMsg = document.getElementById("successMessage");
+      
+      try {
+        // 5. A procura por duplicados agora usa o 'telefoneLimpo'
+        const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(telefoneLimpo).once("value");
+
+        if (snapshot.exists()) {
+          // SE EXISTIR: Atualiza
+          let userId;
+          snapshot.forEach(snap => { userId = snap.key; }); 
+
+          await database.ref("pessoas").child(userId).update(pessoa);
+          
+          successMsg.innerText = "Dados ATUALIZADOS com sucesso!";
+          
+        } else {
+          // SE NÃO EXISTIR: Cria
+          pessoa.primeiroLogin = true; 
+          pessoa.senha = null;
+          pessoa.cadastradoEm = new Date().toISOString();
+
+          await database.ref("pessoas").push(pessoa);
+          
+          successMsg.innerText = "Novo cadastro ENVIADO com sucesso!";
+        }
+
+        // Limpa o formulário
+        successMsg.style.display = "block";
+        document.querySelectorAll("input, textarea, select").forEach(el => {
+            if (el.type === 'select-one') {
+                el.value = 'nao'; 
+            } else if (el.type !== 'button') { // Não limpar botões
+                el.value = ''; 
+            }
+        });
+        document.getElementById("conjugeFields").classList.add("hidden");
+        document.getElementById("qtdFilhosContainer").classList.add("hidden");
+        document.getElementById("filhosFields").innerHTML = "";
+        setTimeout(() => successMsg.style.display = "none", 3000);
+
+      } catch (error) {
+        alert("Erro ao salvar: " + error.message);
+      }
     }
   </script>
 </body>
