@@ -20,8 +20,6 @@ const db = database; // Alias for convenience if used elsewhere in existing code
 // Adicionamos a variável global 'storage'
 const storage = firebase.storage();
 
-
-
 const senhaCorreta = "1234";
 const totalMapasGlobal = 38; // Use a more descriptive global name
 
