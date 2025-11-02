@@ -68,7 +68,6 @@ function toggleList(id) {
         titulo.classList.remove("active");
     }
 }
-
 // --- (O RESTO DE TODAS AS SUAS OUTRAS FUNÇÕES) ---
 // (verificarSenha, sair, limparTudo, etc. ...)
 
