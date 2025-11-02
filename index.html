@@ -93,11 +93,8 @@ span p::before {
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 console.log('beforeinstallprompt disparado');
-                // Previne o mini-infobar de aparecer
                 e.preventDefault();
-                // Guarda o evento para ser usado depois
                 deferredPrompt = e;
-                // Mostra o nosso botão customizado
                 if(btnInstalar) {
                     btnInstalar.style.display = 'block';
                 }
@@ -106,13 +103,9 @@ span p::before {
             if(btnInstalar) {
                 btnInstalar.addEventListener('click', () => {
                     console.log('Botão de instalar clicado');
-                    // Esconde o nosso botão
                     btnInstalar.style.display = 'none';
-                    
                     if (deferredPrompt) {
-                        // Mostra o prompt de instalação real do navegador
                         deferredPrompt.prompt();
-                        // Espera pela escolha do usuário
                         deferredPrompt.userChoice.then((choiceResult) => {
                             if (choiceResult.outcome === 'accepted') {
                                 console.log('Usuário aceitou a instalação');
@@ -126,7 +119,6 @@ span p::before {
             }
             
             window.addEventListener('appinstalled', () => {
-                // Esconde o botão se o app for instalado
                 if(btnInstalar) {
                     btnInstalar.style.display = 'none';
                 }
@@ -134,6 +126,24 @@ span p::before {
                 console.log('PWA foi instalado');
             });
             // --- FIM DA LÓGICA DE INSTALAÇÃO ---
+
+            
+            // --- LÓGICA DO MODAL DE PROGRAMAÇÃO ---
+            const modal = document.getElementById("modal-programacao");
+            const fecharBtn = document.getElementById("fechar-modal");
+
+            if (fecharBtn) {
+                fecharBtn.onclick = fecharModalProgramacao;
+            }
+            if (modal) {
+                // Fechar se clicar fora do conteúdo
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        fecharModalProgramacao();
+                    }
+                }
+            }
+            // --- FIM LÓGICA MODAL ---
 
 
             // O resto do seu código de carregar territórios
@@ -215,7 +225,11 @@ span p::before {
                 if (todaySchedule) {
                     scheduleHtml = `
                         <div class="schedule-today" style="background-color: #f0f9ff; border-left: 5px solid #0ea5e9; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            <h2 style="font-size: 1.4rem; font-weight: 500; color: #0c4a6e; margin-top: 0; margin-bottom: 12px;">Programação de Campo para (${todayString})</h2>
+                            
+                            <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #0c4a6e; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
+                                Programação de Campo para (${todayString})
+                            </h2>
+                            
                             <p style="font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Local de Saída:</strong> ${todaySchedule.location || 'Não definido'}</p>
                             <p style"font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Horário:</strong> ${todaySchedule.time || 'Não definido'}</p>
                             <p style="font-size: 1.1rem; margin: 0; color: #333;"><strong>Dirigente:</strong> ${todaySchedule.leader || 'Não definido'}</p>
@@ -224,13 +238,24 @@ span p::before {
                 } else {
                     scheduleHtml = `
                         <div class="schedule-today" style="background-color: #fffbeb; border-left: 5px solid #facc15; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            <h2 style="font-size: 1.4rem; font-weight: 500; color: #713f12; margin-top: 0; margin-bottom: 12px;">Programação de Hoje (${todayString})</h2>
+                            
+                            <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #713f12; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
+                                Programação de Hoje (${todayString})
+                            </h2>
+                            
                             <p style="font-size: 1.1rem; margin: 0; color: #333;">Nenhuma programação de campo encontrada para hoje.</p>
                         </div>
                     `;
                 }
                 
                 container.innerHTML = scheduleHtml;
+
+                // *** NOVO ***: Adiciona o listener de clique AO TÍTULO DEPOIS QUE ELE FOI CRIADO
+                const tituloH2 = document.getElementById("titulo-programacao-dia");
+                if (tituloH2) {
+                    tituloH2.addEventListener('click', abrirModalProgramacao);
+                }
+
 
                 // --- ETAPA 2: Determinar quais grupos processar ---
                 let gruposParaProcessar = [];
@@ -422,6 +447,65 @@ span p::before {
                 }
             );
         }
+
+        // --- NOVAS FUNÇÕES PARA O MODAL ---
+
+        function fecharModalProgramacao() {
+            const modal = document.getElementById("modal-programacao");
+            if (modal) modal.style.display = "none";
+        }
+
+        function abrirModalProgramacao() {
+            const modal = document.getElementById("modal-programacao");
+            const modalConteudo = document.getElementById("modal-conteudo-programacao");
+            
+            if (!modal || !modalConteudo) return;
+
+            modal.style.display = "block";
+            modalConteudo.innerHTML = "<p>Carregando...</p>";
+
+            // Buscar os dados da programação completa (do configcampo.html)
+            database.ref("schedules/field").once("value", snapshot => {
+                const programacaoSemanal = snapshot.val() || [];
+                
+                if (programacaoSemanal.length === 0) {
+                    modalConteudo.innerHTML = "<p>Nenhuma programação semanal foi configurada.</p>";
+                    return;
+                }
+
+                // Criar uma tabela simples para exibir os dados
+                let tabelaHtml = `
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead style="background-color: #f0f0f0;">
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Dia</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Local</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Horário</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Dirigente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                programacaoSemanal.forEach(item => {
+                    tabelaHtml += `
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>${item.day}</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${item.location || ''}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${item.time || ''}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${item.leader || ''}</td>
+                        </tr>
+                    `;
+                });
+
+                tabelaHtml += `</tbody></table>`;
+                modalConteudo.innerHTML = tabelaHtml;
+
+            }).catch(error => {
+                console.error("Erro ao buscar programação semanal:", error);
+                modalConteudo.innerHTML = "<p>Erro ao carregar a programação. Tente novamente.</p>";
+            });
+        }
 </script>
 
 <script>
@@ -437,6 +521,22 @@ span p::before {
       });
     }
 </script>
+
+<div id="modal-programacao" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
+    <div style="background-color: #fefefe; margin: 20% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+        
+        <span id="fechar-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+        
+        <h2 style="font-size: 1.3rem; font-weight: 500; color: #333; margin-top: 0; margin-bottom: 15px;">Programação de Campo</h2>
+        
+        <div id="modal-conteudo-programacao" style="max-height: 400px; overflow-y: auto;">
+            <p>Carregando...</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
 
 </body>
 </html>
