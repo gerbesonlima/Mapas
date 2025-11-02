@@ -78,8 +78,6 @@ span p::before {
 
 <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Agora não precisamos mais inicializar o storage aqui,
-            // pois o firebase.js (Passo 2) já faz isso.
             carregarTerritoriosAbertos();
         });
 
@@ -92,7 +90,6 @@ span p::before {
             return days[todayIndex];
         }
 
-        // Não precisa mais receber (storage)
         function carregarTerritoriosAbertos() {
             const container = document.getElementById("territorios-container");
             container.innerHTML = "<p>Carregando programação e territórios...</p>";
@@ -151,7 +148,6 @@ span p::before {
             const todayString = getTodayDayName();
 
             // --- ETAPA 1: Buscar a programação do dia ---
-            // 'database' é a variável global do firebase.js
             database.ref("schedules/field").once("value", scheduleSnapshot => {
                 const scheduleData = scheduleSnapshot.val() || [];
                 const todaySchedule = scheduleData.find(item => item.day === todayString);
@@ -229,7 +225,8 @@ span p::before {
                                         <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
                                             <p><strong>Anexo Atual:</strong></p>
                                             <a href="${mapa.dados.anexoURL}" target="_blank">
-                                                <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" style="width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #ddd;">
+                                                <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" 
+                                                     style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                             </a>
                                         </div>
                                     `;
@@ -320,7 +317,6 @@ span p::before {
         }
 
         /**
-         * --- NOVA FUNÇÃO ---
          * Faz upload de um anexo de imagem para o Firebase Storage.
          */
         function salvarAnexo(mapaId) {
@@ -335,8 +331,9 @@ span p::before {
 
             statusDiv.textContent = "Enviando imagem...";
 
-            // 1. Criar uma referência única no Storage
-            const filePath = `anexos/mapa_${mapaId}/${file.name}`;
+            // MUDANÇA 2: Caminho do arquivo padronizado para substituir o anterior
+            // Em vez de usar file.name, usamos um nome fixo.
+            const filePath = `anexos/mapa_${mapaId}/anexo_principal`;
             
             // 'storage' é a variável global do firebase.js
             const storageRef = storage.ref(filePath);
@@ -371,7 +368,8 @@ span p::before {
                                 container.innerHTML = `
                                     <p><strong>Anexo Atual:</strong></p>
                                     <a href="${downloadURL}" target="_blank">
-                                        <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" style="width: 100%; max-width: 300px; border-radius: 8px; border: 1px solid #ddd;">
+                                        <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
+                                             style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
                                     </a>
                                 `;
                                 input.value = ""; // Limpar o campo de input
