@@ -7,27 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
-
-        <div class="container mx-auto p-2 sm:p-4 bg-white shadow-md rounded-lg mt-4">
-        <h2 class="text-lg sm:text-xl font-bold mb-3">Enviar Notificação Push</h2>
-        <div class="flex flex-col gap-3">
-            <input type="text" id="notificacao-titulo" placeholder="Título da Notificação" class="w-full p-2 border rounded text-sm sm:text-base">
-            <textarea id="notificacao-corpo" placeholder="Mensagem da Notificação" class="w-full p-2 border rounded text-sm sm:text-base h-20 resize-none"></textarea>
-            <button onclick="enviarNotificacao()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm sm:text-base">
-                Enviar Notificação para Todos
-            </button>
-            <div id="notificacao-status" class="text-sm text-gray-600 mt-1"></div>
-        </div>
-    </div>
-    <div class="container mx-auto p-2 sm:p-4">
-
     <div class="container mx-auto p-2 sm:p-4">
         <div id="content">
             <div class="mb-4">
@@ -232,45 +215,6 @@
                 alert('Erro ao gerar PDF: ' + error.message);
             }
         }
-
-       
-        // =============================================
-        //     NOVA FUNÇÃO PARA ENVIAR A NOTIFICAÇÃO
-        // =============================================
-        function enviarNotificacao() {
-            const titulo = document.getElementById('notificacao-titulo').value;
-            const corpo = document.getElementById('notificacao-corpo').value;
-            const statusDiv = document.getElementById('notificacao-status');
-
-            if (!titulo || !corpo) {
-                alert('Por favor, preencha o Título e a Mensagem.');
-                return;
-            }
-
-            statusDiv.textContent = 'A enviar... Por favor, aguarde.';
-
-            // Chama o "carteiro" (Cloud Function) que publicámos
-            const enviarNotificacaoPush = functions.httpsCallable('enviarNotificacaoPush');
-            
-            enviarNotificacaoPush({ titulo: titulo, corpo: corpo })
-                .then((result) => {
-                    if (result.data.sucesso) {
-                        statusDiv.textContent = `Notificação enviada com sucesso para ${result.data.totalEnviado} dispositivo(s)!`;
-                        alert('Notificação enviada com sucesso!');
-                    } else {
-                        statusDiv.textContent = 'Erro ao enviar: ' + result.data.erro;
-                        alert('Erro ao enviar: ' + result.data.erro);
-                    }
-                    document.getElementById('notificacao-titulo').value = '';
-                    document.getElementById('notificacao-corpo').value = '';
-                })
-                .catch((error) => {
-                    console.error('Erro ao chamar a Cloud Function:', error);
-                    statusDiv.textContent = 'Erro grave: ' + error.message;
-                    alert('Erro grave ao contactar o servidor: ' + error.message);
-                });
-        }
-    
     </script>
     <script>
         (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93a85d07aa5badc6',t:'MTc0NjM2NTUzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
