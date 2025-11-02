@@ -740,8 +740,7 @@ ESTILOS DO MODAL DE PERMISSÃO
             const modal = document.getElementById("modal-programacao");
             if (modal) modal.style.display = "none";
         }
-
-        function abrirModalProgramacao() {
+            function abrirModalProgramacao() {
             const modal = document.getElementById("modal-programacao");
             const modalConteudo = document.getElementById("modal-conteudo-programacao");
             
@@ -758,14 +757,15 @@ ESTILOS DO MODAL DE PERMISSÃO
                     return;
                 }
 
+                // --- ESTILOS CORRIGIDOS AQUI ---
                 let tabelaHtml = `
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                         <thead style="background-color: #f0f0f0;">
                             <tr>
-                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Dia</th>
-                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Local</th>
-                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Horário</th>
-                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Dirigente</th>
+                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Dia</th>
+                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Local</th>
+                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Horário</th>
+                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Dirigente</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -774,13 +774,14 @@ ESTILOS DO MODAL DE PERMISSÃO
                 programacaoSemanal.forEach(item => {
                     tabelaHtml += `
                         <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>${item.day}</strong></td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${item.location || ''}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${item.time || ''}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${item.leader || ''}</td>
+                            <td style="border: 1px solid #ddd; padding: 6px;"><strong>${item.day}</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 6px;">${item.location || ''}</td>
+                            <td style="border: 1px solid #ddd; padding: 6px;">${item.time || ''}</td>
+                            <td style="border: 1px solid #ddd; padding: 6px;">${item.leader || ''}</td>
                         </tr>
                     `;
                 });
+                // --- FIM DAS CORREÇÕES ---
 
                 tabelaHtml += `</tbody></table>`;
                 modalConteudo.innerHTML = tabelaHtml;
@@ -790,7 +791,7 @@ ESTILOS DO MODAL DE PERMISSÃO
                 modalConteudo.innerHTML = "<p>Erro ao carregar a programação. Tente novamente.</p>";
             });
         }
-</script>
+       </script>
 
 <script>
     if ('serviceWorker' in navigator) {
