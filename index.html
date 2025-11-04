@@ -250,8 +250,9 @@ ESTILOS DO MODAL DE PERMISSÃO
             }, 3000);
         }
 
-        /**
+       /**
          * Lógica de Notificação (Específica do index.html)
+         * --- FUNÇÃO CORRIGIDA ---
          */
         function solicitarPermissaoNotificacao() {
             console.log("Pedindo permissão para notificações...");
@@ -259,20 +260,32 @@ ESTILOS DO MODAL DE PERMISSÃO
             Notification.requestPermission().then((permission) => {
                 if (permission === 'granted') {
                     console.log('Permissão concedida. A obter token...');
-                    messaging.getToken({ vapidKey: vapidKey })
-                        .then((currentToken) => {
-                            if (currentToken) {
-                                console.log('Token do utilizador:', currentToken);
-                                database.ref('subscriptions/' + currentToken).set(true);
-                                showToast("Notificações ativadas!", false); 
-                            } else {
-                                console.log('Não foi possível obter o token.');
-                                showToast("Permita as notificações nas definições do seu navegador.", true); 
-                            }
-                        }).catch((err) => {
-                            console.error('Ocorreu um erro ao obter o token.', err);
-                            showToast("Erro ao ativar notificações.", true); 
+                    
+                    // *** ESTA É A MUDANÇA PRINCIPAL ***
+                    // 1. Obter o service worker que JÁ registámos (o 'sw.js')
+                    navigator.serviceWorker.ready.then((registration) => {
+                        
+                        // 2. Passar esse registo para o 'getToken'
+                        return messaging.getToken({ 
+                            vapidKey: vapidKey, 
+                            serviceWorkerRegistration: registration 
                         });
+                    })
+                    .then((currentToken) => {
+                        if (currentToken) {
+                            console.log('Token do utilizador:', currentToken);
+                            database.ref('subscriptions/' + currentToken).set(true);
+                            showToast("Notificações ativadas!", false); 
+                        } else {
+                            console.log('Não foi possível obter o token.');
+                            showToast("Permita as notificações nas definições do seu navegador.", true); 
+                        }
+                    }).catch((err) => {
+                        console.error('Ocorreu um erro ao obter o token.', err);
+                        // Este é o erro que você está a ver agora
+                        showToast("Erro ao ativar notificações. (Verifique o console)", true); 
+                    });
+
                 } else if (permission === 'denied') {
                     console.log('Permissão negada.');
                     showToast("Você bloqueou as notificações. Ative-as nas definições do navegador.", true); 
@@ -281,7 +294,7 @@ ESTILOS DO MODAL DE PERMISSÃO
                 }
             });
         }
-
+        
 
         document.addEventListener("DOMContentLoaded", () => {
             
