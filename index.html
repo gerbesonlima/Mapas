@@ -10,14 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
-
     <link rel="manifest" href="manifest.json">
-
     <link rel="manifest" href="manifest.json">
-    
-
     
     <style>
         span {
@@ -96,7 +90,7 @@ ESTILOS DO TOAST (NOTIFICAÇÃO)
 
 
 /* ====================================================================
-ESTILOS DO MODAL DE PERMISSÃO
+ESTILOS DO MODAL (REMOVIDO O DE NOTIFICAÇÃO)
 ====================================================================
 */
 .modal-overlay {
@@ -138,33 +132,6 @@ ESTILOS DO MODAL DE PERMISSÃO
     margin-bottom: 25px;
     line-height: 1.5;
 }
-
-.modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.modal-button {
-    flex: 1; /* Ocupa metade do espaço */
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-#notificacao-sim {
-    background-color: #0a6f0e; /* Verde */
-    color: white;
-}
-
-#notificacao-nao {
-    background-color: #ddd; /* Cinza claro */
-    color: #333;
-}
-
     </style>
      <a href="territorios.html"><button>Todos os Territórios</button></a> <br>
 
@@ -186,10 +153,7 @@ ESTILOS DO MODAL DE PERMISSÃO
             <a href="instrucoes.html">Instruções de uso</a>
             <a href="https://drive.google.com/drive/folders/17xHF437Jhg3uzSI7jQRcs7rSoj15lCdn?usp=drive_link">Mapas do Drive</a>
             
-            <a href="#" onclick="solicitarPermissaoNotificacao(); return false;" style="color: #4a90e2; font-weight: bold;">
-                Ativar Notificações
-            </a>
-        </div>
+            </div>
         <a href="http://googleusercontent.com/maps/google.com/37">Mapa geral dos Territórios</a>
         <p>© 2025 Mapas dos Territórios</p>
     </footer>
@@ -219,27 +183,10 @@ ESTILOS DO MODAL DE PERMISSÃO
         // Inicializar todos os serviços necessários para ESTA PÁGINA
         const database = firebase.database();
         const storage = firebase.storage();
-        const messaging = firebase.messaging();
-        const functions = firebase.functions();
-        const vapidKey = "BEfYRfUWuPgJUiLBFdLY53K_L6yRc2V0k2mhOgaZ_ySh9E2NHmt0om81q-TBExLUi1Q8-5FSUGlQW8SheD_qkNs";
+        // Messaging e Functions REMOVIDOS
         // ==========================================================
 
-
-        // ==========================================================
-        // OUVINTE DE NOTIFICAÇÕES (QUANDO A PÁGINA ESTÁ ABERTA)
-        // ==========================================================
-        messaging.onMessage((payload) => {
-            console.log('Mensagem recebida em primeiro plano: ', payload);
-            
-            // Exibe a notificação usando o 'Toast' que já existe
-            const titulo = payload.notification.title;
-            const corpo = payload.notification.body;
-            
-            // Mostra um toast verde com a notificação
-            showToast(`${titulo}: ${corpo}`, false);
-        });
-        // ==========================================================
-
+        // Bloco messaging.onMessage() REMOVIDO
 
         /**
          * Exibe uma notificação toast
@@ -264,45 +211,7 @@ ESTILOS DO MODAL DE PERMISSÃO
             }, 3000);
         }
 
-       /**
-         * Lógica de Notificação (Específica do index.html)
-         */
-        function solicitarPermissaoNotificacao() {
-            console.log("Pedindo permissão para notificações...");
-            
-            Notification.requestPermission().then((permission) => {
-                if (permission === 'granted') {
-                    console.log('Permissão concedida. A obter token...');
-                    
-                    navigator.serviceWorker.ready.then((registration) => {
-                        
-                        return messaging.getToken({ 
-                            vapidKey: vapidKey, 
-                            serviceWorkerRegistration: registration 
-                        });
-                    })
-                    .then((currentToken) => {
-                        if (currentToken) {
-                            console.log('Token do utilizador:', currentToken);
-                            database.ref('subscriptions/' + currentToken).set(true);
-                            showToast("Notificações ativadas!", false); 
-                        } else {
-                            console.log('Não foi possível obter o token.');
-                            showToast("Permita as notificações nas definições do seu navegador.", true); 
-                        }
-                    }).catch((err) => {
-                        console.error('Ocorreu um erro ao obter o token.', err);
-                        showToast("Erro ao ativar notificações. (Verifique o console)", true); 
-                    });
-
-                } else if (permission === 'denied') {
-                    console.log('Permissão negada.');
-                    showToast("Você bloqueou as notificações. Ative-as nas definições do navegador.", true); 
-                } else {
-                    console.log('Permissão ignorada.');
-                }
-            });
-        }
+       // Função solicitarPermissaoNotificacao() REMOVIDA
         
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -363,31 +272,7 @@ ESTILOS DO MODAL DE PERMISSÃO
             }
             // --- FIM LÓGICA MODAL PROGRAMAÇÃO ---
 
-
-            // *** LÓGICA: MODAL DE PERMISSÃO DE NOTIFICAÇÃO ***
-            const modalNotif = document.getElementById("modal-notificacao");
-            const btnNotifSim = document.getElementById("notificacao-sim");
-            const btnNotifNao = document.getElementById("notificacao-nao");
-
-            if(btnNotifSim) {
-                btnNotifSim.addEventListener('click', () => {
-                    solicitarPermissaoNotificacao(); 
-                    modalNotif.style.display = "none";
-                });
-            }
-            if(btnNotifNao) {
-                btnNotifNao.addEventListener('click', () => {
-                    modalNotif.style.display = "none";
-                });
-            }
-
-            if (window.matchMedia('(display-mode: standalone)').matches && Notification.permission === 'default') {
-                setTimeout(() => {
-                    if (modalNotif) modalNotif.style.display = "block";
-                }, 2000);
-            }
-            // *** FIM DA LÓGICA DE PERMISSÃO ***
-
+            // Lógica do Modal de Permissão de Notificação REMOVIDA
 
             // O resto do seu código de carregar territórios
             carregarTerritoriosAbertos();
@@ -814,7 +699,8 @@ ESTILOS DO MODAL DE PERMISSÃO
                             `;
                             input.value = "";
 
-                            notificarEnvioDeAnexo(mapaId);
+                            // Chamada de notificação REMOVIDA
+                            // notificarEnvioDeAnexo(mapaId); 
 
                         })
                         .catch((err) => {
@@ -829,43 +715,10 @@ ESTILOS DO MODAL DE PERMISSÃO
         // === FIM DA FUNÇÃO RESTAURADA ===
         // ==========================================================
 
-        /**
-         * Prepara e chama a Cloud Function de notificação
-         */
-        function notificarEnvioDeAnexo(mapaId) {
-            
-            const mapaInfo = {
-                1: { nome: "1 Conjunto São Paulo" }, 2: { nome: "2 Curva São Paulo" }, 3: { nome: "3 Vila Beira Rio" }, 4: { nome: "4 Res Araguaia (parte A)" }, 5: { nome: "5 Res Araguaia (parte B)" }, 6: { nome: "6 Vila Bagda" }, 7: { nome: "7 Vila Firmino (parte A)" }, 8: { nome: "8 Vila Firmino (parte B)" }, 9: { nome: "9 Parque Poty (parte A)" }, 10: { nome: "10 Parque Poty (parte B)" }, 11: { nome: "11 Parque Poty (parte C)" }, 12: { nome: "12 Vila Poty" }, 13: { nome: "13 Sales" }, 14: { nome: "14 Cidade Nova" }, 15: { nome: "15 Porto Rico" }, 16: { nome: "16 Renascença I (parte A)" }, 17: { nome: "17 Renascença I (parte B)" }, 18: { nome: "18 Renascença I (parte C)" }, 19: { nome: "19 Renascença I (parte D)" }, 20: { nome: "20 Renascença III" }, 21: { nome: "21 Loteamento Renascença" }, 22: { nome: "22 Renascença III 3⁰ Etapa" }, 23: { nome: "23 Porto Rico II" }, 24: { nome: "24 Andaraí" }, 25: { nome: "25 Jardim dos Pássaros" }, 26: { nome: "26 Washington" }, 27: { nome: "27 Vitória Régia" }, 28: { nome: "28 Sertãozinho" }, 29: { nome: "29 Canaxuê" }, 30: { nome: "30 Conj Novo Milênio" }, 31: { nome: "31 Conj Todos os Santos (parte A)" }, 32: { nome: "32 Conj Todos os Santos (parte B)" }, 33: { nome: "33 Deus Proverá" }, 34: { nome: "34 Loteamento Todos os Santos Lado Direito" }, 35: { nome: "35 Povoado Jumento - Continuação" }, 36: { nome: "36 Pedro Balzi - Vila Nova Esperança" }, 37: { nome: "37 Pedro Balzi - Frente para o Conjunto" }, 38: { nome: "38 Pedro Balzi - Parte de Cima do Morro" }
-            };
-
-            const nomeMapa = mapaInfo[mapaId] ? mapaInfo[mapaId].nome : `Mapa ${mapaId}`;
-
-            // *** AQUI ESTÃO OS DADOS OBRIGATÓRIOS ***
-            const titulo = "Novo Anexo Enviado";
-            const corpo = `Um novo anexo foi enviado para o ${nomeMapa}. Abra a app para ver.`;
-
-            showToast("A enviar notificação para todos...");
-            
-            const enviarNotificacaoPush = functions.httpsCallable('enviarNotificacaoPush');
-            
-            // *** AQUI ESTÁ A CHAMADA CORRETA ***
-            enviarNotificacaoPush({ titulo: titulo, corpo: corpo })
-                .then((result) => {
-                    // Se a função retornar sucesso...
-                    if (result.data.sucesso) {
-                        showToast(`Notificação enviada para ${result.data.totalEnviado} dispositivo(s)!`);
-                    } else {
-                        // Se a função retornar um erro (o que aconteceu com você)
-                        showToast('Erro ao enviar notificação: ' + result.data.erro, true);
-                    }
-                })
-                .catch((error) => {
-                    // Se a "ligação" para a função falhar (o erro que você VIA ANTES)
-                    console.error('Erro ao chamar a Cloud Function:', error);
-                    showToast('Erro grave ao enviar notificação. A Cloud Function pode não estar implantada.', true);
-                });
-        }
         
+        // Função notificarEnvioDeAnexo() REMOVIDA
+        
+
         // ==========================================================
         // === INÍCIO DA FUNÇÃO (iniciarMapa) ===
         // ==========================================================
@@ -1004,32 +857,6 @@ ESTILOS DO MODAL DE PERMISSÃO
             });
         }
        </script>
-<script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        // *** CORREÇÃO APLICADA AQUI ***
-        navigator.serviceWorker.register('sw.js') 
-          .then(registration => {
-            console.log('Service Worker registrado com sucesso.');
-          })
-          .catch(error => {
-            console.error('Falha ao registrar Service Worker:', error);
-          });
-      });
-    }
-</script>
-
-<div id="modal-notificacao" class="modal-overlay">
-    <div class="modal-content">
-        <h2>Ativar Notificações?</h2>
-        <p>Gostaria de receber notificações sobre atualizações importantes dos mapas e do aplicativo?</p>
-        <div class="modal-buttons">
-            <button id="notificacao-nao" class="modal-button">Agora não</button>
-            <button id="notificacao-sim" class="modal-button">Sim, ativar</button>
-        </div>
-    </div>
-</div>
-
 <div id="modal-programacao" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
     <div style="background-color: #fefefe; margin: 20% auto; padding: 2px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
         
