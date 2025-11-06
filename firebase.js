@@ -1,4 +1,5 @@
 // CONTEÚDO CORRETO PARA: firebase.js
+// (Com a função de "Lembrar Login" adicionada)
 
 const firebaseConfig = {
     apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
@@ -60,23 +61,52 @@ let activeCycleDataIndex = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    const senhaBtn = document.getElementById("senha"); 
-    if (senhaBtn) {
-        // ESTAMOS NA PÁGINA DE ADMIN (territorios.html)
-        document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
-        document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
-        document.getElementById("sair-btn").style.display = "none";
-        document.getElementById("limpar-tudo-btn").style.display = "none";
-        document.getElementById("relatorio-btn").style.display = "none";
-        document.getElementById("recuperar-dados-btn").style.display = "none";
-        document.getElementById("editar-campo-btn").style.display = "none";
+    // <-- INÍCIO DA MODIFICAÇÃO 1: VERIFICAR SE JÁ ESTÁ LOGADO -->
+    if (localStorage.getItem('territoriosLogado') === 'true') {
+        // Se já estiver logado, esconde os campos de senha
+        const labelSenha = document.querySelector('label[for="senha"]');
+        const inputSenha = document.getElementById('senha');
+        const btnEntrar = document.querySelector('button[onclick="verificarSenha()"]');
         
-        document.querySelectorAll("textarea").forEach(textarea => {
-            textarea.addEventListener("input", autoResizeTextarea);
-        });
+        if (labelSenha) labelSenha.style.display = 'none';
+        if (inputSenha) inputSenha.style.display = 'none';
+        if (btnEntrar) btnEntrar.style.display = 'none';
+
+        // E mostra os botões de admin (exatamente como a função verificarSenha() faria)
+        document.querySelectorAll(".info").forEach(campo => campo.style.display = "block");
+        document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "inline");
+        document.getElementById("sair-btn").style.display = "inline";
+        document.getElementById("limpar-tudo-btn").style.display = "inline";
+        document.getElementById("relatorio-btn").style.display = "inline";
+        document.getElementById("editar-campo-btn").style.display = "inline";
+        document.querySelectorAll(".compartilhar-btn").forEach(btn => btn.style.display = "inline-block");
+        const removerBtn = document.getElementById("remover-designado-btn");
+        if(removerBtn) removerBtn.style.display = "inline-block";
         
-        loadActiveCycleDetailsForIndex();
+        // O botão "recuperar-dados-btn" continua escondido, o que está correto
+        
+    } else {
+        // Se NÃO estiver logado, roda o código original para esconder tudo
+        const senhaBtn = document.getElementById("senha"); 
+        if (senhaBtn) {
+            // ESTAMOS NA PÁGINA DE ADMIN (territorios.html)
+            document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
+            document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
+            document.getElementById("sair-btn").style.display = "none";
+            document.getElementById("limpar-tudo-btn").style.display = "none";
+            document.getElementById("relatorio-btn").style.display = "none";
+            document.getElementById("recuperar-dados-btn").style.display = "none";
+            document.getElementById("editar-campo-btn").style.display = "none";
+        }
     }
+    // <-- FIM DA MODIFICAÇÃO 1 -->
+
+    // O resto do código original do "DOMContentLoaded" continua aqui
+    document.querySelectorAll("textarea").forEach(textarea => {
+        textarea.addEventListener("input", autoResizeTextarea);
+    });
+    
+    loadActiveCycleDetailsForIndex();
 });
 
 function autoResizeTextarea() {
@@ -96,10 +126,15 @@ function toggleList(id) {
     }
 }
 
-// ... (todas as suas outras funções: verificarSenha, sair, limparTudo, etc.) ...
+// ... (todas as suas outras funções: sair, limparTudo, etc.) ...
 function verificarSenha() {
     const senha = document.getElementById("senha").value.trim();
     if (senha === senhaCorreta) {
+        
+        // <-- MODIFICAÇÃO 2: SALVAR O LOGIN NA MEMÓRIA -->
+        localStorage.setItem('territoriosLogado', 'true');
+        
+        // Código original:
         document.querySelectorAll(".info").forEach(campo => campo.style.display = "block");
         document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "inline");
         document.getElementById("sair-btn").style.display = "inline";
@@ -128,6 +163,11 @@ function verificarSenha() {
 }
 
 function sair() {
+    // <-- MODIFICAÇÃO 3: LIMPAR O LOGIN DA MEMÓRIA E RECARREGAR A PÁGINA -->
+    localStorage.removeItem('territoriosLogado');
+    location.reload(); 
+    
+    // O código abaixo ainda roda, mas o usuário não verá o alerta porque a página recarrega
     document.querySelectorAll(".info").forEach(campo => campo.style.display = "none");
     document.querySelectorAll(".designar-btn").forEach(btn => btn.style.display = "none");
     document.getElementById("sair-btn").style.display = "none";

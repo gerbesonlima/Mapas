@@ -547,3 +547,78 @@ footer p {
         transition: none !important;
     }
 }
+
+/* ================================================= */
+/* === MODIFICAÇÕES PARA LISTA SIMPLES E ABERTA === */
+/* ================================================= */
+
+/* 1. REMOVE O ESTILO DE CARD (transforma em lista simples) */
+
+.grupo-lista {
+    background: none; /* Remove fundo branco */
+    box-shadow: none; /* Remove sombra */
+    border: none; /* Remove borda */
+    padding: 0;
+    margin-top: 5px; 
+}
+
+.mapa-item {
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 0; 
+    padding: 10px 8px; 
+    border-bottom: 1px solid var(--divider-color); /* Linha separadora */
+}
+
+/* Remove o efeito 'hover' dos cards */
+.card:hover, .mapa-item:hover {
+    box-shadow: none;
+    transform: none; 
+}
+
+.grupo-lista .mapa-item:last-child {
+    border-bottom: none; /* Remove linha do último item */
+}
+
+/* Ajusta telas maiores para não usar grid (mantém formato de lista) */
+@media (min-width: 900px) {
+    .grupo-lista {
+        grid-template-columns: none; /* Remove o layout de grid */
+        padding: 0; /* Remove padding extra */
+        
+        /* Re-aplica estilos "sem card" */
+        background: none;
+        box-shadow: none;
+        border: none;
+    }
+    .grupo-lista .mapa-item {
+        border: none; 
+        box-shadow: none;
+        border-bottom: 1px solid var(--divider-color); 
+    }
+    .grupo-lista .mapa-item:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* 2. FAZ A LISTA CARREGAR ABERTA (inverte a lógica do 'toggle') */
+
+/* Esta regra sobrescreve a original '.grupo-lista { display: none; }' */
+.grupo-lista {
+    display: block; /* Força a lista a CARREGAR ABERTA */
+}
+
+/* Inverte a lógica da seta (chevron) */
+
+/* Estado padrão (agora "aberto") */
+.grupo-titulo::after {
+    transform: rotate(180deg); /* Seta aponta para cima */
+}
+
+/* Quando a classe 'active' for adicionada pelo JS (no primeiro clique), 
+   a seta gira de volta (indicando "fechado") */
+.grupo-titulo.active::after {
+    transform: rotate(0deg); 
+}
