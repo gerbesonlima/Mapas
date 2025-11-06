@@ -1,10 +1,10 @@
-// Nome do arquivo: sw.js
+// sw.js - O ÚNICO Service Worker de que precisa
 
 // 1. Importar os scripts do Firebase Messaging
 importScripts("https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js");
 
-// 2. As suas credenciais do Firebase
+// 2. As suas credenciais do Firebase (copiadas do seu index.html)
 const firebaseConfig = {
     apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
     authDomain: "territorios-3d0bb.firebaseapp.com",
@@ -23,7 +23,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
     console.log('[sw.js] Recebida mensagem em background: ', payload);
     
-    // Título e corpo vêm da Cloud Function
+    // Título e corpo vêm da Cloud Function que criámos
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
@@ -31,4 +31,15 @@ messaging.onBackgroundMessage((payload) => {
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// 5. Lógica PWA (o seu código antigo do sw.js)
+self.addEventListener('install', (event) => {
+  console.log('Service Worker (PWA + Messaging) instalado com sucesso.');
+});
+
+self.addEventListener('fetch', (event) => {
+  // Por enquanto, não fazemos cache, apenas 
+  // passamos a requisição para a rede.
+  event.respondWith(fetch(event.request));
 });
