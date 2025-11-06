@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relatório Mensal - Congregação São Paulo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary-color: #1976D2; /* Azul Material Design (de inicio.html) */
+      --primary-hover-color: #43A047; /* Mantido verde para botões */
+      --danger-color: #dc3545;
+      --background-color: #f4f6f8; /* Fundo (de inicio.html) */
+      --card-bg: #fff;
+      --text-color: #333;
+      --label-color: #444;
+      --border: #ced4da;
+      --focus-shadow: rgba(46,125,50,0.18);
+      --max-width: 680px;
+      
+      /* Variáveis de inicio.html */
+      --primary-dark-color: #004BA0;
+      --accent-color: #FFC107; 
+      --text-light-color: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html,body { height: 100%; }
+    
+    /* --- ESTILO DO BODY MODIFICADO (como inicio.html) --- */
+    body{
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* --- ESTILOS ADICIONADOS DE inicio.html --- */
+    
+    /* --- Cabeçalho Superior (Toolbar) --- */
+    .app-header {
+        background-color: var(--primary-color);
+        color: var(--text-light-color);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        position: sticky; /* Fica fixo no topo */
+        top: 0;
+        z-index: 1000;
+        font-family: 'Roboto', sans-serif; /* Fonte do cabeçalho */
+    }
+    .header-title {
+        font-size: 1.2em;
+        font-weight: 500;
+    }
+    .header-icons {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .header-icons svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--text-light-color);
+    }
+
+    /* --- Barra de Navegação com Abas --- */
+    .app-nav {
+        background-color: var(--primary-color);
+        overflow-x: auto; /* Permite rolar as abas */
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        font-family: 'Roboto', sans-serif; /* Fonte do cabeçalho */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra suave */
+    }
+    .app-nav::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+    .app-nav ul {
+        display: flex;
+        list-style-type: none;
+        margin: 0;
+        padding: 0 8px;
+        white-space: nowrap; /* Impede que as abas quebrem a linha */
+    }
+    .app-nav li a {
+        display: block;
+        padding: 14px 16px;
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        border-bottom: 3px solid transparent;
+        transition: color 0.3s;
+    }
+    .app-nav li a.active {
+        color: var(--text-light-color);
+        border-bottom: 3px solid var(--accent-color);
+    }
+
+    /* --- Conteúdo Principal (para padding) --- */
+    .main-content {
+        padding: 16px;
+    }
+
+    /* --- FIM DOS ESTILOS ADICIONADOS --- */
+
+
+    /* Estilos do Formulário (relatorio2.html) */
+    .container{
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      /* ADICIONADO para centralizar o card na página */
+      margin: 0 auto; 
+    }
+
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { margin: 0; color: var(--primary-color); font-size: 1.5rem; }
+    .header p { margin: 6px 0 0; color: var(--label-color); font-weight: 500; }
+
+    .form-group { margin-bottom: 16px; }
+    label { display:block; margin-bottom:8px; color:var(--label-color); font-weight:600; }
+    select, input[type="number"], textarea {
+      width:100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: box-shadow .15s, border-color .15s;
+    }
+    select:focus, input[type="number"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 6px var(--focus-shadow);
+    }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .radio-group { display:flex; gap:12px; align-items:center; }
+    .radio-group label { font-weight:500; cursor:pointer; display:flex; gap:8px; align-items:center; }
+
+    button {
+      font-weight:700;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    #submit-button {
+      width: 100%;
+      background: var(--primary-color);
+      color: #fff;
+    }
+    #submit-button:hover:not(:disabled) { background: #1565C0; } /* Tom de azul mais escuro */
+    button:disabled { background:#ccc; cursor:not-allowed; }
+
+    #pioneer-details { display:none; background:#f8f9fa; padding:12px; border-radius:8px; margin-top:8px; }
+
+    /* feedback screens */
+    .hidden { display:none !important; }
+    #success-screen {
+      text-align:center; padding:20px; border-radius:12px; background:#e6f4ea; border:1px solid #cce3d6;
+    }
+    #success-screen h2 { color: #155724; margin:0 0 8px; }
+    .button-group { display:flex; gap:12px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+    #new-report-btn { background:var(--primary-color); color:#fff; }
+    #exit-btn { background:#b12222; color:#fff; }
+
+    #error-message { color:#721c24; background:#f8d7da; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-top:12px; }
+
+    /* loading */
+    #loading { display:flex; align-items:center; gap:12px; justify-content:center; padding:16px; color:var(--primary-color); }
+    .spinner { width:36px;height:36px;border:4px solid #c8e6c9;border-top-color:var(--primary-color);border-radius:50%;animation:spin 0.9s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* modal */
+    #confirmation-modal {
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.55); z-index:9999; visibility:hidden; opacity:0; transition:opacity .2s, visibility .2s;
+    }
+    #confirmation-modal.show { visibility:visible; opacity:1; }
+    .modal-content {
+      background:var(--card-bg); padding:18px; border-radius:12px; width: min(520px, 92%); box-shadow:0 8px 30px rgba(0,0,0,0.3);
+      transform: translateY(-18px); transition:transform .2s;
+    }
+    #confirmation-modal.show .modal-content { transform: translateY(0); }
+    .modal-buttons { display:flex; gap:12px; justify-content:flex-end; margin-top:16px; }
+
+    /* responsive */
+    @media (max-width:520px){
+      .container{ padding:18px; }
+      .header h1{ font-size:1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  
+  <header class="app-header">
+      <div class="header-title">Congregação São Paulo</div>
+      <div class="header-icons">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </div>
+  </header>
+
+  <nav class="app-nav">
+      <ul>
+          <li><a href="inicio.html">Início</a></li>
+          <li><a href="relatorio2.html" class="active">Entregar Relatorio</a></li>
+      </ul>
+  </nav>
+  <main class="main-content">
+    <div class="container" role="main" aria-labelledby="page-title">
+      <div class="header">
+        <h1 id="page-title">Relatório Mensal de Publicadores</h1>
+        <p>Congregação São Paulo</p>
+      </div>
+
+      <div id="loading" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <div id="loading-text">Carregando...</div>
+      </div>
+
+      <form id="report-form" class="hidden" novalidate>
+        <div class="form-group">
+          <label for="group-select">1. Selecione o seu Grupo:</label>
+          <select id="group-select" name="group" required>
+            <option value="">-- Carregando grupos --</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="name-select">2. Selecione o seu Nome:</label>
+          <select id="name-select" name="name" required disabled>
+            <option value="">-- Primeiro escolha um grupo --</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="month-select">3. Selecione o Mês Trabalhado:</label>
+          <select id="month-select" name="month" required></select>
+        </div>
+  
+        <div class="form-group">
+          <label for="participated-select">4. Você participou de alguma modalidade no ministério este mês?</label>
+          <select id="participated-select" name="participatedInMinistry" required>
+            <option value="">-- Selecione --</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="study-count">5. Quantos estudos bíblicos dirigiu?</label>
+          <input type="number" id="study-count" name="studyCount" min="0" placeholder="Digite a quantidade..." required>
+        </div>
+  
+        <div class="form-group">
+          <label>6. Você está de Pioneiro?</label>
+          <div class="radio-group" role="radiogroup" aria-label="É Pioneiro?">
+            <label><input type="radio" name="isPioneer" value="Sim" required> Sim</label>
+            <label><input type="radio" name="isPioneer" value="Não" checked> Não</label>
+          </div>
+        </div>
+  
+        <div id="pioneer-details" class="form-group" aria-hidden="true">
+          <label for="pioneer-type">Tipo de Pioneiro:</label>
+          <select id="pioneer-type" name="pioneerType">
+            <option value="">-- Selecione --</option>
+            <option value="Regular">Regular</option>
+            <option value="Auxiliar">Auxiliar</option>
+          </select>
+          <div style="height:10px;"></div>
+          <label for="pioneer-hours">Quantas horas fez no mês?</label>
+          <input type="number" id="pioneer-hours" name="hours" min="0" placeholder="Digite a quantidade...">
+        </div>
+  
+        <div class="form-group">
+          <label for="observations">7. Observações (opcional):</label>
+          <textarea id="observations" name="observations" placeholder="Observações..."></textarea>
+        </div>
+  
+        <button type="submit" id="submit-button">Enviar Relatório</button>
+      </form>
+  
+      <div id="success-screen" class="hidden" role="status" aria-live="polite">
+        <h2>✅ Enviado com Sucesso!</h2>
+        <p>Seu relatório foi registrado. Obrigado.</p>
+        <div class="button-group">
+          <button id="new-report-btn">Enviar Outro Relatório</button>
+          <button id="exit-btn">Sair</button>
+        </div>
+      </div>
+  
+      <div id="error-message" class="hidden" role="alert"></div>
+  
+      <div id="goodbye-screen" class="hidden">
+        <h2>Obrigado!</h2>
+        <p>Você pode fechar esta página.</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="confirmation-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Confirme seus dados">
+    <div class="modal-content" role="document">
+      <h3 style="margin-top:0;color:var(--primary-color)">Confirme seus Dados</h3>
+      <div id="confirmation-details" style="line-height:1.5;"></div>
+      <div class="modal-buttons">
+        <button id="edit-button" style="background:#ccc;">Voltar e Editar</button>
+        <button id="confirm-send" style="background:var(--primary-color); color:#fff;">Confirmar Envio</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Todo o seu JavaScript continua exatamente o mesmo aqui
+    // ... (SCRIPT_URL, elementos, funções, etc.) ...
+    
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKs2WvHJwY7npdYszpPNxT2cUc6RA0KzU1S2yv4D2-8Cv-d1iCOkeGColgzYMyJ7xiWw/exec";
+
+    // Elementos
+    const form = document.getElementById('report-form');
+    const loadingDiv = document.getElementById('loading');
+    const loadingText = document.getElementById('loading-text');
+    const groupSelect = document.getElementById('group-select');
+    const nameSelect = document.getElementById('name-select');
+    const monthSelect = document.getElementById('month-select');
+    const pioneerDetails = document.getElementById('pioneer-details');
+    const pioneerType = document.getElementById('pioneer-type');
+    const pioneerHours = document.getElementById('pioneer-hours');
+    const isPioneerRadios = document.querySelectorAll('input[name="isPioneer"]');
+    const submitButton = document.getElementById('submit-button');
+    const successScreen = document.getElementById('success-screen');
+    const errorMessage = document.getElementById('error-message');
+    const newReportBtn = document.getElementById('new-report-btn');
+    const exitBtn = document.getElementById('exit-btn');
+    const goodbyeScreen = document.getElementById('goodbye-screen');
+
+    // Modal
+    const modal = document.getElementById('confirmation-modal');
+    const confirmationDetails = document.getElementById('confirmation-details');
+    const confirmSendBtn = document.getElementById('confirm-send');
+    const editButton = document.getElementById('edit-button');
+
+    // Estado
+    let groupsData = {};            // Estrutura: { "Grupo A": ["Nome1", "Nome2"], ... }
+    let currentFormData = {};       // Dados temporários para confirmar/enviar
+
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateMonthSelect();
+      fetchGroups();
+      attachListeners();
+    });
+
+    function populateMonthSelect(){
+      const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+      const now = new Date();
+      monthSelect.innerHTML = '<option value="">-- Selecione --</option>';
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const label = `${months[d.getMonth()]} de ${d.getFullYear()}`;
+        const value = `${months[d.getMonth()]}/${d.getFullYear()}`;
+        monthSelect.add(new Option(label, value));
+      }
+    }
+
+    /* -----------------------------
+       FETCH GROUPS (com cache)
+       - Tenta sessionStorage primeiro
+       - Se falhar, chama o Apps Script
+    ------------------------------*/
+    async function fetchGroups(){
+      try {
+        // Tenta carregar cache local primeiro
+        const cached = sessionStorage.getItem('groupsData_v1');
+        if (cached) {
+          groupsData = JSON.parse(cached);
+          populateGroups(groupsData);
+          loadingDiv.classList.add('hidden');
+          form.classList.remove('hidden');
+          return;
+        }
+
+        // Chamando endpoint
+        loadingText.textContent = 'Carregando grupos...';
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getGroupNames' })
+        });
+
+        if (!res.ok) throw new Error('Resposta do servidor não OK');
+
+        const data = await res.json();
+
+        // Se o script responder {status:'error', message:...}
+        if (data && data.status === 'error') {
+          throw new Error(data.message || 'Erro ao obter grupos');
+        }
+
+        groupsData = data || {};
+        sessionStorage.setItem('groupsData_v1', JSON.stringify(groupsData));
+        populateGroups(groupsData);
+
+        loadingDiv.classList.add('hidden');
+        form.classList.remove('hidden');
+
+      } catch (err) {
+        console.error('fetchGroups erro:', err);
+        loadingText.textContent = '❌ Erro ao carregar grupos. Recarregue a página.';
+      }
+    }
+
+    function populateGroups(data){
+      groupSelect.innerHTML = '<option value="">-- Selecione --</option>';
+      const groups = Object.keys(data).sort((a,b) => a.localeCompare(b, 'pt-BR'));
+      groups.forEach(g => groupSelect.add(new Option(g, g)));
+    }
+
+    /* -----------------------------
+       FETCH NAMES POR GRUPO (lazy load)
+       - Também atualiza cache local para remover nomes já usados
+    ------------------------------*/
+    async function fetchNamesByGroup(group){
+      nameSelect.innerHTML = '<option value="">Carregando nomes...</option>';
+      nameSelect.disabled = true;
+
+      try {
+        // Se tivermos no cache (groupsData) e o grupo já tenha nomes — usar cache
+        if (groupsData && Array.isArray(groupsData[group]) && groupsData[group].length > 0) {
+          populateNames(group, groupsData[group]);
+          return;
+        }
+
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getNamesByGroup', group })
+        });
+
+        if (!res.ok) throw new Error('Erro ao carregar nomes');
+
+        const names = await res.json();
+        populateNames(group, Array.isArray(names) ? names : []);
+      } catch (err) {
+        console.error('fetchNamesByGroup erro:', err);
+        nameSelect.innerHTML = '<option value="">Erro ao carregar nomes</option>';
+      }
+    }
+
+    function populateNames(group, names){
+      nameSelect.innerHTML = '<option value="">-- Selecione --</option>';
+      const sorted = (names || []).slice().sort((a,b) => a.localeCompare(b, 'pt-BR'));
+      sorted.forEach(n => nameSelect.add(new Option(n, n)));
+      nameSelect.disabled = false;
+    }
+
+    /* -----------------------------
+       PIONEER visibility
+    ------------------------------*/
+    function attachListeners(){
+      groupSelect.addEventListener('change', async () => {
+        const group = groupSelect.value;
+        if (!group) {
+          nameSelect.innerHTML = '<option value="">-- Primeiro escolha um grupo --</option>';
+          nameSelect.disabled = true;
+          return;
+        }
+
+        // Lazy load nomes
+        await fetchNamesByGroup(group);
+      });
+
+      isPioneerRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          const isYes = radio.value === 'Sim' && radio.checked;
+          pioneerDetails.style.display = isYes ? 'block' : 'none';
+          pioneerType.required = isYes;
+          pioneerHours.required = isYes;
+          pioneerDetails.setAttribute('aria-hidden', !isYes);
+          if (!isYes) { pioneerType.value = ''; pioneerHours.value = ''; }
+        });
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        currentFormData = collectFormData();
+        showConfirmationModal(currentFormData);
+      });
+
+      confirmSendBtn.addEventListener('click', async () => {
+        modal.classList.remove('show');
+        await sendReport(currentFormData);
+      });
+
+      editButton.addEventListener('click', () => {
+        modal.classList.remove('show');
+      });
+
+      newReportBtn.addEventListener('click', () => {
+        successScreen.classList.add('hidden');
+        form.classList.remove('hidden');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Enviar Relatório';
+      });
+
+      newReportBtn.addEventListener('click', () => {
+        location.reload();
+});
+
+
+      exitBtn.addEventListener('click', () => {
+        successScreen.classList.add('hidden');
+        goodbyeScreen.classList.remove('hidden');
+      });
+    }
+
+    function collectFormData(){
+      const fd = new FormData(form);
+      const isP = fd.get('isPioneer');
+      return {
+        group: fd.get('group'),
+        name: fd.get('name'),
+        month: fd.get('month'),
+        participatedInMinistry: fd.get('participatedInMinistry'),
+        studyCount: fd.get('studyCount'),
+        isPioneer: isP,
+        pioneerType: isP === 'Sim' ? fd.get('pioneerType') : 'N/A',
+        hours: isP === 'Sim' ? fd.get('hours') : 'N/A',
+        observations: fd.get('observations') ? fd.get('observations').trim() : 'Nenhuma'
+      };
+    }
+
+    function showConfirmationModal(data){
+      let html = `
+        <p><strong>Grupo:</strong> ${escapeHtml(data.group)}</p>
+        <p><strong>Nome:</strong> ${escapeHtml(data.name)}</p>
+        <p><strong>Mês:</strong> ${escapeHtml(data.month)}</p>
+        <p><strong>Participou do ministério:</strong> ${escapeHtml(data.participatedInMinistry)}</p>
+        <p><strong>Estudos bíblicos:</strong> ${escapeHtml(data.studyCount)}</p>
+        <p><strong>É Pioneiro:</strong> ${escapeHtml(data.isPioneer)}</p>
+      `;
+      if (data.isPioneer === 'Sim') {
+        html += `<p><strong>Tipo:</strong> ${escapeHtml(data.pioneerType)}</p>
+                 <p><strong>Horas:</strong> ${escapeHtml(data.hours)}</p>`;
+      }
+      html += `<p><strong>Observações:</strong> ${escapeHtml(data.observations)}</p>`;
+      confirmationDetails.innerHTML = html;
+      modal.classList.add('show');
+    }
+
+    // Pequena função de escape para evitar injeção de HTML no modal
+    function escapeHtml(str = '') {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* -----------------------------
+       Envio com retry/backoff
+       - Atualiza cache local (removendo o nome enviado) para que
+         usuários usando a mesma sessão não vejam o nome já usado
+    ------------------------------*/
+    async function sendReport(data, attempt = 1){
+      try {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando... 🔄';
+        errorMessage.classList.add('hidden');
+
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'saveData', data })
+        });
+
+        if (!res.ok) throw new Error('Resposta do servidor não OK');
+
+        const result = await res.json();
+
+        if (!result || result.status !== 'success') {
+          const msg = (result && result.message) ? result.message : 'Erro no servidor';
+          throw new Error(msg);
+        }
+
+        // Remover localmente o nome do cache para que não apareça em novos selects nesta sessão
+        removeNameFromLocalCache(data.group, data.name);
+
+        // Mostrar sucesso
+        form.reset();
+        pioneerDetails.style.display = 'none';
+        form.classList.add('hidden');
+        successScreen.classList.remove('hidden');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Enviar Relatório';
+
+      } catch (err) {
+        console.warn(`Envio tentativa ${attempt} falhou:`, err);
+        if (attempt < 3) {
+          // backoff exponencial leve
+          await delay(400 * attempt);
+          return sendReport(data, attempt + 1);
+        }
+        errorMessage.textContent = `❌ Erro ao enviar: ${err.message || 'Verifique a conexão.'}`;
+        errorMessage.classList.remove('hidden');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Enviar Relatório';
+      }
+    }
+
+    function removeNameFromLocalCache(group, name){
+      try {
+        const raw = sessionStorage.getItem('groupsData_v1');
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (!obj[group]) return;
+        const idx = obj[group].findIndex(n => n === name);
+        if (idx !== -1) {
+          obj[group].splice(idx, 1);
+          sessionStorage.setItem('groupsData_v1', JSON.stringify(obj));
+        }
+        // Se o current loaded group is the same, update the select UI
+        if (groupSelect.value === group) {
+          const optIndex = Array.from(nameSelect.options).findIndex(o => o.value === name);
+          if (optIndex > -1) nameSelect.remove(optIndex);
+        }
+      } catch (e) {
+        console.warn('Falha ao atualizar cache local:', e);
+      }
+    }
+
+    // Utility: limpa cache caso deseje forçar reload manual (não usado automaticamente)
+    function clearLocalGroupsCache(){
+      sessionStorage.removeItem('groupsData_v1');
+    }
+
+  </script>
+</body>
+</html>
