@@ -252,7 +252,6 @@ ESTILOS DO MODAL DE PERMISSÃO
 
        /**
          * Lógica de Notificação (Específica do index.html)
-         * --- FUNÇÃO CORRIGIDA ---
          */
         function solicitarPermissaoNotificacao() {
             console.log("Pedindo permissão para notificações...");
@@ -261,11 +260,8 @@ ESTILOS DO MODAL DE PERMISSÃO
                 if (permission === 'granted') {
                     console.log('Permissão concedida. A obter token...');
                     
-                    // *** ESTA É A MUDANÇA PRINCIPAL ***
-                    // 1. Obter o service worker que JÁ registámos (o 'sw.js')
                     navigator.serviceWorker.ready.then((registration) => {
                         
-                        // 2. Passar esse registo para o 'getToken'
                         return messaging.getToken({ 
                             vapidKey: vapidKey, 
                             serviceWorkerRegistration: registration 
@@ -282,7 +278,6 @@ ESTILOS DO MODAL DE PERMISSÃO
                         }
                     }).catch((err) => {
                         console.error('Ocorreu um erro ao obter o token.', err);
-                        // Este é o erro que você está a ver agora
                         showToast("Erro ao ativar notificações. (Verifique o console)", true); 
                     });
 
@@ -362,7 +357,7 @@ ESTILOS DO MODAL DE PERMISSÃO
 
             if(btnNotifSim) {
                 btnNotifSim.addEventListener('click', () => {
-                    solicitarPermissaoNotificacao(); // Esta função está agora neste script
+                    solicitarPermissaoNotificacao(); 
                     modalNotif.style.display = "none";
                 });
             }
@@ -412,6 +407,13 @@ ESTILOS DO MODAL DE PERMISSÃO
             }
         }
 
+        // ==========================================================
+        // === INÍCIO DA FUNÇÃO MODIFICADA (carregarTerritoriosAbertos) ===
+        // ==========================================================
+        /**
+         * FUNÇÃO MODIFICADA
+         * Carrega a programação e os territórios (Em andamento OU Disponíveis)
+         */
         function carregarTerritoriosAbertos() {
             const container = document.getElementById("territorios-container");
             container.innerHTML = "<p>Carregando programação e territórios...</p>";
@@ -473,6 +475,7 @@ ESTILOS DO MODAL DE PERMISSÃO
                 const scheduleData = scheduleSnapshot.val() || [];
                 const todaySchedule = scheduleData.find(item => item.day === todayString);
 
+                // Mostra a programação do dia
                 let scheduleHtml = "";
                 if (todaySchedule) {
                     scheduleHtml = `
@@ -503,6 +506,7 @@ ESTILOS DO MODAL DE PERMISSÃO
                     tituloH2.addEventListener('click', abrirModalProgramacao);
                 }
 
+                // Define quais grupos processar
                 let gruposParaProcessar = [];
                 let locationName = "";
                 
@@ -522,22 +526,35 @@ ESTILOS DO MODAL DE PERMISSÃO
                     locationName = "Todos os grupos"; 
                 }
 
+                // Busca os dados dos mapas
                 database.ref("mapas").once("value", mapsSnapshot => {
                     const mapas = mapsSnapshot.val() || {};
-                    let hasOpenTerritories = false;
+                    let hasTerritories = false; // Para rastrear se encontramos algum mapa (aberto ou disponível)
 
                     gruposParaProcessar.forEach(grupo => {
+                        
+                        // 1. Busca mapas EM ANDAMENTO
                         const mapasAbertos = grupo.mapaIds
                             .map(id => ({ id, dados: mapas[id] }))
                             .filter(mapa => mapa.dados && mapa.dados.status === "Status: Em andamento");
 
+                        // 2. Busca mapas DISPONÍVEIS (Não iniciados ou nunca tocados)
+                        const mapasDisponiveis = grupo.mapaIds
+                            .map(id => ({ id, dados: mapas[id] }))
+                            .filter(mapa => 
+                                !mapa.dados || // Nunca foi tocado
+                                !mapa.dados.status || // Não tem status
+                                mapa.dados.status === "Status: Não iniciado"
+                            );
+
+                        // --- LÓGICA 1: Se houver mapas EM ANDAMENTO, mostra-os ---
                         if (mapasAbertos.length > 0) {
-                            hasOpenTerritories = true;
+                            hasTerritories = true; // Encontramos territórios
                             
                             const grupoDiv = document.createElement("div");
                             grupoDiv.className = "grupo";
                             grupoDiv.innerHTML = `
-                                <div class="grupo-titulo active" onclick="toggleList('${grupo.id}')">${grupo.nome}</div>
+                                <div class="grupo-titulo active" onclick="toggleList('${grupo.id}')">${grupo.nome} (Em Andamento)</div>
                                 <div class="grupo-lista card-grid" id="${grupo.id}" style="display: grid;">
                                 </div>
                             `;
@@ -546,6 +563,11 @@ ESTILOS DO MODAL DE PERMISSÃO
                             mapasAbertos.forEach(mapa => {
                                 const mapaDiv = document.createElement("div");
                                 mapaDiv.className = "card mapa-card";
+                                
+                                // Pega o nome do mapa para o botão "Concluir"
+                                const info = mapaInfo[mapa.id] || { nome: `Mapa ${mapa.id}`, link: "#" };
+                                const nomeMapaFormatado = info.nome.replace(/'/g, "\\'");
+
 
                                 let anexoHtml = "";
                                 let dataAnexoHtml = ""; 
@@ -568,13 +590,20 @@ ESTILOS DO MODAL DE PERMISSÃO
                                     anexoHtml = `<div id="anexo-container-${mapa.id}"></div>`;
                                 }
 
+                                // --- HTML DO CARD ATUALIZADO COM O BOTÃO 'Concluir Mapa' ---
                                 mapaDiv.innerHTML = `
-                                    <h3><a href="${mapaInfo[mapa.id].link}" target="_blank">${mapaInfo[mapa.id].nome}</a></h3>
+                                    <h3><a href="${info.link}" target="_blank">${info.nome}</a></h3>
                                     <p><strong>Status:</strong> Em andamento</p>
                                     
                                     <label for="observacao-${mapa.id}"><strong>Observações:</strong></label>
                                     <textarea id="observacao-${mapa.id}" class="observacao-input" placeholder="Digite suas observações">${mapa.dados.observacao || ""}</textarea>
-                                    <button class="save-btn" onclick="salvarObservacao(${mapa.id})">Salvar Observação</button>
+                                    
+                                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                                        <button class="save-btn" onclick="salvarObservacao(${mapa.id})">Salvar Observação</button>
+                                        <button class="save-btn" onclick="fecharMapa(${mapa.id}, '${nomeMapaFormatado}')" style="background-color: #f44336;">
+                                            Concluir Mapa
+                                        </button>
+                                    </div>
 
                                     <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
 
@@ -590,9 +619,57 @@ ESTILOS DO MODAL DE PERMISSÃO
                             });
 
                             container.appendChild(grupoDiv); 
+                        
+                        // --- LÓGICA 2: Se NÃO houver mapas em andamento, MAS HOUVER disponíveis ---
+                        } else if (mapasDisponiveis.length > 0) {
+                            hasTerritories = true; // Encontramos territórios
+                            
+                            const grupoDiv = document.createElement("div");
+                            grupoDiv.className = "grupo";
+                            grupoDiv.innerHTML = `
+                                <div class="grupo-titulo active" onclick="toggleList('${grupo.id}-disponivel')">${grupo.nome} (Mapas Disponíveis)</div>
+                                <div class="grupo-lista" id="${grupo.id}-disponivel" style="display: grid; grid-template-columns: 1fr; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); overflow: hidden;">
+                                </div>
+                            `;
+                            const lista = grupoDiv.querySelector(`#${grupo.id}-disponivel`);
+
+                            // Adiciona um título "Escolha um mapa"
+                            const header = document.createElement("p");
+                            header.textContent = "Escolha um mapa para iniciar o trabalho:";
+                            header.style.cssText = "padding: 16px 16px 8px 16px; font-weight: 500; color: #333; margin: 0; background-color: #f9f9f9;";
+                            lista.appendChild(header);
+
+                            mapasDisponiveis.forEach(mapa => {
+                                const info = mapaInfo[mapa.id] || { nome: `Mapa ${mapa.id}`, link: "#" };
+                                
+                                const mapaDiv = document.createElement("div");
+                                // Estilo de item de lista simples
+                                mapaDiv.style.cssText = "padding: 14px 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
+                                
+                                // Escapa aspas no nome do mapa para não quebrar o HTML
+                                const nomeMapaFormatado = info.nome.replace(/'/g, "\\'");
+                                
+                                // *** AQUI ESTÁ A CHAVE: onclick="iniciarMapa(...)" ***
+                                mapaDiv.innerHTML = `
+                                    <h3 style="font-size: 1rem; margin: 0; font-weight: 400;">
+                                        <a href="${info.link}" target="_blank" style="color: #3f51b5; text-decoration: none;">${info.nome}</a>
+                                    </h3>
+                                    <button class="save-btn" onclick="iniciarMapa(${mapa.id}, '${nomeMapaFormatado}')" style="margin-top: 0; flex-shrink: 0; background-color: #4CAF50;">
+                                        Iniciar
+                                    </button>
+                                `;
+                                lista.appendChild(mapaDiv);
+                            });
+                             // Remove a borda do último item
+                            if (lista.lastChild) {
+                                lista.lastChild.style.borderBottom = "none";
+                            }
+
+                            container.appendChild(grupoDiv);
                         }
                     });
 
+                    // --- LÓGICA 3: Mensagem de "Nada encontrado" ---
                     let message = "";
                     if (gruposParaProcessar.length === 0) {
                         if (todaySchedule && todaySchedule.location) {
@@ -600,17 +677,22 @@ ESTILOS DO MODAL DE PERMISSÃO
                         } else if (!todaySchedule && todayString !== "Domingo") {
                             message = "Nenhum local de saída programado para hoje.";
                         }
-                    } else if (!hasOpenTerritories) {
+                    
+                    // Se, depois de tudo, não encontramos nem abertos nem disponíveis
+                    } else if (!hasTerritories) { 
                         if (gruposParaProcessar.length > 1) {
-                            message = "Não há territórios abertos (em andamento) em nenhum grupo no momento.";
+                            message = "Não há territórios (nem em andamento, nem disponíveis) em nenhum grupo no momento.";
                         } else {
-                             message = `O grupo de hoje (${gruposParaProcessar[0].nome}) não possui territórios abertos (em andamento) no momento.`;
+                             message = `O grupo de hoje (${gruposParaProcessar[0].nome}) não possui territórios (nem em andamento, nem disponíveis) no momento. (Todos podem estar concluídos).`;
                         }
                     }
 
                     if (message) {
                         const noMapsMessage = document.createElement("p");
                         noMapsMessage.textContent = message;
+                        noMapsMessage.style.textAlign = 'center';
+                        noMapsMessage.style.padding = '20px';
+                        noMapsMessage.style.color = '#555';
                         container.appendChild(noMapsMessage);
                     }
 
@@ -624,18 +706,27 @@ ESTILOS DO MODAL DE PERMISSÃO
                 container.innerHTML = "<p>Erro ao carregar programação: " + error.message + "</p>";
             });
         }
+        // ==========================================================
+        // === FIM DA FUNÇÃO MODIFICADA ===
+        // ==========================================================
+
 
         function toggleList(id) {
             const lista = document.getElementById(id);
             const titulo = lista.previousElementSibling;
-            if (lista.style.display === "grid") {
+            
+            // Verifica o estilo 'display' atual
+            const isGrid = window.getComputedStyle(lista).display === "grid";
+
+            if (isGrid) { // Se está 'grid' (aberto)
                 lista.style.display = "none";
                 titulo.classList.remove("active");
-            } else {
-                lista.style.display = "grid";
+            } else { // Se está 'none' (fechado)
+                lista.style.display = "grid"; // Define como 'grid'
                 titulo.classList.add("active");
             }
         }
+
 
         function salvarObservacao(mapaId) {
             const observacao = document.getElementById(`observacao-${mapaId}`).value.trim();
@@ -691,8 +782,6 @@ ESTILOS DO MODAL DE PERMISSÃO
                             
                             const container = document.getElementById(`anexo-container-${mapaId}`);
                             
-                            // *** ESTA É A LINHA CORRIGIDA ***
-                            // (Eu tinha escrito 'mapa.id' por engano, o correto é 'mapaId')
                             container.innerHTML = `
                                 <p><strong>Anexo Atual:</strong></p>
                                 <a href="${downloadURL}" target="_blank">
@@ -746,6 +835,91 @@ ESTILOS DO MODAL DE PERMISSÃO
                     showToast('', true);// Erro grave ao enviar notificação.
                 });
         } 
+
+        // ==========================================================
+        // === INÍCIO DA FUNÇÃO (iniciarMapa) ===
+        // ==========================================================
+        
+        /**
+         * Pega um mapa "Não iniciado" e o define como "Em andamento"
+         */
+        function iniciarMapa(mapaId, nomeMapa) {
+            // Pede confirmação ao usuário
+            if (!confirm(`Tem certeza que deseja iniciar o trabalho no mapa "${nomeMapa}"?`)) {
+                return;
+            }
+
+            // Pega a data atual no formato AAAA-MM-DD
+            const dataInicio = new Date().toISOString().slice(0, 10);
+            
+            // Atualiza o mapa específico no Firebase
+            database.ref(`mapas/${mapaId}`).update({
+                status: "Status: Em andamento",
+                dataInicio: dataInicio,
+                dataFim: "", // Garante que a data de fim (se houver) seja limpa
+                observacao: "" // Opcional: Limpa observações antigas
+            })
+            .then(() => {
+                showToast("Mapa iniciado com sucesso! Recarregando...");
+                
+                // Recarrega a página após 1.5s para mostrar o mapa
+                // já na seção "Em Andamento" com todas as opções.
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                console.error("Erro ao iniciar mapa:", error);
+                showToast("Erro ao iniciar mapa: " + error.message, true); 
+            });
+        }
+        
+        // ==========================================================
+        // === FIM DA FUNÇÃO (iniciarMapa) ===
+        // ==========================================================
+
+
+        // ==========================================================
+        // === INÍCIO DA FUNÇÃO (fecharMapa) ===
+        // ==========================================================
+
+        /**
+         * Pega um mapa "Em andamento" e o define como "Concluído"
+         */
+        function fecharMapa(mapaId, nomeMapa) {
+            // Pede confirmação ao usuário
+            if (!confirm(`Tem certeza que deseja FECHAR o trabalho no mapa "${nomeMapa}"? Esta ação irá concluir o mapa.`)) {
+                return;
+            }
+
+            // Pega a data atual no formato AAAA-MM-DD
+            const dataFim = new Date().toISOString().slice(0, 10);
+            
+            // Atualiza o mapa específico no Firebase
+            database.ref(`mapas/${mapaId}`).update({
+                status: "Status: Concluído (Pronto p/ Relatório)",
+                dataFim: dataFim
+                // Nota: Não mexemos na dataInicio, apenas adicionamos a dataFim
+            })
+            .then(() => {
+                showToast("Mapa fechado com sucesso! Recarregando...");
+                
+                // Recarrega a página após 1.5s para que o mapa
+                // desapareça da lista de "Em Andamento".
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                console.error("Erro ao fechar mapa:", error);
+                showToast("Erro ao fechar mapa: " + error.message, true); 
+            });
+        }
+
+        // ==========================================================
+        // === FIM DA FUNÇÃO (fecharMapa) ===
+        // ==========================================================
+
 
         // --- FUNÇÕES DO MODAL ---
 
@@ -805,7 +979,6 @@ ESTILOS DO MODAL DE PERMISSÃO
             });
         }
        </script>
-
 <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
