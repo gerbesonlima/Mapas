@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Congregação São Paulo</title>
+    <title>App - Congregação São Paulo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -12,12 +12,39 @@
         .header { background: #4f46e5; color: white; padding: 1rem; text-align: center; font-weight: 500; font-size: 1.125rem; }
         .content { flex: 1; overflow-y: auto; background: #f8fafc; }
         .iframe { width: 100%; height: 100%; border: none; }
-        .bottom-nav { display: flex; background: white; border-top: 1px solid #e2e8f0; }
-        .nav-item { flex: 1; padding: 0.75rem 0; text-align: center; color: #64748b; cursor: pointer; transition: all 0.2s; }
+        
+        /* MENU INFERIOR FIXO - SOBRE O BOTÃO DO CELULAR */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom, 0.5rem); /* Evita sobreposição com barra do celular */
+            padding-top: 0.5rem;
+        }
+        .nav-item {
+            flex: 1;
+            padding: 0.5rem 0;
+            text-align: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
         .nav-item.active { color: #4f46e5; }
         .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
         .nav-item span { font-size: 0.75rem; font-weight: 500; }
+
+        /* Ajuste para iPhone com notch */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .bottom-nav { padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); }
+        }
+
         .status-bar { background: #4f46e5; height: 1.5rem; }
+
         @media (min-width: 768px) {
             .bottom-nav { display: none; }
             .header { border-radius: 1rem 1rem 0 0; }
@@ -38,20 +65,39 @@
             <iframe id="page-iframe" class="iframe" src="inicio.html"></iframe>
         </div>
 
-        <!-- Menu Inferior (Android Style) -->
+        <!-- MENU INFERIOR FIXO -->
         <div class="bottom-nav">
-            <div class="nav-item active" onclick="loadPage('inicio.htm', 'Início')">
+            <!-- Botão 1: Início -->
+            <div class="nav-item active" onclick="loadPage('inicio.html', 'Início')">
                 <i class="material-icons">home</i>
                 <span>Início</span>
             </div>
+
+            <!-- Botão 2: Limpeza -->
+            <div class="nav-item" onclick="loadPage('limpeza.html', 'Limpeza')">
+                <i class="material-icons">cleaning_services</i>
+                <span>Limpeza</span>
+            </div>
+
+            <!-- Botão 3: Campo -->
+            <div class="nav-item" onclick="loadPage('campo.html', 'Campo')">
+                <i class="material-icons">map</i>
+                <span>Campo</span>
+            </div>
+
+            <!-- Botão 4: Congregação -->
+            <div class="nav-item" onclick="loadPage('congregacao.html', 'Congregação')">
+                <i class="material-icons">church</i>
+                <span>Congregação</span>
+            </div>
+
+            <!-- Botão 5: Admin -->
             <div class="nav-item" onclick="loadPage('admin.html', 'Admin')">
                 <i class="material-icons">settings</i>
                 <span>Admin</span>
             </div>
-            <div class="nav-item" onclick="loadPage('sobre.html', 'Sobre')">
-                <i class="material-icons">info</i>
-                <span>Sobre</span>
-            </div>
+
+            <!-- Botão 6: Ajuda -->
             <div class="nav-item" onclick="loadPage('ajuda.html', 'Ajuda')">
                 <i class="material-icons">help</i>
                 <span>Ajuda</span>
@@ -71,21 +117,24 @@
             // Atualiza iframe
             iframe.src = url;
 
-            // Atualiza menu ativo
+            // Remove ativo de todos
             navItems.forEach(item => item.classList.remove('active'));
+            // Ativa o botão clicado
             event.currentTarget.classList.add('active');
         }
 
-        // Atualiza título ao carregar iframe
+        // Atualiza título ao carregar página
         document.getElementById('page-iframe').onload = function() {
             const currentUrl = this.src.split('/').pop();
             const titles = {
                 'inicio.html': 'Início',
+                'limpeza.html': 'Limpeza',
+                'campo.html': 'Campo',
+                'congregacao.html': 'Congregação',
                 'admin.html': 'Admin',
-                'sobre.html': 'Sobre',
                 'ajuda.html': 'Ajuda'
             };
-            document.getElementById('page-title').textContent = titles[currentUrl] || 'Quadro anuncios CSP';
+            document.getElementById('page-title').textContent = titles[currentUrl] || 'App';
         };
     </script>
 </body>
