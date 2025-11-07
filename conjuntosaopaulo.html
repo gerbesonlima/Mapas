@@ -32,12 +32,12 @@
         <h1>Conjunto São Paulo</h1>
         <p>Clique nas quadras para mudar seu status de visita.</p>
         <button id="resetButton">Resetar Todas as Quadras</button>
+        <button id="locateButton">📍 Encontrar Minha Localização</button> 
     </div>
     <div id="map"></div>
 
     <script>
         // === INÍCIO DA CONFIGURAÇÃO DO FIREBASE ===
-        // (Copiado do seu arquivo firebase.js)
         const firebaseConfig = {
             apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
             authDomain: "territorios-3d0bb.firebaseapp.com",
@@ -48,18 +48,16 @@
             databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        // Criamos uma referência específica para este mapa, para não misturar com os outros dados
         const dbRefQuadras = database.ref("conjuntoSaoPaulo/quadras");
         // === FIM DA CONFIGURAÇÃO DO FIREBASE ===
 
 
         // --- LÓGICA DO MAPA (LEAFLET) ---
     
-        const centroDoMapa = [-5.109478250892787, -42.73159233037812]; // localização do mapa
-        const zoomInicial = 16.5; // centralizar mapa
+        const centroDoMapa = [-5.109478250892787, -42.73159233037812]; 
+        const zoomInicial = 16.5; 
 
         const map = L.map('map').setView(centroDoMapa, zoomInicial);
 
@@ -67,54 +65,38 @@
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
-// --- DEFINIÇÃO DAS COORDENADAS (Exemplos) ---
-        // Para adicionar novas quadras:
-        // 1. Crie uma nova constante (ex: const coords_QD = [ ... ]);
-        // 2. Adicione os 4 pares de [latitude, longitude] dos cantos da quadra.
-        // 3. Adicione a linha `quadras.push(createQuadra('Q-D', coords_QD));` mais abaixo.
 
+        // --- DEFINIÇÃO DAS COORDENADAS ---
         const coords_QA = [
             [-5.109188053652607, -42.73280229934059], // Canto Superior Esquerdo
             [-5.109130992916853, -42.73244419324904], // Canto Superior Direito
             [-5.11106377910359, -42.73189542392853], // Canto Inferior Direito
             [-5.111329369444862, -42.73220578777016]  // Canto Inferior Esquerdo
         ];
-
         const coords_QB = [
             [-5.1089477603495315, -42.732385011955685], // Canto Superior Esquerdo
             [-5.1087997258549525, -42.73206153415373], // Canto Superior Direito
             [-5.110737292028634, -42.731554023433404], // Canto Inferior Direito
             [-5.110990593174692, -42.73182246411993]  // Canto Inferior Esquerdo
         ];
-
         const coords_QC = [
             [-5.1087544978677935, -42.731980641116124], // Canto Superior Esquerdo
             [-5.10858895323453, -42.73168600522402], // Canto Superior Direito
             [-5.110450073790369, -42.73116220807302], // Canto Inferior Direito
             [-5.110670799320684, -42.73147195349726]  // Canto Inferior Esquerdo
         ];
-
          const coords_QD = [
             [-5.108537158014731, -42.73160473577895], // Canto Superior Esquerdo
             [-5.108338787701675, -42.73129404401757], // Canto Superior Direito
             [-5.1098344983540445, -42.73088377156201], // Canto Inferior Direito
             [-5.110084444355055, -42.73117056395714]  // Canto Inferior Esquerdo
         ];
-
          const coords_QE = [
             [-5.108306336962282, -42.73122109068097], // Canto Superior Esquerdo
             [-5.108107767503081, -42.73090076866613], // Canto Superior Direito
             [-5.109543358367828, -42.730472436439925], // Canto Inferior Direito
             [-5.1097999362961595, -42.73079275845477]  // Canto Inferior Esquerdo
         ];
-
-        // Exemplo para adicionar uma nova quadra 'Q-D':
-        // const coords_QD = [
-        //     [lat, long], // Canto Superior Esquerdo
-        //     [lat, long], // Canto Superior Direito
-        //     [lat, long], // Canto Inferior Direito
-        //     [lat, long]  // Canto Inferior Esquerdo
-        // ];
 
         // Definição dos estilos de status
         const statusStyles = {
@@ -126,9 +108,12 @@
         // Função para criar uma quadra
         function createQuadra(name, coordinates, initialStatus = 'Pendente') {
             const quadra = L.polygon(coordinates, statusStyles[initialStatus]).addTo(map);
+            // O popup (ao clicar) continua mostrando o status
             quadra.bindPopup(`<b>Quadra: ${name}</b><br>Status: ${initialStatus}`);
             
-            quadra.bindTooltip(initialStatus, {
+            // ===== MUDANÇA 1 =====
+            // O tooltip (texto fixo) agora mostra o 'name' (Q-A) em vez do 'initialStatus'
+            quadra.bindTooltip(name, { 
                 permanent: true, 
                 direction: 'center', 
                 className: 'quadra-label'
@@ -137,7 +122,7 @@
             quadra.name = name;
             quadra.status = initialStatus;
 
-            // Adiciona interação de clique
+            // Adiciona interação de clique (LÓGICA DO STATUS NÃO MUDOU)
             quadra.on('click', function() {
                 if (this.status === 'Pendente') {
                     this.status = 'Em Andamento';
@@ -146,12 +131,16 @@
                 } else {
                     this.status = 'Pendente';
                 }
+                // A cor (estilo) continua mudando
                 this.setStyle(statusStyles[this.status]);
+                // O popup (ao clicar) continua sendo atualizado
                 this.getPopup().setContent(`<b>Quadra: ${this.name}</b><br>Status: ${this.status}`);
-                this.getTooltip().setContent(this.status);
                 
-                // --- MODIFICADO ---
-                // Salva o status no Firebase em vez do localStorage
+                // ===== MUDANÇA 2 =====
+                // A linha que mudava o texto fixo foi REMOVIDA.
+                // this.getTooltip().setContent(this.status); <-- REMOVIDA
+                
+                // O salvamento no Firebase continua igual
                 saveQuadraStatus(this.name, this.status);
             });
             return quadra;
@@ -169,75 +158,51 @@
         // Adicione mais quadras aqui...
 
 
-        // --- FUNCIONALIDADES DE SALVAR E CARREGAR (MODIFICADAS PARA FIREBASE) ---
+        // --- FUNCIONALIDADES DE SALVAR E CARREGAR ---
 
-        /**
-         * MODIFICADO: Salva o status de uma quadra específica no Firebase.
-         */
         function saveQuadraStatus(name, status) {
-            // Salva no Firebase sob o 'name' (ex: 'Q-A')
-            // O caminho será: conjuntoSaoPaulo/quadras/Q-A
             dbRefQuadras.child(name).set({ status: status })
                 .catch(error => console.error("Erro ao salvar status:", error));
         }
 
-        /**
-         * MODIFICADO: Carrega o status de TODAS as quadras do Firebase.
-         */
-        // --- MODIFICADO: Carrega e Ouve Sincronização em Tempo Real ---
-        // Este bloco substitui a função 'loadAllQuadrasStatus' e sua chamada.
-        // Ele é executado uma vez e, a partir daí, "ouve" as mudanças no Firebase.
-        
+        // Sincronização em Tempo Real
         dbRefQuadras.on('value', (snapshot) => {
-            const savedStatuses = snapshot.val() || {}; // Ex: { "Q-A": { status: "Concluído" }, ... }
+            const savedStatuses = snapshot.val() || {}; 
             console.log("Sincronização: Novos dados recebidos do Firebase:", savedStatuses);
 
             quadras.forEach(quadra => {
-                const savedData = savedStatuses[quadra.name]; // Busca pelo nome, ex: "Q-A"
-                let newStatus = 'Pendente'; // Define o padrão
+                const savedData = savedStatuses[quadra.name]; 
+                let newStatus = 'Pendente'; 
 
-                // Se encontrou dados salvos para esta quadra
                 if (savedData && savedData.status && statusStyles[savedData.status]) {
                     newStatus = savedData.status;
                 }
                 
-                // Se o status no mapa for diferente do status no Firebase, atualiza
+                // A lógica de status (cor, popup) continua igual
                 if (quadra.status !== newStatus) {
                     quadra.status = newStatus;
                     quadra.setStyle(statusStyles[newStatus]);
                     quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
-                    quadra.getTooltip().setContent(quadra.status);
+                    
+                    // ===== MUDANÇA 3 =====
+                    // A linha que mudava o texto fixo na sincronização foi REMOVIDA.
+                    // quadra.getTooltip().setContent(quadra.status); <-- REMOVIDA
                 }
             });
 
         }, (error) => {
-            // Função para caso o listener falhe (ex: falta de permissão)
             console.error("Erro ao sincronizar com o Firebase:", error);
             alert("Erro de conexão. Não foi possível sincronizar os status.");
         });
 
       
-
-        
-        /**
-         * MODIFICADO: Botão de resetar agora limpa os dados no Firebase.
-         */
+        // Botão de Resetar (Lógica não mudou)
         document.getElementById('resetButton').addEventListener('click', function() {
             if (confirm('Tem certeza que deseja resetar o status de todas as quadras no FIREBASE para "Pendente"?')) {
                 
-                // A forma mais fácil de resetar é remover a entrada "conjuntoSaoPaulo/quadras" do Firebase.
-                // Na próxima vez que a página carregar, o 'loadAllQuadrasStatus' não encontrará dados
-                // e todas as quadras voltarão ao estado 'Pendente' padrão.
-                
                 dbRefQuadras.remove()
                     .then(() => {
-                        // Atualiza a interface localmente também
-                        quadras.forEach(quadra => {
-                            quadra.status = 'Pendente';
-                            quadra.setStyle(statusStyles['Pendente']);
-                            quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
-                            quadra.getTooltip().setContent('Pendente');
-                        });
+                        // O 'dbRefQuadras.on' vai detectar isso e atualizar o mapa sozinho
                         alert('Todos os status foram resetados para "Pendente" no Firebase.');
                     })
                     .catch(error => {
@@ -245,6 +210,73 @@
                         alert("Erro ao resetar status no Firebase.");
                     });
             }
+        });
+
+
+        // --- LÓGICA DE GEOLOCALIZAÇÃO (PONTO AZUL) ---
+        // (Isso foi da nossa conversa anterior, continua aqui)
+
+        let userDot = null;
+        let accuracyCircle = null;
+
+        function onLocationFound(e) {
+            const radius = e.accuracy / 2;
+            const latlng = e.latlng;
+
+            if (!userDot) {
+                userDot = L.circleMarker(latlng, {
+                    radius: 8,
+                    color: '#007bff',       
+                    fillColor: '#007bff',    
+                    fillOpacity: 1,
+                    weight: 2
+                }).addTo(map).bindPopup("Você está aqui!");
+
+                accuracyCircle = L.circle(latlng, radius, {
+                    color: '#007bff',
+                    fillColor: '#007bff',
+                    fillOpacity: 0.15,
+                    weight: 1
+                }).addTo(map);
+
+                map.setView(latlng, 18); 
+            } else {
+                userDot.setLatLng(latlng);
+                accuracyCircle.setLatLng(latlng).setRadius(radius);
+            }
+        }
+
+        function onLocationError(e) {
+            let errorMsg = "Não foi possível obter sua localização.\n";
+            switch(e.code) {
+                case 1: errorMsg += "Permissão negada."; break;
+                case 2: errorMsg += "Localização indisponível."; break;
+                case 3: errorMsg += "Tempo esgotado."; break;
+                default: errorMsg += "Erro desconhecido.";
+            }
+            alert(errorMsg);
+        }
+
+        document.getElementById('locateButton').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert("Seu navegador não suporta geolocalização.");
+                return;
+            }
+
+            navigator.geolocation.watchPosition(
+                (position) => {
+                    const leafletEvent = {
+                        latlng: L.latLng(position.coords.latitude, position.coords.longitude),
+                        accuracy: position.coords.accuracy
+                    };
+                    onLocationFound(leafletEvent);
+                },
+                onLocationError, 
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+            
+            this.textContent = "Seguindo localização...";
+            this.disabled = true; 
         });
 
     </script>
