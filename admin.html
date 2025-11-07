@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Programações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        textarea { resize: none; }
+        @media (max-width: 640px) {
+            table { font-size: 0.75rem; }
+            th, td { padding: 0.25rem; }
+            textarea { height: 3rem; font-size: 0.75rem; }
+            button { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
+        }
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .btn-remove:hover { background-color: #c82333; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; }
+        .column-controls { display: flex; gap: 0.5rem; }
+        .column-btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+    <div class="container mx-auto p-2 sm:p-4">
+
+        <!-- Botão de Atualização + Nova Tabela -->
+        <div class="bg-blue-50 p-4 rounded mb-6 shadow flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div>
+                <button onclick="loadAllData()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium">
+                    Atualizar Semanas
+                </button>
+                <p class="text-xs text-gray-600 mt-1">Atualiza semanas no formato curto: 3–9 de novembro</p>
+            </div>
+            <button onclick="createNewTable()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium">
+                + Nova Tabela
+            </button>
+        </div>
+
+        <!-- Container das Tabelas -->
+        <div id="tables-container" class="space-y-8">
+            <!-- Tabelas serão carregadas aqui dinamicamente -->
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== CONFIGURAÇÃO DO FIREBASE ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const { jsPDF } = window.jspdf;
+
+        // ==================== TABELAS PRÉ-DEFINIDAS (MANTIDAS) ====================
+        const defaultTables = {
+            cleaning: {
+                title: "Programação de Limpeza",
+                type: "week",
+                columns: ["Semana", "Grupo"],
+                limit: 5
+            },
+            field: {
+                title: "Programação de Saída de Campo",
+                type: "generic",
+                columns: ["Dia", "Local de Saída", "Horário da Consideração", "Dirigente"]
+            },
+            congregation: {
+                title: "Programação Congregação São Paulo",
+                type: "week",
+                columns: ["Semana", "Presidente", "Leitor", "Indicador", "Volante", "Palco"],
+                limit: 4
+            }
+        };
+
+        // ==================== CARREGAMENTO INICIAL ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            ensureDefaultTables();
+            loadAllData();
+        });
+
+        // ==================== GARANTIR TABELAS PADRÃO ====================
+        function ensureDefaultTables() {
+            Object.keys(defaultTables).forEach(id => {
+                database.ref(`dynamicTables/${id}`).once('value').then(snap => {
+                    if (!snap.exists()) {
+                        const config = defaultTables[id];
+                        database.ref(`dynamicTables/${id}`).set(config);
+                        database.ref(`tableData/${id}`).set([]);
+                    }
+                });
+            });
+        }
+
+        // ==================== FORMATO DE SEMANAS ====================
+        function formatarSemana(inicio, fim) {
+            const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            const diaInicio = inicio.getDate();
+            const diaFim = fim.getDate();
+            const mesInicio = meses[inicio.getMonth()];
+            const mesFim = meses[fim.getMonth()];
+            if (inicio.getMonth() !== fim.getMonth()) {
+                return `${diaInicio}–${diaFim} de ${mesInicio}–${mesFim}`;
+            }
+            return `${diaInicio}–${diaFim} de ${mesInicio}`;
+        }
+
+        function gerarSemanasDoMes(ano, mes, quantidade = 5) {
+            const semanas = [];
+            let data = new Date(ano, mes, 1);
+            const diaSemana = data.getDay();
+            const ajuste = diaSemana === 0 ? 0 : 7 - diaSemana;
+            data.setDate(data.getDate() + ajuste);
+            for (let i = 0; i < quantidade; i++) {
+                const inicio = new Date(data);
+                inicio.setDate(data.getDate() + i * 7);
+                const fim = new Date(inicio);
+                fim.setDate(inicio.getDate() + 6);
+                if (inicio.getFullYear() > ano + 1) break;
+                semanas.push(formatarSemana(inicio, fim));
+            }
+            return semanas;
+        }
+
+        // ==================== CARREGAR TODAS AS TABELAS ====================
+        function loadAllData() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '<p class="text-center text-gray-600 py-8">Carregando tabelas...</p>';
+
+            database.ref('dynamicTables').once('value').then(snap => {
+                const tables = snap.val() || {};
+                container.innerHTML = '';
+
+                // Ordenar: cleaning, field, congregation primeiro
+                const orderedIds = ['cleaning', 'field', 'congregation', ...Object.keys(tables).filter(id => !['cleaning','field','congregation'].includes(id))];
+
+                orderedIds.forEach(tableId => {
+                    if (tables[tableId]) {
+                        renderTable(tableId, tables[tableId]);
+                    }
+                });
+
+                if (Object.keys(tables).length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-600 py-8">Nenhuma tabela criada ainda.</p>';
+                }
+            }).catch(err => {
+                console.error(err);
+                container.innerHTML = '<p class="text-center text-red-600 py-8">Erro ao carregar tabelas.</p>';
+            });
+        }
+
+        // ==================== RENDERIZAR TABELA DINÂMICA ====================
+        function renderTable(tableId, config) {
+            const container = document.getElementById('tables-container');
+            const div = document.createElement('div');
+            div.className = 'bg-white p-4 rounded shadow';
+            div.id = `table-${tableId}`;
+
+            const columns = config.columns || [];
+            const isWeekTable = config.type === 'week';
+            const limit = config.limit || 8;
+
+            let thead = '<tr class="bg-gray-200">';
+            columns.forEach((col, i) => {
+                const editable = tableId !== 'field' || i !== 0; // Dia fixo na saída de campo
+                thead += `<th class="border p-1 sm:p-2" ${editable ? `contenteditable="true" onblur="updateColumnName('${tableId}', ${i}, this.textContent)"` : ''}>${col}</th>`;
+            });
+            thead += `<th class="border p-1 sm:p-2"></th></tr>`;
+
+            div.innerHTML = `
+                <div class="table-header mb-3">
+                    <input type="text" value="${config.title || 'Tabela Sem Título'}" 
+                           class="text-lg sm:text-xl font-bold border-b-2 border-transparent focus:border-indigo-600 outline-none" 
+                           onblur="updateTableTitle('${tableId}', this.value)" />
+                    <div class="column-controls">
+                        ${columns.length > 1 ? `<button onclick="removeLastColumn('${tableId}')" class="bg-red-500 text-white column-btn rounded hover:bg-red-600">−</button>` : ''}
+                        <button onclick="addColumn('${tableId}')" class="bg-green-500 text-white column-btn rounded hover:bg-green-600">+</button>
+                        <button onclick="downloadPDF('${tableId}')" class="bg-red-600 text-white column-btn rounded hover:bg-red-700">PDF</button>
+                        ${!defaultTables[tableId] ? `<button onclick="deleteTable('${tableId}')" class="bg-gray-800 text-white column-btn rounded hover:bg-gray-900">Excluir</button>` : ''}
+                    </div>
+                </div>
+                <div class="flex gap-2 mb-3">
+                    <button onclick="editTable('${tableId}')" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs sm:text-sm">Editar</button>
+                    <button onclick="saveTable('${tableId}')" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs sm:text-sm">Salvar</button>
+                    <button onclick="addRow('${tableId}')" class="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 text-xs sm:text-sm">+ Linha</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="${tableId}-table" class="w-full border-collapse text-xs sm:text-sm">
+                        <thead>${thead}</thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            `;
+
+            container.appendChild(div);
+
+            // Carregar dados
+            database.ref(`tableData/${tableId}`).once('value').then(snap => {
+                const data = snap.val() || [];
+                const tbody = document.querySelector(`#${tableId}-table tbody`);
+                tbody.innerHTML = '';
+
+                const padroes = isWeekTable ? gerarSemanasDoMes(new Date().getFullYear(), new Date().getMonth(), limit) : 
+                              (tableId === 'field' ? ['Terça-Feira','Quarta-Feira','Quinta-Feira','Sexta-Feira','Sábado','Domingo'] : []);
+
+                const mergedData = padroes.map((padrao, idx) => {
+                    const existing = data.find(d => d.col0 === padrao || (tableId === 'field' && d.col0 === padrao));
+                    if (existing) return existing;
+                    const item = { col0: padrao };
+                    columns.slice(1).forEach((_, i) => item[`col${i+1}`] = '');
+                    return item;
+                });
+
+                mergedData.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    let html = '';
+                    columns.forEach((col, i) => {
+                        const key = `col${i}`;
+                        const value = item[key] || '';
+                        if (i === 0 && padroes[index]) {
+                            html += `<td class="border p-1 sm:p-2">${padroes[index]}</td>`;
+                        } else {
+                            html += `<td class="border p-1 sm:p-2"><textarea class="w-full p-1 h-12 sm:h-16 text-xs sm:text-sm resize-none" disabled>${value}</textarea></td>`;
+                        }
+                    });
+                    html += `<td class="border p-1 sm:p-2 text-center"><button class="btn-remove" onclick="removeRow(this, '${tableId}')">X</button></td>`;
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+
+                // Salvar mesclados se necessário
+                if (JSON.stringify(data) !== JSON.stringify(mergedData)) {
+                    database.ref(`tableData/${tableId}`).set(mergedData);
+                }
+            });
+        }
+
+        // ==================== CRIAR NOVA TABELA ====================
+        function createNewTable() {
+            const title = prompt('Nome da tabela:') || 'Nova Tabela';
+            const type = confirm('É uma tabela com semanas? (OK = Sim, Cancelar = Não)') ? 'week' : 'generic';
+            const columnsInput = prompt('Nomes das colunas (separados por vírgula):', type === 'week' ? 'Semana, Responsável' : 'Item, Valor');
+            const columns = columnsInput ? columnsInput.split(',').map(c => c.trim()) : ['Coluna 1'];
+
+            const tableId = 'table_' + Date.now();
+            const config = { title, columns, type, limit: type === 'week' ? 8 : undefined };
+
+            database.ref(`dynamicTables/${tableId}`).set(config)
+                .then(() => {
+                    database.ref(`tableData/${tableId}`).set([]);
+                    loadAllData();
+                })
+                .catch(err => alert('Erro: ' + err.message));
+        }
+
+        // ==================== ADICIONAR/REMOVER COLUNA ====================
+        function addColumn(tableId) {
+            const newColName = prompt('Nome da nova coluna:') || 'Nova Coluna';
+            database.ref(`dynamicTables/${tableId}/columns`).once('value').then(snap => {
+                const cols = snap.val() || [];
+                cols.push(newColName);
+                database.ref(`dynamicTables/${tableId}/columns`).set(cols);
+            });
+            setTimeout(loadAllData, 500);
+        }
+
+        function removeLastColumn(tableId) {
+            if (!confirm('Remover a última coluna?')) return;
+            database.ref(`dynamicTables/${tableId}/columns`).once('value').then(snap => {
+                const cols = snap.val() || [];
+                if (cols.length > 1) {
+                    cols.pop();
+                    database.ref(`dynamicTables/${tableId}/columns`).set(cols);
+                    database.ref(`tableData/${tableId}`).once('value').then(dataSnap => {
+                        const data = dataSnap.val() || [];
+                        data.forEach(item => delete item[`col${cols.length}`]);
+                        database.ref(`tableData/${tableId}`).set(data);
+                    });
+                }
+            });
+            setTimeout(loadAllData, 500);
+        }
+
+        // ==================== EDITAR TÍTULO / COLUNA ====================
+        function updateTableTitle(tableId, newTitle) {
+            database.ref(`dynamicTables/${tableId}/title`).set(newTitle);
+        }
+
+        function updateColumnName(tableId, colIndex, newName) {
+            database.ref(`dynamicTables/${tableId}/columns/${colIndex}`).set(newName);
+        }
+
+        // ==================== ADICIONAR LINHA ====================
+        function addRow(tableId) {
+            database.ref(`dynamicTables/${tableId}`).once('value').then(snap => {
+                const config = snap.val();
+                const tbody = document.querySelector(`#${tableId}-table tbody`);
+                const tr = document.createElement('tr');
+
+                let primeiraCelula = '';
+                if (config.type === 'week') {
+                    const ultimaLinha = tbody.lastElementChild;
+                    let ultimaData = new Date();
+                    if (ultimaLinha) {
+                        const texto = ultimaLinha.cells[0].textContent;
+                        const match = texto.match(/(\d+)[–-](\d+)\s+de\s+([^\d–-]+)/i);
+                        if (match) {
+                            const [, , diaFim, mesStr] = match;
+                            const meses = { janeiro:0, fevereiro:1, março:2, abril:3, maio:4, junho:5, julho:6, agosto:7, setembro:8, outubro:9, novembro:10, dezembro:11 };
+                            const mes = meses[mesStr.toLowerCase()];
+                            ultimaData = new Date(new Date().getFullYear(), mes, parseInt(diaFim));
+                        }
+                    }
+                    const proxInicio = new Date(ultimaData);
+                    proxInicio.setDate(ultimaData.getDate() + 1);
+                    const diaSemana = proxInicio.getDay();
+                    const ajuste = diaSemana === 0 ? 0 : 7 - diaSemana;
+                    proxInicio.setDate(proxInicio.getDate() + ajuste);
+                    const proxFim = new Date(proxInicio);
+                    proxFim.setDate(proxInicio.getDate() + 6);
+                    primeiraCelula = formatarSemana(proxInicio, proxFim);
+                } else if (tableId === 'field') {
+                    primeiraCelula = prompt('Dia da semana:') || '';
+                    if (!primeiraCelula) return;
+                } else {
+                    primeiraCelula = prompt('Valor da primeira coluna:') || '';
+                    if (primeiraCelula === null) return;
+                }
+
+                let html = `<td class="border p-1 sm:p-2">${primeiraCelula}</td>`;
+                for (let i = 1; i < (config.columns?.length || 1); i++) {
+                    html += `<td class="border p-1 sm:p-2"><textarea class="w-full p-1 h-12 sm:h-16 text-xs sm:text-sm resize-none" disabled></textarea></td>`;
+                }
+                html += `<td class="border p-1 sm:p-2 text-center"><button class="btn-remove" onclick="removeRow(this, '${tableId}')">X</button></td>`;
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== REMOVER LINHA / SALVAR ====================
+        function removeRow(button, tableId) {
+            if (confirm('Remover linha?')) {
+                button.closest('tr').remove();
+                saveTable(tableId);
+            }
+        }
+
+        function editTable(tableId) {
+            document.querySelectorAll(`#${tableId}-table textarea`).forEach(t => t.disabled = false);
+        }
+
+        function saveTable(tableId) {
+            document.querySelectorAll(`#${tableId}-table textarea`).forEach(t => t.disabled = true);
+            const rows = document.querySelectorAll(`#${tableId}-table tbody tr`);
+            const data = [];
+
+            database.ref(`dynamicTables/${tableId}/columns`).once('value').then(snap => {
+                const cols = snap.val() || [];
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const texts = row.querySelectorAll('textarea');
+                    const item = {};
+                    cols.forEach((_, i) => {
+                        item[`col${i}`] = i === 0 ? cells[i].textContent.trim() : (texts[i-1]?.value || '');
+                    });
+                    data.push(item);
+                });
+
+                database.ref(`tableData/${tableId}`).set(data)
+                    .then(() => alert('Salvo!'))
+                    .catch(err => alert('Erro: ' + err.message));
+            });
+        }
+
+        // ==================== EXCLUIR TABELA (SÓ NOVAS) ====================
+        function deleteTable(tableId) {
+            if (confirm('Excluir tabela permanentemente?')) {
+                Promise.all([
+                    database.ref(`dynamicTables/${tableId}`).remove(),
+                    database.ref(`tableData/${tableId}`).remove()
+                ]).then(() => loadAllData());
+            }
+        }
+
+        // ==================== PDF ====================
+        function downloadPDF(tableId) {
+            try {
+                const doc = new jsPDF();
+                const title = document.querySelector(`#table-${tableId} input`).value;
+                doc.setFontSize(14);
+                doc.text(title, 10, 10);
+
+                const head = [];
+                const body = [];
+                const table = document.getElementById(`${tableId}-table`);
+                table.querySelectorAll('thead th').forEach((th, i) => {
+                    if (i < table.querySelectorAll('thead th').length - 1) head.push(th.textContent);
+                });
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach((td, i) => {
+                        if (i < head.length) {
+                            rowData.push(td.textContent.trim() || td.querySelector('textarea')?.value || '');
+                        }
+                    });
+                    body.push(rowData);
+                });
+
+                doc.autoTable({
+                    head: [head],
+                    body: body,
+                    startY: 20,
+                    styles: { fontSize: 8 }
+                });
+                doc.save(`${title}.pdf`);
+            } catch (e) {
+                alert('Erro no PDF: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>

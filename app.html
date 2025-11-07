@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congregação São Paulo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Roboto', sans-serif; }
+        #app { height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #4f46e5; color: white; padding: 1rem; text-align: center; font-weight: 500; font-size: 1.125rem; }
+        .content { flex: 1; overflow-y: auto; background: #f8fafc; }
+        .iframe { width: 100%; height: 100%; border: none; }
+        .bottom-nav { display: flex; background: white; border-top: 1px solid #e2e8f0; }
+        .nav-item { flex: 1; padding: 0.75rem 0; text-align: center; color: #64748b; cursor: pointer; transition: all 0.2s; }
+        .nav-item.active { color: #4f46e5; }
+        .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+        .nav-item span { font-size: 0.75rem; font-weight: 500; }
+        .status-bar { background: #4f46e5; height: 1.5rem; }
+        @media (min-width: 768px) {
+            .bottom-nav { display: none; }
+            .header { border-radius: 1rem 1rem 0 0; }
+            #app { max-width: 400px; margin: 2rem auto; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <!-- Status Bar (Android) -->
+        <div class="status-bar"></div>
+
+        <!-- Header -->
+        <div class="header" id="page-title">Início</div>
+
+        <!-- Conteúdo com iframe -->
+        <div class="content">
+            <iframe id="page-iframe" class="iframe" src="inicio.html"></iframe>
+        </div>
+
+        <!-- Menu Inferior (Android Style) -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="loadPage('inicio.htm', 'Início')">
+                <i class="material-icons">home</i>
+                <span>Início</span>
+            </div>
+            <div class="nav-item" onclick="loadPage('admin.html', 'Admin')">
+                <i class="material-icons">settings</i>
+                <span>Admin</span>
+            </div>
+            <div class="nav-item" onclick="loadPage('sobre.html', 'Sobre')">
+                <i class="material-icons">info</i>
+                <span>Sobre</span>
+            </div>
+            <div class="nav-item" onclick="loadPage('ajuda.html', 'Ajuda')">
+                <i class="material-icons">help</i>
+                <span>Ajuda</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadPage(url, title) {
+            const iframe = document.getElementById('page-iframe');
+            const titleEl = document.getElementById('page-title');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            // Atualiza título
+            titleEl.textContent = title;
+
+            // Atualiza iframe
+            iframe.src = url;
+
+            // Atualiza menu ativo
+            navItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Atualiza título ao carregar iframe
+        document.getElementById('page-iframe').onload = function() {
+            const currentUrl = this.src.split('/').pop();
+            const titles = {
+                'inicio.html': 'Início',
+                'admin.html': 'Admin',
+                'sobre.html': 'Sobre',
+                'ajuda.html': 'Ajuda'
+            };
+            document.getElementById('page-title').textContent = titles[currentUrl] || 'Quadro anuncios CSP';
+        };
+    </script>
+</body>
+</html>
