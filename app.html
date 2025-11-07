@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App - Congregação São Paulo</title>
+    <title>App Congregação</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Roboto', sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Roboto', sans-serif; background: #f1f5f9; }
         #app { height: 100vh; display: flex; flex-direction: column; }
         .header { background: #4f46e5; color: white; padding: 1rem; text-align: center; font-weight: 500; font-size: 1.125rem; }
-        .content { flex: 1; overflow-y: auto; background: #f8fafc; }
+        .content { flex: 1; overflow: hidden; }
         .iframe { width: 100%; height: 100%; border: none; }
         
-        /* MENU INFERIOR FIXO - SOBRE O BOTÃO DO CELULAR */
+        /* MENU INFERIOR FIXO */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -23,8 +23,9 @@
             background: white;
             border-top: 1px solid #e2e8f0;
             z-index: 1000;
-            padding-bottom: env(safe-area-inset-bottom, 0.5rem); /* Evita sobreposição com barra do celular */
+            padding-bottom: env(safe-area-inset-bottom, 0.5rem);
             padding-top: 0.5rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
         .nav-item {
             flex: 1;
@@ -38,66 +39,53 @@
         .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
         .nav-item span { font-size: 0.75rem; font-weight: 500; }
 
-        /* Ajuste para iPhone com notch */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-nav { padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); }
-        }
-
-        .status-bar { background: #4f46e5; height: 1.5rem; }
-
         @media (min-width: 768px) {
-            .bottom-nav { display: none; }
-            .header { border-radius: 1rem 1rem 0 0; }
             #app { max-width: 400px; margin: 2rem auto; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body>
     <div id="app">
-        <!-- Status Bar (Android) -->
-        <div class="status-bar"></div>
+        <!-- Header -->
+        <div class="header" id="page-title">Início</div>
 
-        <!-- Conteúdo com iframe -->
+        <!-- Conteúdo -->
         <div class="content">
             <iframe id="page-iframe" class="iframe" src="inicio.html"></iframe>
         </div>
 
-        <!-- MENU INFERIOR FIXO -->
-        <div class="bottom-nav">
-            <!-- Botão 1: Início -->
+        <!-- MENU INFERIOR - ADICIONE QUANTOS BOTÕES QUISER -->
+        <div class="bottom-nav" id="bottom-menu">
+            <!-- EXEMPLO DE BOTÕES - EDITE AQUI -->
+            <!-- 
+                Para adicionar um botão:
+                <div class="nav-item" onclick="loadPage('sua_pagina.html', 'Título')">
+                    <i class="material-icons">icon_name</i>
+                    <span>Texto</span>
+                </div>
+            -->
             <div class="nav-item active" onclick="loadPage('inicio.html', 'Início')">
                 <i class="material-icons">home</i>
                 <span>Início</span>
             </div>
-
-            <!-- Botão 2: Limpeza
-            <div class="nav-item" onclick="loadPage('limpeza.html', 'Limpeza')">
+            
+            <div class="nav-item" onclick="loadPage('relatorio2.html', 'Limpeza')">
                 <i class="material-icons">cleaning_services</i>
-                <span>Limpeza</span>
+                <span>relatorio</span>
             </div>
- -->
-            <!-- Botão 3: Campo -->
-            <div class="nav-item" onclick="loadPage('territorios.html', 'Campo')">
+
+            <div class="nav-item" onclick="loadPage('index.html', 'Campo')">
                 <i class="material-icons">map</i>
                 <span>Campo</span>
             </div>
 
-            <!-- Botão 4: Congregação -->
-            <div class="nav-item" onclick="loadPage('congregacao.html', 'Congregação')">
-                <i class="material-icons">church</i>
-                <span>Congregação</span>
-            </div>
-
-            <!-- Botão 5: Admin -->
-            <div class="nav-item" onclick="loadPage('admin.html', 'Admin')">
-                <i class="material-icons">settings</i>
-                <span>Admin</span>
-            </div>
-
-            <!-- Botão 6: Ajuda -->
             <div class="nav-item" onclick="loadPage('ajuda.html', 'Ajuda')">
                 <i class="material-icons">help</i>
                 <span>Ajuda</span>
+            </div>
+            <div class="nav-item" onclick="loadPage('admin.html', 'Admin')">
+                <i class="material-icons">settings</i>
+                <span>Admin</span>
             </div>
         </div>
     </div>
@@ -111,28 +99,26 @@
             // Atualiza título
             titleEl.textContent = title;
 
-            // Atualiza iframe
+            // Carrega página
             iframe.src = url;
 
-            // Remove ativo de todos
+            // Marca botão ativo
             navItems.forEach(item => item.classList.remove('active'));
-            // Ativa o botão clicado
             event.currentTarget.classList.add('active');
         }
 
-        // Atualiza título ao carregar página
-        document.getElementById('page-iframe').onload = function() {
-            const currentUrl = this.src.split('/').pop();
-            const titles = {
+        // Atualiza título ao carregar
+        document.getElementById('page-iframe').addEventListener('load', function() {
+            const url = this.src.split('/').pop();
+            const map = {
                 'inicio.html': 'Início',
-                'limpeza.html': 'Limpeza',
-                'index.html': 'Campo',
-                'congregacao.html': 'Congregação',
                 'admin.html': 'Admin',
+                'relatorio2.html': 'Relatorio',
+                'index.html': 'Campo',
                 'ajuda.html': 'Ajuda'
             };
-            document.getElementById('page-title').textContent = titles[currentUrl] || 'App';
-        };
+            document.getElementById('page-title').textContent = map[url] || 'App';
+        });
     </script>
 </body>
 </html>
