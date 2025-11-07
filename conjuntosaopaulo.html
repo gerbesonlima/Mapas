@@ -168,32 +168,38 @@
         /**
          * MODIFICADO: Carrega o status de TODAS as quadras do Firebase.
          */
-        async function loadAllQuadrasStatus() {
-            try {
-                // Faz uma leitura única de todos os status salvos
-                const snapshot = await dbRefQuadras.once('value');
-                const savedStatuses = snapshot.val() || {}; // Ex: { "Q-A": { status: "Concluído" }, ... }
+        // --- MODIFICADO: Carrega e Ouve Sincronização em Tempo Real ---
+        // Este bloco substitui a função 'loadAllQuadrasStatus' e sua chamada.
+        // Ele é executado uma vez e, a partir daí, "ouve" as mudanças no Firebase.
+        
+        dbRefQuadras.on('value', (snapshot) => {
+            const savedStatuses = snapshot.val() || {}; // Ex: { "Q-A": { status: "Concluído" }, ... }
+            console.log("Sincronização: Novos dados recebidos do Firebase:", savedStatuses);
 
-                quadras.forEach(quadra => {
-                    const savedData = savedStatuses[quadra.name]; // Busca pelo nome, ex: "Q-A"
-                    
-                    // Se encontrou dados salvos para esta quadra
-                    if (savedData && savedData.status && statusStyles[savedData.status]) {
-                        const savedStatus = savedData.status;
-                        quadra.status = savedStatus;
-                        quadra.setStyle(statusStyles[savedStatus]);
-                        quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
-                        quadra.getTooltip().setContent(quadra.status);
-                    }
-                    // Se não houver dados salvos, ela permanece com o status 'Pendente' (definido em createQuadra)
-                });
+            quadras.forEach(quadra => {
+                const savedData = savedStatuses[quadra.name]; // Busca pelo nome, ex: "Q-A"
+                let newStatus = 'Pendente'; // Define o padrão
 
-            } catch (error) {
-                console.error("Erro ao carregar status do Firebase:", error);
-                alert("Não foi possível carregar os status do Firebase.");
-            }
-        }
+                // Se encontrou dados salvos para esta quadra
+                if (savedData && savedData.status && statusStyles[savedData.status]) {
+                    newStatus = savedData.status;
+                }
+                
+                // Se o status no mapa for diferente do status no Firebase, atualiza
+                if (quadra.status !== newStatus) {
+                    quadra.status = newStatus;
+                    quadra.setStyle(statusStyles[newStatus]);
+                    quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
+                    quadra.getTooltip().setContent(quadra.status);
+                }
+            });
 
+        }, (error) => {
+            // Função para caso o listener falhe (ex: falta de permissão)
+            console.error("Erro ao sincronizar com o Firebase:", error);
+            alert("Erro de conexão. Não foi possível sincronizar os status.");
+        });
+        
         // Carrega o status do Firebase ao iniciar
         // (Note que agora esta função é 'async' e é chamada assim)
         loadAllQuadrasStatus();
