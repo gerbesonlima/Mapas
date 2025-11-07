@@ -17,6 +17,8 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database(); 
 const db = database; 
 const storage = firebase.storage();
+
+
 // REMOVEMOS O 'messaging' e 'functions' daqui
 
 // ==========================================================
