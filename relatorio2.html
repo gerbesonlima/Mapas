@@ -10,111 +10,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --primary-color: #1976D2; /* Azul Material Design (de inicio.html) */
-      --primary-hover-color: #43A047; /* Mantido verde para botões */
+    :root {
+      --primary-color: #4f46e5; /* Harmonizado com app - Indigo */
+      --primary-hover-color: #6366f1; /* Azul mais claro para hover */
       --danger-color: #dc3545;
-      --background-color: #f4f6f8; /* Fundo (de inicio.html) */
+      --background-color: #f8fafc; /* Fundo claro harmonizado */
       --card-bg: #fff;
       --text-color: #333;
       --label-color: #444;
       --border: #ced4da;
-      --focus-shadow: rgba(46,125,50,0.18);
+      --focus-shadow: rgba(79, 70, 229, 0.18); /* Azul indigo */
       --max-width: 680px;
       
-      /* Variáveis de inicio.html */
-      --primary-dark-color: #004BA0;
+      /* Variáveis adicionais da app */
       --accent-color: #FFC107; 
       --text-light-color: #ffffff;
     }
     * { box-sizing: border-box; }
-    html,body { height: 100%; }
+    html, body { height: 100%; margin: 0; padding: 0; } /* Sem margens para iframe */
     
-    /* --- ESTILO DO BODY MODIFICADO (como inicio.html) --- */
-    body{
-      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: var(--background-color);
-      color: var(--text-color);
-      margin: 0;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* --- ESTILOS ADICIONADOS DE inicio.html --- */
-    
-    /* --- Cabeçalho Superior (Toolbar) --- */
-    .app-header {
-        background-color: var(--primary-color);
-        color: var(--text-light-color);
-        padding: 12px 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        position: sticky; /* Fica fixo no topo */
-        top: 0;
-        z-index: 1000;
-        font-family: 'Roboto', sans-serif; /* Fonte do cabeçalho */
-    }
-    .header-title {
-        font-size: 1.2em;
-        font-weight: 500;
-    }
-    .header-icons {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-    .header-icons svg {
-        width: 24px;
-        height: 24px;
-        fill: var(--text-light-color);
-    }
-
-    /* --- Barra de Navegação com Abas --- */
-    .app-nav {
-        background-color: var(--primary-color);
-        overflow-x: auto; /* Permite rolar as abas */
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-        font-family: 'Roboto', sans-serif; /* Fonte do cabeçalho */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra suave */
-    }
-    .app-nav::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
-    }
-    .app-nav ul {
-        display: flex;
-        list-style-type: none;
-        margin: 0;
-        padding: 0 8px;
-        white-space: nowrap; /* Impede que as abas quebrem a linha */
-    }
-    .app-nav li a {
-        display: block;
-        padding: 14px 16px;
-        text-decoration: none;
-        color: rgba(255, 255, 255, 0.8);
-        font-weight: 500;
-        font-size: 0.9em;
-        text-transform: uppercase;
-        border-bottom: 3px solid transparent;
-        transition: color 0.3s;
-    }
-    .app-nav li a.active {
-        color: var(--text-light-color);
-        border-bottom: 3px solid var(--accent-color);
-    }
-
-    /* --- Conteúdo Principal (para padding) --- */
+    /* --- Conteúdo Principal --- */
     .main-content {
         padding: 16px;
+        background: var(--background-color);
+        min-height: 100%; /* Preenche o iframe */
     }
 
-    /* --- FIM DOS ESTILOS ADICIONADOS --- */
-
-
-    /* Estilos do Formulário (relatorio2.html) */
+    /* Estilos do Formulário (mantidos e harmonizados) */
     .container{
       width: 100%;
       max-width: var(--max-width);
@@ -122,7 +44,6 @@
       border-radius: 14px;
       padding: 28px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      /* ADICIONADO para centralizar o card na página */
       margin: 0 auto; 
     }
 
@@ -165,7 +86,7 @@
       background: var(--primary-color);
       color: #fff;
     }
-    #submit-button:hover:not(:disabled) { background: #1565C0; } /* Tom de azul mais escuro */
+    #submit-button:hover:not(:disabled) { background: var(--primary-hover-color); }
     button:disabled { background:#ccc; cursor:not-allowed; }
 
     #pioneer-details { display:none; background:#f8f9fa; padding:12px; border-radius:8px; margin-top:8px; }
@@ -209,20 +130,6 @@
 </head>
 <body>
   
-  <header class="app-header">
-      <div class="header-title">Congregação São Paulo</div>
-      <div class="header-icons">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-      </div>
-  </header>
-
-  <nav class="app-nav">
-      <ul>
-          <li><a href="inicio.html">Início</a></li>
-          <li><a href="relatorio2.html" class="active">Entregar Relatorio</a></li>
-      </ul>
-  </nav>
   <main class="main-content">
     <div class="container" role="main" aria-labelledby="page-title">
       <div class="header">
@@ -297,48 +204,46 @@
         <button type="submit" id="submit-button">Enviar Relatório</button>
       </form>
   
-      <div id="success-screen" class="hidden" role="status" aria-live="polite">
-        <h2>✅ Enviado com Sucesso!</h2>
-        <p>Seu relatório foi registrado. Obrigado.</p>
+      <div id="success-screen" class="hidden" role="status">
+        <h2>Relatório Enviado!</h2>
+        <p>Obrigado por enviar seu relatório.</p>
         <div class="button-group">
-          <button id="new-report-btn">Enviar Outro Relatório</button>
+          <button id="new-report-btn">Novo Relatório</button>
           <button id="exit-btn">Sair</button>
         </div>
       </div>
-  
-      <div id="error-message" class="hidden" role="alert"></div>
-  
+
       <div id="goodbye-screen" class="hidden">
         <h2>Obrigado!</h2>
-        <p>Você pode fechar esta página.</p>
+        <p>Seu relatório foi recebido com sucesso. Que Jeová abençoe seus esforços.</p>
       </div>
+      
+      <div id="error-message" class="hidden"></div>
+      
+      <!-- Modal de Confirmação -->
+      <div id="confirmation-modal">
+        <div class="modal-content">
+          <h2>Confirme os Dados</h2>
+          <div id="confirmation-details"></div>
+          <div class="modal-buttons">
+            <button id="edit-button">Editar</button>
+            <button id="confirm-send">Enviar</button>
+          </div>
+        </div>
+      </div>
+  
     </div>
   </main>
 
-  <div id="confirmation-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Confirme seus dados">
-    <div class="modal-content" role="document">
-      <h3 style="margin-top:0;color:var(--primary-color)">Confirme seus Dados</h3>
-      <div id="confirmation-details" style="line-height:1.5;"></div>
-      <div class="modal-buttons">
-        <button id="edit-button" style="background:#ccc;">Voltar e Editar</button>
-        <button id="confirm-send" style="background:var(--primary-color); color:#fff;">Confirmar Envio</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // Todo o seu JavaScript continua exatamente o mesmo aqui
-    // ... (SCRIPT_URL, elementos, funções, etc.) ...
-    
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKs2WvHJwY7npdYszpPNxT2cUc6RA0KzU1S2yv4D2-8Cv-d1iCOkeGColgzYMyJ7xiWw/exec";
+    // Seu script original aqui...
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrh8f4tShxX6i9h4CsQdQd9L4J4S8J5N8w/exec'; // Exemplo, ajuste conforme necessário
 
-    // Elementos
-    const form = document.getElementById('report-form');
     const loadingDiv = document.getElementById('loading');
-    const loadingText = document.getElementById('loading-text');
+    const form = document.getElementById('report-form');
+    const monthSelect = document.getElementById('month-select');
     const groupSelect = document.getElementById('group-select');
     const nameSelect = document.getElementById('name-select');
-    const monthSelect = document.getElementById('month-select');
     const pioneerDetails = document.getElementById('pioneer-details');
     const pioneerType = document.getElementById('pioneer-type');
     const pioneerHours = document.getElementById('pioneer-hours');
@@ -357,8 +262,8 @@
     const editButton = document.getElementById('edit-button');
 
     // Estado
-    let groupsData = {};            // Estrutura: { "Grupo A": ["Nome1", "Nome2"], ... }
-    let currentFormData = {};       // Dados temporários para confirmar/enviar
+    let groupsData = {};            
+    let currentFormData = {};       
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -518,11 +423,6 @@
         submitButton.disabled = false;
         submitButton.textContent = 'Enviar Relatório';
       });
-
-      newReportBtn.addEventListener('click', () => {
-        location.reload();
-});
-
 
       exitBtn.addEventListener('click', () => {
         successScreen.classList.add('hidden');

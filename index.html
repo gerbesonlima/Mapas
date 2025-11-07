@@ -1,877 +1,118 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Territórios Abertos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <link rel="manifest" href="manifest.json">
-    <link rel="manifest" href="manifest.json">
-    
+    <title>App Congregação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        span {
-    display: block;
-    background-color: #fdfdfd;
-    padding: 5vw;
-    margin: 5vw 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    font-family: 'Segoe UI', 'Roboto', sans-serif;
-    font-size: 4vw;
-    line-height: 1.7;
-    color: #222;
-    box-sizing: border-box;
-}
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Roboto', sans-serif; background: #f1f5f9; }
+        #app { height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #4f46e5; color: white; padding: 1rem; text-align: center; font-weight: 500; font-size: 1.125rem; }
+        .content { flex: 1; overflow: hidden; }
+        .iframe { width: 100%; height: 100%; border: none; }
+        
+        /* MENU INFERIOR FIXO */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+            padding-top: 0.5rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .nav-item {
+            flex: 1;
+            padding: 0.5rem 0;
+            text-align: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active { color: #4f46e5; }
+        .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+        .nav-item span { font-size: 0.75rem; font-weight: 500; }
 
-span p {
-    margin-bottom: 4vw;
-    text-align: justify;
-}
-
-span p:first-child {
-    font-weight: bold;
-}
-
-span p::before {
-    content: "• ";
-    color: #4a90e2;
-    font-weight: bold;
-}
-
-/* Ajustes para telas maiores */
-@media (min-width: 600px) {
-    span {
-        font-size: 1.1rem;
-        padding: 24px;
-        margin: 24px 0;
-    }
-
-    span p {
-        margin-bottom: 16px;
-    }
-}
-
-/* ====================================================================
-ESTILOS DO TOAST (NOTIFICAÇÃO)
-====================================================================
-*/
-#toast-notification {
-    visibility: hidden; 
-    min-width: 250px;
-    max-width: 90%;
-    background-color: #4CAF50; /* Verde sucesso */
-    color: white;
-    text-align: center;
-    border-radius: 8px;
-    padding: 16px;
-    position: fixed;
-    z-index: 2000;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 30px;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: visibility 0.5s, opacity 0.5s, bottom 0.5s ease-out;
-    opacity: 0;
-}
-#toast-notification.show {
-    visibility: visible;
-    opacity: 1;
-    bottom: 50px;
-}
-#toast-notification.error {
-    background-color: #D32F2F; /* Vermelho erro */
-}
-
-
-/* ====================================================================
-ESTILOS DO MODAL (REMOVIDO O DE NOTIFICAÇÃO)
-====================================================================
-*/
-.modal-overlay {
-    display: none; /* Começa escondido */
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 40% auto; /* Mais centrado para mobile */
-    padding: 25px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 400px; /* Limite de largura */
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    text-align: center;
-}
-
-.modal-content h2 {
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-.modal-content p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
+        @media (min-width: 768px) {
+            #app { max-width: 400px; margin: 2rem auto; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        }
     </style>
-     <a href="territorios.html"><button>Todos os Territórios</button></a> <br>
-
-  
 </head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <div class="header" id="page-title">Início</div>
 
+        <!-- Conteúdo -->
+        <div class="content">
+            <iframe id="page-iframe" class="iframe" src="inicio.html"></iframe>
+        </div>
 
-<body class="container">
-
-    <button id="botao-instalar" style="display: none; width: 90%; max-width: 400px; margin: 15px auto; padding: 14px; font-size: 16px; font-weight: bold; background-color: #0a6f0e; color: white; border: none; border-radius: 8px; cursor: pointer; text-align: center;">
-        Instalar Aplicativo
-    </button>
-    
-    <div id="territorios-container">
-    </div>
-      
-    <footer>
-        <div class="footer-links">
-            <a href="instrucoes.html">Instruções de uso</a>
-            <a href="https://drive.google.com/drive/folders/17xHF437Jhg3uzSI7jQRcs7rSoj15lCdn?usp=drive_link">Mapas do Drive</a>
-            
+        <!-- MENU INFERIOR - ADICIONE QUANTOS BOTÕES QUISER -->
+        <div class="bottom-nav" id="bottom-menu">
+            <!-- EXEMPLO DE BOTÕES - EDITE AQUI -->
+            <!-- 
+                Para adicionar um botão:
+                <div class="nav-item" onclick="loadPage('sua_pagina.html', 'Título')">
+                    <i class="material-icons">icon_name</i>
+                    <span>Texto</span>
+                </div>
+            -->
+            <div class="nav-item active" onclick="loadPage('index.html', 'Início')">
+                <i class="material-icons">home</i>
+                <span>Início</span>
             </div>
-        <a href="http://googleusercontent.com/maps/google.com/37">Mapa geral dos Territórios</a>
-        <p>© 2025 Mapas dos Territórios</p>
-    </footer>
-
-<script>
-        // Variável global para guardar o evento de instalação
-        let deferredPrompt;
-        // Variável global para o timer do toast
-        let toastTimer;
-
-        // ==========================================================
-        // CONFIGURAÇÃO DO FIREBASE (LOCAL PARA ESTA PÁGINA)
-        // ==========================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
-            authDomain: "territorios-3d0bb.firebaseapp.com",
-            projectId: "territorios-3d0bb",
-            storageBucket: "territorios-3d0bb.firebasestorage.app", 
-            messagingSenderId: "712377474662",
-            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
-            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
-        };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        
-        // Inicializar todos os serviços necessários para ESTA PÁGINA
-        const database = firebase.database();
-        const storage = firebase.storage();
-        // Messaging e Functions REMOVIDOS
-        // ==========================================================
-
-        // Bloco messaging.onMessage() REMOVIDO
-
-        /**
-         * Exibe uma notificação toast
-         */
-        function showToast(message, isError = false) {
-            const toast = document.getElementById("toast-notification");
-            if (!toast) return; // Esta página TEM o toast
-
-            clearTimeout(toastTimer);
-            toast.textContent = message;
-            toast.className = "show"; 
-
-            if (isError) {
-                toast.classList.add("error");
-            } else {
-                toast.classList.remove("error");
-            }
-
-            toastTimer = setTimeout(() => {
-                toast.className = toast.className.replace("show", "");
-                setTimeout(() => { toast.classList.remove("error"); }, 500); 
-            }, 3000);
-        }
-
-       // Função solicitarPermissaoNotificacao() REMOVIDA
-        
-
-        document.addEventListener("DOMContentLoaded", () => {
             
-            // --- LÓGICA DE INSTALAÇÃO DO PWA ---
-            const btnInstalar = document.getElementById('botao-instalar');
+            <div class="nav-item" onclick="loadPage('relatorio2.html', 'Limpeza')">
+                <i class="material-icons">cleaning_services</i>
+                <span>relatorio</span>
+            </div>
 
-            window.addEventListener('beforeinstallprompt', (e) => {
-                console.log('beforeinstallprompt disparado');
-                e.preventDefault();
-                deferredPrompt = e;
-                if(btnInstalar) {
-                    btnInstalar.style.display = 'block';
-                }
-            });
+            <div class="nav-item" onclick="loadPage('territorio.html', 'Campo')">
+                <i class="material-icons">map</i>
+                <span>Campo</span>
+            </div>
 
-            if(btnInstalar) {
-                btnInstalar.addEventListener('click', () => {
-                    console.log('Botão de instalar clicado');
-                    btnInstalar.style.display = 'none';
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        deferredPrompt.userChoice.then((choiceResult) => {
-                            if (choiceResult.outcome === 'accepted') {
-                                console.log('Usuário aceitou a instalação');
-                            } else {
-                                console.log('Usuário recusou a instalação');
-                            }
-                            deferredPrompt = null;
-                        });
-                    }
-                });
-            }
+           
             
-            window.addEventListener('appinstalled', () => {
-                if(btnInstalar) {
-                    btnInstalar.style.display = 'none';
-                }
-                deferredPrompt = null;
-                console.log('PWA foi instalado');
-            });
-            // --- FIM DA LÓGICA DE INSTALAÇÃO ---
-
-            
-            // --- LÓGICA DO MODAL DE PROGRAMAÇÃO ---
-            const modalProg = document.getElementById("modal-programacao");
-            const fecharBtnProg = document.getElementById("fechar-modal");
-
-            if (fecharBtnProg) {
-                fecharBtnProg.onclick = fecharModalProgramacao;
-            }
-            if (modalProg) {
-                window.addEventListener('click', (event) => {
-                    if (event.target == modalProg) {
-                        fecharModalProgramacao();
-                    }
-                });
-            }
-            // --- FIM LÓGICA MODAL PROGRAMAÇÃO ---
-
-            // Lógica do Modal de Permissão de Notificação REMOVIDA
-
-            // O resto do seu código de carregar territórios
-            carregarTerritoriosAbertos();
-        });
-
-        /**
-         * Retorna o nome do dia da semana atual em português.
-         */
-        function getTodayDayName() {
-            const days = ["Domingo", "Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado"];
-            const todayIndex = new Date().getDay();
-            return days[todayIndex];
-        }
-
-        /**
-         * Formata uma data (string ISO ou objeto Date) para "dd/mm/aaaa às HH:MM".
-         */
-        function formatarData(dataISO) {
-            if (!dataISO) return "";
-            try {
-                const data = new Date(dataISO);
-                const dia = String(data.getDate()).padStart(2, '0');
-                const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês é 0-indexado
-                const ano = data.getFullYear();
-                const horas = String(data.getHours()).padStart(2, '0');
-                const minutos = String(data.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
-            } catch (e) {
-                console.error("Erro ao formatar data:", e);
-                return ""; 
-            }
-        }
-
-        /**
-         * FUNÇÃO MODIFICADA (Lógica da Segunda-Feira)
-         * Carrega a programação e os territórios (Em andamento OU Disponíveis)
-         */
-        function carregarTerritoriosAbertos() {
-            const container = document.getElementById("territorios-container");
-            container.innerHTML = "<p>Carregando programação e territórios...</p>";
-
-            // Definições de grupos e mapas
-            const grupos = [
-                { id: "grupo2", nome: "Grupo 02 - Saída casa do Robson", mapaIds: [1, 2, 3, 4, 5, 6] },
-                { id: "grupo3", nome: "Grupo 03 - Saída casa da Raimundinha", mapaIds: [7, 8, 9, 10, 11, 12] },
-                { id: "grupo4", nome: "Grupo 04 - Saída casa do José Lopes", mapaIds: [13, 14, 15, 16, 17, 18, 19, 20] },
-                { id: "grupo1-2", nome: "Grupo 01 - Saída do Salão do Reino", mapaIds: [21, 22, 23, 24, 25] },
-                { id: "grupo5", nome: "Grupo 05 - Saída do Fernando", mapaIds: [26, 27, 28, 29, 30, 31, 32, 33, 34] },
-                { id: "grupo6", nome: "Grupo 06 - Saída Casa do Walter", mapaIds: [35, 36, 37, 38] }
-            ];
-
-            const mapaInfo = {
-                1: { nome: "1 Conjunto São Paulo", link: "https://goo.gl/maps/Md49jEyZRj3EvN6v9" },
-                2: { nome: "2 Curva São Paulo", link: "http://googleusercontent.com/maps/google.com/0" },
-                3: { nome: "3 Vila Beira Rio", link: "http://googleusercontent.com/maps/google.com/1" },
-                4: { nome: "4 Res Araguaia (parte A)", link: "http://googleusercontent.com/maps/google.com/2" },
-                5: { nome: "5 Res Araguaia (parte B)", link: "http://googleusercontent.com/maps/google.com/3" },
-                6: { nome: "6 Vila Bagda", link: "http://googleusercontent.com/maps/google.com/4" },
-                7: { nome: "7 Vila Firmino (parte A)", link: "http://googleusercontent.com/maps/google.com/5" },
-                8: { nome: "8 Vila Firmino (parte B)", link: "http://googleusercontent.com/maps/google.com/6" },
-                9: { nome: "9 Parque Poty (parte A)", link: "http://googleusercontent.com/maps/google.com/7" },
-                10: { nome: "10 Parque Poty (parte B)", link: "http://googleusercontent.com/maps/google.com/8" },
-                11: { nome: "11 Parque Poty (parte C)", link: "http://googleusercontent.com/maps/google.com/9" },
-                12: { nome: "12 Vila Poty", link: "http://googleusercontent.com/maps/google.com/10" },
-                13: { nome: "13 Sales", link: "http://googleusercontent.com/maps/google.com/11" },
-                14: { nome: "14 Cidade Nova", link: "http://googleusercontent.com/maps/google.com/12" },
-                15: { nome: "15 Porto Rico", link: "http://googleusercontent.com/maps/google.com/13" },
-                16: { nome: "16 Renascença I (parte A)", link: "http://googleusercontent.com/maps/google.com/14" },
-                17: { nome: "17 Renascença I (parte B)", link: "http://googleusercontent.com/maps/google.com/15" },
-                18: { nome: "18 Renascença I (parte C)", link: "http://googleusercontent.com/maps/google.com/16" },
-                19: { nome: "19 Renascença I (parte D)", link: "http://googleusercontent.com/maps/google.com/17" },
-                20: { nome: "20 Renascença III", link: "http://googleusercontent.com/maps/google.com/18" },
-                21: { nome: "21 Loteamento Renascença", link: "http://googleusercontent.com/maps/google.com/19" },
-                22: { nome: "22 Renascença III 3⁰ Etapa", link: "http://googleusercontent.com/maps/google.com/20" },
-                23: { nome: "23 Porto Rico II", link: "http://googleusercontent.com/maps/google.com/21" },
-                24: { nome: "24 Andaraí", link: "http://googleusercontent.com/maps/google.com/22" },
-                25: { nome: "25 Jardim dos Pássaros", link: "http://googleusercontent.com/maps/google.com/23" },
-                26: { nome: "26 Washington", link: "http://googleusercontent.com/maps/google.com/24" },
-                27: { nome: "27 Vitória Régia", link: "http://googleusercontent.com/maps/google.com/25" },
-                28: { nome: "28 Sertãozinho", link: "http://googleusercontent.com/maps/google.com/26" },
-                29: { nome: "29 Canaxuê", link: "http://googleusercontent.com/maps/google.com/27" },
-                30: { nome: "30 Conj Novo Milênio", link: "http://googleusercontent.com/maps/google.com/28" },
-                31: { nome: "31 Conj Todos os Santos (parte A)", link: "http://googleusercontent.com/maps/google.com/29" },
-                32: { nome: "32 Conj Todos os Santos (parte B)", link: "http://googleusercontent.com/maps/google.com/30" },
-                33: { nome: "33 Deus Proverá", link: "http://googleusercontent.com/maps/google.com/31" },
-                34: { nome: "34 Loteamento Todos os Santos Lado Direito", link: "http://googleusercontent.com/maps/google.com/32" },
-                35: { nome: "35 Povoado Jumento - Continuação", link: "http://googleusercontent.com/maps/google.com/33" },
-                36: { nome: "36 Pedro Balzi - Vila Nova Esperança", link: "http://googleusercontent.com/maps/google.com/34" },
-                37: { nome: "37 Pedro Balzi - Frente para o Conjunto", link: "http://googleusercontent.com/maps/google.com/35" },
-                38: { nome: "38 Pedro Balzi - Parte de Cima do Morro", link: "http://googleusercontent.com/maps/google.com/36" }
-            };
-
-            const todayString = getTodayDayName();
-
-            database.ref("schedules/field").once("value", scheduleSnapshot => {
-                const scheduleData = scheduleSnapshot.val() || [];
-                let todaySchedule = scheduleData.find(item => item.day === todayString);
-
-                let scheduleHtml = "";
-
-                if (todayString === "Segunda-Feira" && !todaySchedule) {
-                    // Se for Segunda E não tiver programação, exibe um card personalizado
-                    scheduleHtml = `
-                        <div class="schedule-today" style="background-color: #f3f4f6; border-left: 5px solid #6b7280; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #1f2937; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
-                              Programação da Semana
-                            </h2>
-                            <p style="font-size: 1.1rem; margin: 0; color: #333;">Hoje (Segunda-Feira) não há saída de campo programada.</p>
-                            <p style="font-size: 1.1rem; margin: 8px 0 0 0; color: #333;"><strong>Clique no título acima</strong> para ver a programação da semana completa.</p>
-                        </div>
-                    `;
-                    todaySchedule = null; // Garante que a lógica de grupos abaixo funcione
-                
-                } else if (todaySchedule) {
-                    // Lógica original para dias com programação
-                    scheduleHtml = `
-                        <div class="schedule-today" style="background-color: #f0f9ff; border-left: 5px solid #0ea5e9; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #0c4a6e; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
-                              Serviço de Campo -  (${todayString})
-                            </h2>
-                            <p style="font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Local de Saída:</strong> ${todaySchedule.location || 'Não definido'}</p>
-                            <p style"font-size: 1.1rem; margin-bottom: 8px; margin-top: 0; color: #333;"><strong>Horário:</strong> ${todaySchedule.time || 'Não definido'}</p>
-                            <p style="font-size: 1.1rem; margin: 0; color: #333;"><strong>Dirigente:</strong> ${todaySchedule.leader || 'Não definido'}</p>
-                        </div>
-                    `;
-                } else {
-                    // Lógica original para outros dias sem programação (Terça, Quarta, etc.)
-                    scheduleHtml = `
-                        <div class="schedule-today" style="background-color: #fffbeb; border-left: 5px solid #facc15; padding: 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 24px; font-family: 'Roboto', sans-serif;">
-                            <h2 id="titulo-programacao-dia" style="font-size: 1.4rem; font-weight: 500; color: #713f12; margin-top: 0; margin-bottom: 12px; cursor: pointer;" title="Clique para ver a semana completa">
-                                Programação de Hoje (${todayString})
-                            </h2>
-                            <p style="font-size: 1.1rem; margin: 0; color: #333;">Nenhuma programação de campo encontrada para hoje.</p>
-                        </div>
-                    `;
-                }
-                
-                container.innerHTML = scheduleHtml;
-
-                const tituloH2 = document.getElementById("titulo-programacao-dia");
-                if (tituloH2) {
-                    tituloH2.addEventListener('click', abrirModalProgramacao);
-                }
-
-                // Define quais grupos processar
-                let gruposParaProcessar = [];
-                let locationName = "";
-                
-                if (todaySchedule && todaySchedule.location && todaySchedule.location.trim() !== "") {
-                    locationName = todaySchedule.location.trim();
-                    const matchingGroup = grupos.find(g => 
-                        g.nome.toLowerCase().includes(locationName.toLowerCase())
-                    );
-                    
-                    if (matchingGroup) {
-                        gruposParaProcessar = [matchingGroup];
-                    }
-                }
-
-                // Se for Domingo OU Segunda-Feira (e não tiver grupo definido), mostra todos os grupos.
-                if (gruposParaProcessar.length === 0 && (todayString === "Domingo" || todayString === "Segunda-Feira")) {
-                    gruposParaProcessar = grupos; 
-                    locationName = "Todos os grupos"; 
-                }
-
-                // Busca os dados dos mapas
-                database.ref("mapas").once("value", mapsSnapshot => {
-                    const mapas = mapsSnapshot.val() || {};
-                    let hasTerritories = false; // Para rastrear se encontramos algum mapa (aberto ou disponível)
-
-                    gruposParaProcessar.forEach(grupo => {
-                        
-                        // 1. Busca mapas EM ANDAMENTO
-                        const mapasAbertos = grupo.mapaIds
-                            .map(id => ({ id, dados: mapas[id] }))
-                            .filter(mapa => mapa.dados && mapa.dados.status === "Status: Em andamento");
-
-                        // 2. Busca mapas DISPONÍVEIS (Não iniciados ou nunca tocados)
-                        const mapasDisponiveis = grupo.mapaIds
-                            .map(id => ({ id, dados: mapas[id] }))
-                            .filter(mapa => 
-                                !mapa.dados || // Nunca foi tocado
-                                !mapa.dados.status || // Não tem status
-                                mapa.dados.status === "Status: Não iniciado"
-                            );
-
-                        // --- LÓGICA 1: Se houver mapas EM ANDAMENTO, mostra-os ---
-                        if (mapasAbertos.length > 0) {
-                            hasTerritories = true; // Encontramos territórios
-                            
-                            const grupoDiv = document.createElement("div");
-                            grupoDiv.className = "grupo";
-                            grupoDiv.innerHTML = `
-                                <div class="grupo-titulo active" onclick="toggleList('${grupo.id}')">${grupo.nome} (Em Andamento)</div>
-                                <div class="grupo-lista card-grid" id="${grupo.id}" style="display: grid;">
-                                </div>
-                            `;
-                            const lista = grupoDiv.querySelector(`#${grupo.id}`);
-
-                            mapasAbertos.forEach(mapa => {
-                                const mapaDiv = document.createElement("div");
-                                mapaDiv.className = "card mapa-card";
-                                
-                                const info = mapaInfo[mapa.id] || { nome: `Mapa ${mapa.id}`, link: "#" };
-                                const nomeMapaFormatado = info.nome.replace(/'/g, "\\'");
-
-                                let anexoHtml = "";
-                                let dataAnexoHtml = ""; 
-
-                                if (mapa.dados.anexoData) {
-                                    dataAnexoHtml = `<p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${formatarData(mapa.dados.anexoData)}</p>`;
-                                }
-
-                                if (mapa.dados.anexoURL) {
-                                    anexoHtml = `
-                                        <div id="anexo-container-${mapa.id}" style="margin-top: 12px;">
-                                            <p><strong>Territorio atual:</strong></p>
-                                            <a href="${mapa.dados.anexoURL}" target="_blank">
-                                                <img src="${mapa.dados.anexoURL}" alt="Anexo do Mapa ${mapa.id}" 
-                                                     style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
-                                            </a>
-                                            ${dataAnexoHtml} </div>
-                                    `;
-                                } else {
-                                    anexoHtml = `<div id="anexo-container-${mapa.id}"></div>`;
-                                }
-
-                                mapaDiv.innerHTML = `
-                                    <h3><a href="${info.link}" target="_blank">${info.nome}</a></h3>
-                                    <p><strong>Status:</strong> Em andamento</p>
-                                    
-                                    <label for="observacao-${mapa.id}"><strong>Observações:</strong></label>
-                                    <textarea id="observacao-${mapa.id}" class="observacao-input" placeholder="Digite suas observações">${mapa.dados.observacao || ""}</textarea>
-                                    
-                                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-                                        <button class="save-btn" onclick="salvarObservacao(${mapa.id})">Salvar Observação</button>
-                                        <button class="save-btn" onclick="fecharMapa(${mapa.id}, '${nomeMapaFormatado}')" style="background-color: #f44336;">
-                                            Concluir Mapa
-                                        </button>
-                                    </div>
-
-                                    <hr style="margin: 16px 0; border: 0; border-top: 1px solid #eee;">
-
-                                    ${anexoHtml}
-
-                                    <label for="anexo-input-${mapa.id}" style="display: block; margin-top: 12px; font-weight: bold;">Atualizar Territorio (Print):</label>
-                                    <input type="file" id="anexo-input-${mapa.id}" accept="image/*" style="display: block; margin-top: 4px; width: 100%;">
-                                    <button class="save-btn" onclick="salvarAnexo(${mapa.id})" style="margin-top: 8px;">Postar</button>
-                                    
-                                    <div id="upload-status-${mapa.id}" style="font-size: 0.9em; color: #555; margin-top: 4px;"></div>
-                                `;
-                                lista.appendChild(mapaDiv);
-                            });
-
-                            container.appendChild(grupoDiv); 
-                        
-                        // --- LÓGICA 2: Se NÃO houver mapas em andamento, MAS HOUVER disponíveis ---
-                        } else if (mapasDisponiveis.length > 0) {
-                            hasTerritories = true; // Encontramos territórios
-                            
-                            const grupoDiv = document.createElement("div");
-                            grupoDiv.className = "grupo";
-                            grupoDiv.innerHTML = `
-                                <div class="grupo-titulo active" onclick="toggleList('${grupo.id}-disponivel')">${grupo.nome} (Mapas Disponíveis)</div>
-                                <div class="grupo-lista" id="${grupo.id}-disponivel" style="display: grid; grid-template-columns: 1fr; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); overflow: hidden;">
-                                </div>
-                            `;
-                            const lista = grupoDiv.querySelector(`#${grupo.id}-disponivel`);
-
-                            const header = document.createElement("p");
-                            header.textContent = "Escolha um mapa para iniciar o trabalho:";
-                            header.style.cssText = "padding: 16px 16px 8px 16px; font-weight: 500; color: #333; margin: 0; background-color: #f9f9f9;";
-                            lista.appendChild(header);
-
-                            mapasDisponiveis.forEach(mapa => {
-                                const info = mapaInfo[mapa.id] || { nome: `Mapa ${mapa.id}`, link: "#" };
-                                
-                                const mapaDiv = document.createElement("div");
-                                mapaDiv.style.cssText = "padding: 14px 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; gap: 10px;";
-                                
-                                const nomeMapaFormatado = info.nome.replace(/'/g, "\\'");
-                                
-                                mapaDiv.innerHTML = `
-                                    <h3 style="font-size: 1rem; margin: 0; font-weight: 400;">
-                                        <a href="${info.link}" target="_blank" style="color: #3f51b5; text-decoration: none;">${info.nome}</a>
-                                    </h3>
-                                    <button class="save-btn" onclick="iniciarMapa(${mapa.id}, '${nomeMapaFormatado}')" style="margin-top: 0; flex-shrink: 0; background-color: #4CAF50;">
-                                        Iniciar
-                                    </button>
-                                `;
-                                lista.appendChild(mapaDiv);
-                            });
-                            if (lista.lastChild) {
-                                lista.lastChild.style.borderBottom = "none";
-                            }
-
-                            container.appendChild(grupoDiv);
-                        }
-                    });
-
-                    // --- LÓGICA 3: Mensagem de "Nada encontrado" ---
-                    let message = "";
-                    if (gruposParaProcessar.length === 0) {
-                        if (todaySchedule && todaySchedule.location) {
-                             message = `Nenhum grupo encontrado para o local de saída de hoje: "${todaySchedule.location}". Verifique a configuração.`;
-                        
-                        // Modificado para não mostrar mais a mensagem de erro na Segunda-Feira
-                        } else if (!todaySchedule && todayString !== "Domingo" && todayString !== "Segunda-Feira") {
-                            message = "Nenhum local de saída programado para hoje.";
-                        }
-                    
-                    } else if (!hasTerritories) { 
-                        if (gruposParaProcessar.length > 1) {
-                            message = "Não há territórios (nem em andamento, nem disponíveis) em nenhum grupo no momento.";
-                        } else {
-                             message = `O grupo de hoje (${gruposParaProcessar[0].nome}) não possui territórios (nem em andamento, nem disponíveis) no momento. (Todos podem estar concluídos).`;
-                        }
-                    }
-
-                    if (message) {
-                        const noMapsMessage = document.createElement("p");
-                        noMapsMessage.textContent = message;
-                        noMapsMessage.style.textAlign = 'center';
-                        noMapsMessage.style.padding = '20px';
-                        noMapsMessage.style.color = '#555';
-                        container.appendChild(noMapsMessage);
-                    }
-
-                }).catch(error => {
-                    console.error("Erro ao carregar territórios:", error);
-                    container.innerHTML += "<p>Erro ao carregar territórios: " + error.message + "</p>";
-                });
-                
-            }).catch(error => {
-                console.error("Erro ao carregar programação:", error);
-                container.innerHTML = "<p>Erro ao carregar programação: " + error.message + "</p>";
-            });
-        }
-        // ==========================================================
-        // === FIM DA FUNÇÃO MODIFICADA ===
-        // ==========================================================
-
-
-        function toggleList(id) {
-            const lista = document.getElementById(id);
-            const titulo = lista.previousElementSibling;
-            
-            const isGrid = window.getComputedStyle(lista).display === "grid";
-
-            if (isGrid) {
-                lista.style.display = "none";
-                titulo.classList.remove("active");
-            } else {
-                lista.style.display = "grid";
-                titulo.classList.add("active");
-            }
-        }
-
-
-        function salvarObservacao(mapaId) {
-            const observacao = document.getElementById(`observacao-${mapaId}`).value.trim();
-            database.ref(`mapas/${mapaId}/observacao`).set(observacao)
-                .then(() => {
-                    showToast("Observação salva com sucesso!"); 
-                })
-                .catch(error => {
-                    console.error("Erro ao salvar observação:", error);
-                    showToast("Erro ao salvar observação: " + error.message, true); 
-                });
-        }
-
-        // ==========================================================
-        // === FUNÇÃO RESTAURADA (salvarAnexo) ===
-        // ==========================================================
-        function salvarAnexo(mapaId) {
-            const input = document.getElementById(`anexo-input-${mapaId}`);
-            const file = input.files[0];
-            const statusDiv = document.getElementById(`upload-status-${mapaId}`);
-            
-            if (!file) {
-                showToast("Por favor, selecione um arquivo de imagem.", true);
-                return;
-            }
-
-            statusDiv.textContent = "Enviando imagem...";
-
-            const filePath = `anexos/mapa_${mapaId}/anexo_principal`;
-            const storageRef = storage.ref(filePath);
-            const task = storageRef.put(file);
-
-            task.on('state_changed', 
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    statusDiv.textContent = 'Enviando... ' + Math.round(progress) + '%';
-                }, 
-                (error) => {
-                    console.error("Erro no upload:", error);
-                    statusDiv.textContent = ""; 
-                    showToast("Erro ao enviar: " + error.message, true);
-                }, 
-                () => {
-                    task.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        
-                        const dataAtual = new Date().toISOString(); 
-                        const dataFormatada = formatarData(dataAtual); 
-
-                        database.ref(`mapas/${mapaId}`).update({
-                            anexoURL: downloadURL,
-                            anexoData: dataAtual 
-                        })
-                        .then(() => {
-                            statusDiv.textContent = ""; 
-                            showToast("Anexo salvo com sucesso!");
-                            
-                            const container = document.getElementById(`anexo-container-${mapaId}`);
-                            
-                            container.innerHTML = `
-                                <p><strong>Anexo Atual:</strong></p>
-                                <a href="${downloadURL}" target="_blank">
-                                    <img src="${downloadURL}" alt="Anexo do Mapa ${mapaId}" 
-                                            style="width: 100%; max-width: 300px; max-height: 300px; height: auto; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background-color: #f9f9f9;">
-                                </a>
-                                <p style="font-size: 0.9em; color: #555; margin-top: 4px;">Atualizado em: ${dataFormatada}</p>
-                            `;
-                            input.value = "";
-
-                            // Chamada de notificação REMOVIDA
-                            // notificarEnvioDeAnexo(mapaId); 
-
-                        })
-                        .catch((err) => {
-                                statusDiv.textContent = "";
-                                showToast("Erro ao salvar URL no banco: " + err.message, true);
-                        });
-                    });
-                }
-            );
-        }
-        // ==========================================================
-        // === FIM DA FUNÇÃO RESTAURADA ===
-        // ==========================================================
-
-        
-        // Função notificarEnvioDeAnexo() REMOVIDA
-        
-
-        // ==========================================================
-        // === INÍCIO DA FUNÇÃO (iniciarMapa) ===
-        // ==========================================================
-        
-        /**
-         * Pega um mapa "Não iniciado" e o define como "Em andamento"
-         */
-        function iniciarMapa(mapaId, nomeMapa) {
-            // Pede confirmação ao usuário
-            if (!confirm(`Tem certeza que deseja iniciar o trabalho no mapa "${nomeMapa}"?`)) {
-                return;
-            }
-
-            // Pega a data atual no formato AAAA-MM-DD
-            const dataInicio = new Date().toISOString().slice(0, 10);
-            
-            // Atualiza o mapa específico no Firebase
-            database.ref(`mapas/${mapaId}`).update({
-                status: "Status: Em andamento",
-                dataInicio: dataInicio,
-                dataFim: "", // Garante que a data de fim (se houver) seja limpa
-                observacao: "" // Opcional: Limpa observações antigas
-            })
-            .then(() => {
-                showToast("Mapa iniciado com sucesso! Recarregando...");
-                
-                // Recarrega a página após 1.5s para mostrar o mapa
-                // já na seção "Em Andamento" com todas as opções.
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            })
-            .catch(error => {
-                console.error("Erro ao iniciar mapa:", error);
-                showToast("Erro ao iniciar mapa: " + error.message, true); 
-            });
-        }
-        
-        // ==========================================================
-        // === FIM DA FUNÇÃO (iniciarMapa) ===
-        // ==========================================================
-
-
-        // ==========================================================
-        // === INÍCIO DA FUNÇÃO (fecharMapa) ===
-        // ==========================================================
-
-        /**
-         * Pega um mapa "Em andamento" e o define como "Concluído"
-         */
-        function fecharMapa(mapaId, nomeMapa) {
-            // Pede confirmação ao usuário
-            if (!confirm(`Tem certeza que deseja FECHAR o trabalho no mapa "${nomeMapa}"? Esta ação irá concluir o mapa.`)) {
-                return;
-            }
-
-            // Pega a data atual no formato AAAA-MM-DD
-            const dataFim = new Date().toISOString().slice(0, 10);
-            
-            // Atualiza o mapa específico no Firebase
-            database.ref(`mapas/${mapaId}`).update({
-                status: "Status: Concluído (Pronto p/ Relatório)",
-                dataFim: dataFim
-            })
-            .then(() => {
-                showToast("Mapa fechado com sucesso! Recarregando...");
-                
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            })
-            .catch(error => {
-                console.error("Erro ao fechar mapa:", error);
-                showToast("Erro ao fechar mapa: " + error.message, true); 
-            });
-        }
-
-        // ==========================================================
-        // === FIM DA FUNÇÃO (fecharMapa) ===
-        // ==========================================================
-
-
-        // --- FUNÇÕES DO MODAL ---
-
-        function fecharModalProgramacao() {
-            const modal = document.getElementById("modal-programacao");
-            if (modal) modal.style.display = "none";
-        }
-            function abrirModalProgramacao() {
-            const modal = document.getElementById("modal-programacao");
-            const modalConteudo = document.getElementById("modal-conteudo-programacao");
-            
-            if (!modal || !modalConteudo) return;
-
-            modal.style.display = "block";
-            modalConteudo.innerHTML = "<p>Carregando...</p>";
-
-            database.ref("schedules/field").once("value", snapshot => {
-                const programacaoSemanal = snapshot.val() || [];
-                
-                if (programacaoSemanal.length === 0) {
-                    modalConteudo.innerHTML = "<p>Nenhuma programação semanal foi configurada.</p>";
-                    return;
-                }
-
-                let tabelaHtml = `
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                        <thead style="background-color: #f0f0f0;">
-                            <tr>
-                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Dia</th>
-                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Local</th>
-                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Horário</th>
-                                <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Dirigente</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                programacaoSemanal.forEach(item => {
-                    tabelaHtml += `
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 6px;"><strong>${item.day}</strong></td>
-                            <td style="border: 1px solid #ddd; padding: 6px;">${item.location || ''}</td>
-                            <td style="border: 1px solid #ddd; padding: 6px;">${item.time || ''}</td>
-                            <td style="border: 1px solid #ddd; padding: 6px;">${item.leader || ''}</td>
-                        </tr>
-                    `;
-                });
-
-                tabelaHtml += `</tbody></table>`;
-                modalConteudo.innerHTML = tabelaHtml;
-
-            }).catch(error => {
-                console.error("Erro ao buscar programação semanal:", error);
-                modalConteudo.innerHTML = "<p>Erro ao carregar a programação. Tente novamente.</p>";
-            });
-        }
-       </script>
-<div id="modal-programacao" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
-    <div style="background-color: #fefefe; margin: 20% auto; padding: 2px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-        
-        <span id="fechar-modal" style="color: #aaa; float: right; font-size: 15px; font-weight: bold; cursor: pointer; line-height: 0.5;">×</span>
-        
-        <h2 style="font-size: 1.3rem; font-weight: 500; color: #333; margin-top: 0; margin-bottom: 15px;">Campo</h2>
-        
-        <div id="modal-conteudo-programacao" style="max-height: 400px; overflow-y: auto;">
-            <p>Carregando...</p>
         </div>
     </div>
-</div>
 
-<div id="toast-notification"></div>
+    <script>
+        function loadPage(url, title) {
+            const iframe = document.getElementById('page-iframe');
+            const titleEl = document.getElementById('page-title');
+            const navItems = document.querySelectorAll('.nav-item');
 
+            // Atualiza título
+            titleEl.textContent = title;
 
+            // Carrega página
+            iframe.src = url;
+
+            // Marca botão ativo
+            navItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Atualiza título ao carregar
+        document.getElementById('page-iframe').addEventListener('load', function() {
+            const url = this.src.split('/').pop();
+            const map = {
+                'inicio.html': 'Início',
+                'admin.html': 'Admin',
+                'relatorio2.html': 'Relatorio',
+                'territorio.html': 'Campo',
+                'ajuda.html': 'Ajuda'
+            };
+            document.getElementById('page-title').textContent = map[url] || 'App';
+        });
+    </script>
 </body>
 </html>
