@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Visitas por Quadra</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { height: 70vh; width: 100%; } /* Altura e largura do mapa */
+        .controls { padding: 10px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background-color: #0056b3; }
+
+        /* --- CSS ADICIONADO PARA O TEXTO DA QUADRA --- */
+        .quadra-label {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #333; /* Cor principal do texto */
+            font-size: 14px;
+            font-weight: bold;
+            /* Sombra de texto para ajudar na legibilidade em qualquer fundo */
+            text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h1>Mapa de Visitas - Conjunto São Paulo</h1>
+        <p>Clique nas quadras para mudar seu status de visita.</p>
+        <button id="resetButton">Resetar Todas as Quadras</button>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // Coordenadas centrais para o mapa (exemplo, você precisará ajustar para o Conjunto São Paulo)
+        // Essas coordenadas são mais ou menos o centro da sua imagem de mapa.
+        const centroDoMapa = [-5.109478250892787, -42.73159233037812]; // Exemplo: Centro de São Paulo, você deve mudar!
+        const zoomInicial = 16.5; // Nível de zoom
+
+        // Inicializa o mapa
+        const map = L.map('map').setView(centroDoMapa, zoomInicial);
+
+        // Adiciona a camada de mapa base (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // --- DEFINIÇÃO DAS QUADRAS (POLÍGONOS) ---
+        // ATENÇÃO: ESTAS SÃO COORDENADAS FICTÍCIAS PARA DEMONSTRAÇÃO!
+        // VOCÊ DEVE SUBSTITUIR PELAS COORDENADAS REAIS DE CADA CANTO DE SUAS QUADRAS.
+        // Formato: [[lat1, lon1], [lat2, lon2], [lat3, lon3], [lat4, lon4]]
+
+        // Exemplo de uma QUADRA A
+        const coords_QA = [
+            [-5.109188053652607, -42.73280229934059], // Canto superior esquerdo
+            [-5.109130992916853, -42.73244419324904], // Canto superior direito
+            [-5.11106377910359, -42.73189542392853], // Canto inferior direito
+            [-5.111329369444862, -42.73220578777016]  // Canto inferior esquerdo
+        ];
+
+        // Exemplo de uma QUADRA B (adjacente à A)
+        const coords_QB = [
+            [-5.1089477603495315, -42.732385011955685], // Canto superior esquerdo
+            [-5.1087997258549525, -42.73206153415373], // Canto superior direito
+            [-5.110737292028634, -42.731554023433404], // Canto inferior direito
+            [-5.110990593174692, -42.73182246411993]  // Canto inferior esquerdo
+        ];
+
+        // Exemplo de uma QUADRA C (abaixo da A)
+        const coords_QC = [
+            [-5.1087544978677935, -42.731980641116124],
+            [-5.10858895323453, -42.73168600522402],
+            [-5.110450073790369, -42.73116220807302],
+            [-5.110670799320684, -42.73147195349726]
+        ];
+
+        // Definição dos estilos de status
+        const statusStyles = {
+            'Pendente': { color: '#ff0000', fillColor: '#ffcccc', fillOpacity: 0.7, weight: 2 }, // Vermelho claro
+            'Em Andamento': { color: '#ffa500', fillColor: '#ffe0b3', fillOpacity: 0.7, weight: 2 }, // Laranja claro
+            'Concluído': { color: '#008000', fillColor: '#ccffcc', fillOpacity: 0.7, weight: 2 }   // Verde claro
+        };
+
+        // Função para criar uma quadra
+        function createQuadra(name, coordinates, initialStatus = 'Pendente') {
+            const quadra = L.polygon(coordinates, statusStyles[initialStatus]).addTo(map);
+            quadra.bindPopup(`<b>Quadra: ${name}</b><br>Status: ${initialStatus}`);
+            
+            // --- LINHA ADICIONADA ---
+            // Adiciona o rótulo de texto permanente
+            quadra.bindTooltip(initialStatus, {
+                permanent: true, 
+                direction: 'center', 
+                className: 'quadra-label'
+            }).openTooltip();
+            
+            quadra.name = name; // Atribui um nome para fácil referência
+            quadra.status = initialStatus; // Atribui o status atual
+
+            // Adiciona interação de clique
+            quadra.on('click', function() {
+                // Alterna entre os status
+                if (this.status === 'Pendente') {
+                    this.status = 'Em Andamento';
+                } else if (this.status === 'Em Andamento') {
+                    this.status = 'Concluído';
+                } else {
+                    this.status = 'Pendente';
+                }
+                this.setStyle(statusStyles[this.status]); // Aplica o novo estilo
+                this.getPopup().setContent(`<b>Quadra: ${this.name}</b><br>Status: ${this.status}`); // Atualiza o popup
+                
+                // --- LINHA ADICIONADA ---
+                this.getTooltip().setContent(this.status); // Atualiza o texto do rótulo
+                
+                saveQuadraStatus(this.name, this.status); // Salva o status (em localStorage para este exemplo)
+            });
+            return quadra;
+        }
+
+        // Array para armazenar todas as quadras
+        const quadras = [];
+
+        // Cria as quadras e adiciona ao array
+        quadras.push(createQuadra('Q-A', coords_QA));
+        quadras.push(createQuadra('Q-B', coords_QB));
+        quadras.push(createQuadra('Q-C', coords_QC));
+        // Adicione mais quadras aqui... por exemplo:
+        // quadras.push(createQuadra('Q-D', coords_QD));
+        // quadras.push(createQuadra('Q-E', coords_QE));
+
+
+        // --- FUNCIONALIDADES DE SALVAR E CARREGAR (USANDO localStorage) ---
+        function saveQuadraStatus(name, status) {
+            localStorage.setItem(`quadra_${name}_status`, status);
+        }
+
+        function loadAllQuadrasStatus() {
+            quadras.forEach(quadra => {
+                const savedStatus = localStorage.getItem(`quadra_${quadra.name}_status`);
+                if (savedStatus && statusStyles[savedStatus]) {
+                    quadra.status = savedStatus;
+                    quadra.setStyle(statusStyles[savedStatus]);
+                    quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
+                    
+                    // --- LINHA ADICIONADA ---
+                    quadra.getTooltip().setContent(quadra.status); // Define o texto do rótulo ao carregar
+                }
+            });
+        }
+
+        // Carrega o status ao iniciar
+        loadAllQuadrasStatus();
+
+        // --- FUNCIONALIDADE DO BOTÃO DE RESETAR ---
+        document.getElementById('resetButton').addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja resetar o status de todas as quadras para "Pendente"?')) {
+                quadras.forEach(quadra => {
+                    quadra.status = 'Pendente';
+                    quadra.setStyle(statusStyles['Pendente']);
+                    quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
+                    
+                    // --- LINHA ADICIONADA ---
+                    quadra.getTooltip().setContent('Pendente'); // Reseta o texto do rótulo
+
+                    saveQuadraStatus(quadra.name, 'Pendente');
+                });
+                alert('Todos os status foram resetados para "Pendente".');
+            }
+        });
+
+    </script>
+</body>
+</html>
