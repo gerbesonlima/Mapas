@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-B">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Visitas por Quadra (Firebase)</title>
+    <title>Conjunto São Paulo</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,7 +30,7 @@
 <body>
     <div class="controls">
         <h1>Conjunto São Paulo</h1>
-        <p>Clique nas quadras para mudar seu status de visita. (Salvo no Firebase)</p>
+        <p>Clique nas quadras para mudar seu status de visita.</p>
         <button id="resetButton">Resetar Todas as Quadras</button>
     </div>
     <div id="map"></div>
@@ -94,6 +94,20 @@
             [-5.110670799320684, -42.73147195349726]  // Canto Inferior Esquerdo
         ];
 
+         const coords_QD = [
+            [-5.108537158014731, -42.73160473577895], // Canto Superior Esquerdo
+            [-5.108338787701675, -42.73129404401757], // Canto Superior Direito
+            [-5.1098344983540445, -42.73088377156201], // Canto Inferior Direito
+            [-5.110084444355055, -42.73117056395714]  // Canto Inferior Esquerdo
+        ];
+
+         const coords_QE = [
+            [-5.108306336962282, -42.73122109068097], // Canto Superior Esquerdo
+            [-5.108107767503081, -42.73090076866613], // Canto Superior Direito
+            [-5.109543358367828, -42.730472436439925], // Canto Inferior Direito
+            [-5.1097999362961595, -42.73079275845477]  // Canto Inferior Esquerdo
+        ];
+
         // Exemplo para adicionar uma nova quadra 'Q-D':
         // const coords_QD = [
         //     [lat, long], // Canto Superior Esquerdo
@@ -104,7 +118,7 @@
 
         // Definição dos estilos de status
         const statusStyles = {
-            'Pendente': { color: '#ff0000', fillColor: '#ffcccc', fillOpacity: 0.7, weight: 2 },
+            'Pendente': { color: '#ff0000', fillOpacity: 0, weight: 2 }, // Apenas borda vermelha
             'Em Andamento': { color: '#ffa500', fillColor: '#ffe0b3', fillOpacity: 0.7, weight: 2 },
             'Concluído': { color: '#008000', fillColor: '#ccffcc', fillOpacity: 0.7, weight: 2 }
         };
@@ -150,6 +164,8 @@
         quadras.push(createQuadra('Q-A', coords_QA));
         quadras.push(createQuadra('Q-B', coords_QB));
         quadras.push(createQuadra('Q-C', coords_QC));
+        quadras.push(createQuadra('Q-D', coords_QD));
+        quadras.push(createQuadra('Q-E', coords_QE));
         // Adicione mais quadras aqui...
 
 
@@ -199,10 +215,8 @@
             console.error("Erro ao sincronizar com o Firebase:", error);
             alert("Erro de conexão. Não foi possível sincronizar os status.");
         });
-        
-        // Carrega o status do Firebase ao iniciar
-        // (Note que agora esta função é 'async' e é chamada assim)
-        loadAllQuadrasStatus();
+
+      
 
         
         /**
