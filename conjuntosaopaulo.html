@@ -10,23 +10,47 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        #map { height: 70vh; width: 100%; }
-        .controls { padding: 10px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd; }
-        button { padding: 8px 15px; margin: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
-        button:hover { background-color: #0056b3; }
+
+        body { 
+            margin: 0; padding: 0; font-family: Arial, sans-serif;
+         }
+        #map {
+             height: 70vh; width: 100%;
+             }
+        .controls { 
+            padding: 10px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd;
+         }
+        button {
+             padding: 8px 15px; margin: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;
+             }
+        button:hover {
+             background-color: #0056b3; 
+            }
         /* === CORREÇÃO 1: CSS DO LABEL === */
-        .quadra-label {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            color: #333;
-            font-size: 14px;
-            /* font-weight: bold; */ /* Removido para que o <b> funcione melhor */
-            text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
-            text-align: center; /* Adicionado para centralizar o texto */
-            line-height: 5.5; /* <-- ADICIONADO: Aumenta o espaçamento entre as linhas */
-        }
+       .quadra-label {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: #333;
+    font-size: 13px;
+    /* font-weight: bold; */ 
+    text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
+    text-align: center; 
+    padding-bottom: 5px; /* Dá um espaço geral para o texto girado não vazar */
+   .status-text {
+    display: inline-block; 
+    
+    /* Combina a rotação E a translação (movimento) na mesma linha.
+       1. Gira -45 graus.
+       2. Move 25px para "baixo" no seu novo eixo diagonal.
+    */
+    transform: rotate(75deg) translateY(-2px); 
+    
+    margin-top: 40px; /* Pode deixar uma margem pequena só para garantir o fluxo */
+    font-weight: normal;   
+
+}
+}
     </style>
 </head>
 <body>
@@ -115,7 +139,7 @@
             
             // ===== CORREÇÃO 2: CRIAÇÃO DO TOOLTIP =====
             // O tooltip (texto fixo) agora mostra o NOME e o STATUS
-            const tooltipContent = `<b>${name}</b><br>${initialStatus}`; // Nome em negrito + quebra de linha + status
+            const tooltipContent = `<b>${name}</b><br><span class="status-text">${initialStatus}</span>`;; // Nome em negrito + quebra de linha + status
             quadra.bindTooltip(tooltipContent, { 
                 permanent: true, 
                 direction: 'center', 
@@ -141,7 +165,7 @@
                 
                 // ===== CORREÇÃO 3: ATUALIZAÇÃO DO TOOLTIP NO CLIQUE =====
                 // A linha que muda o texto fixo foi RE-ADICIONADA e atualiza com NOME e STATUS
-                const newTooltipContent = `<b>${this.name}</b><br>${this.status}`;
+              const newTooltipContent = `<b>${this.name}</b><br><span class="status-text">${this.status}</span>`;
                 this.getTooltip().setContent(newTooltipContent);
                 
                 // O salvamento no Firebase continua igual
@@ -190,7 +214,7 @@
                     
                     // ===== CORREÇÃO 4: ATUALIZAÇÃO DO TOOLTIP NA SINCRONIZAÇÃO =====
                     // A linha que muda o texto fixo na sincronização foi RE-ADICIONADA
-                    const newTooltipContent = `<b>${quadra.name}</b><br>${quadra.status}`;
+                   const newTooltipContent = `<b>${quadra.name}</b><br><span class="status-text">${quadra.status}</span>`;;
                     quadra.getTooltip().setContent(newTooltipContent);
                 }
             });
