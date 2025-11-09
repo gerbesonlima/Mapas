@@ -148,8 +148,8 @@
                 }
                 // A cor (estilo) continua mudando
                 this.setStyle(statusStyles[this.status]);
-                // O popup (ao clicar) continua sendo atualizado
-                this.getPopup().setContent(`<b>Quadra: ${this.name}</b><br>Status: ${this.status}`);
+                //(Balão) O popup (ao clicar) continua sendo atualizado
+                this.getPopup().setContent(` <b> ${this.name}</b><br>Status: ${this.status}`);
                 
                 // ===== CORREÇÃO 3: ATUALIZAÇÃO DO TOOLTIP NO CLIQUE =====
                 // A linha que muda o texto fixo foi RE-ADICIONADA e atualiza com NOME e STATUS
