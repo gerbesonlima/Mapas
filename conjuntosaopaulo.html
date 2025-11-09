@@ -10,15 +10,25 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: Arial, sans-serif; 
 
-        body { 
-            margin: 0; padding: 0; font-family: Arial, sans-serif;
-         }
-        #map {
-             height: 70vh; width: 100%;
-             }
+    /* === ADICIONADO === */
+    display: flex;             /* Ativa o layout flexível */
+    flex-direction: column;    /* Empilha os itens (cabeçalho e mapa) verticalmente */
+    height: 100vh;             /* Faz o corpo ocupar 100% da altura da tela */
+}
+       #map { 
+    /* height: 70vh; */  /* <-- REMOVIDO */
+    width: 100%; 
+
+    /* === ADICIONADO === */
+    flex-grow: 1;       /* Faz o mapa "crescer" e ocupar todo o espaço vertical restante */
+}
         .controls { 
-            padding: 10px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd;
+            padding: 1px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd;
          }
         button {
              padding: 8px 15px; margin: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;
@@ -83,7 +93,7 @@
         // --- LÓGICA DO MAPA (LEAFLET) ---
     
         const centroDoMapa = [-5.109478250892787, -42.73159233037812]; 
-        const zoomInicial = 16.5; 
+        const zoomInicial = 17.5; 
 
         const map = L.map('map').setView(centroDoMapa, zoomInicial);
 
@@ -95,7 +105,7 @@
         // --- DEFINIÇÃO DAS COORDENADAS ---
         const coords_QA = [
             [-5.109188053652607, -42.73280229934059], // Canto Superior Esquerdo
-            [-5.109130992916853, -42.73244419324904], // Canto Superior Direito
+            [-5.109003884802046, -42.732461560962186], // Canto Superior Direito
             [-5.11106377910359, -42.73189542392853], // Canto Inferior Direito
             [-5.111329369444862, -42.73220578777016]  // Canto Inferior Esquerdo
         ];
