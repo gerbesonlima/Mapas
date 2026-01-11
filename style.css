@@ -549,45 +549,45 @@ footer p {
 }
 
 /* ================================================= */
-/* === MODIFICAÇÕES PARA LISTA SIMPLES E ABERTA === */
+/* === MODIFICAÇÕES PARA LISTA SIMPLES E FECHADA === */
 /* ================================================= */
 
-/* 1. REMOVE O ESTILO DE CARD (transforma em lista simples) */
+/* 1. ESTILO DE LISTA SIMPLES (Remove o visual de card pesado) */
 
 .grupo-lista {
-    background: none; /* Remove fundo branco */
-    box-shadow: none; /* Remove sombra */
-    border: none; /* Remove borda */
+    display: none; /* Garante que a lista comece FECHADA */
+    background: none; 
+    box-shadow: none; 
+    border: none; 
     padding: 0;
-    margin-top: 5px; 
+    margin-top: 0; 
 }
 
 .mapa-item {
-    background: none;
+    background: var(--surface); /* Mantém o fundo branco nos itens */
     box-shadow: none;
     border-radius: 0;
     margin-bottom: 0; 
-    padding: 10px 8px; 
-    border-bottom: 1px solid var(--divider-color); /* Linha separadora */
+    padding: 12px 16px; 
+    border-bottom: 1px solid var(--divider-color); /* Linha fina separadora */
 }
 
-/* Remove o efeito 'hover' dos cards */
+/* Remove efeitos de hover que podem travar visualmente no celular */
 .card:hover, .mapa-item:hover {
     box-shadow: none;
     transform: none; 
 }
 
 .grupo-lista .mapa-item:last-child {
-    border-bottom: none; /* Remove linha do último item */
+    border-bottom: none; /* Remove a linha do último item da lista */
 }
 
-/* Ajusta telas maiores para não usar grid (mantém formato de lista) */
+/* Ajusta telas maiores para manter o formato de lista simples e fechada */
 @media (min-width: 900px) {
     .grupo-lista {
-        grid-template-columns: none; /* Remove o layout de grid */
-        padding: 0; /* Remove padding extra */
-        
-        /* Re-aplica estilos "sem card" */
+        display: none; /* Também começa fechado no Desktop */
+        grid-template-columns: none; 
+        padding: 0; 
         background: none;
         box-shadow: none;
         border: none;
@@ -597,28 +597,17 @@ footer p {
         box-shadow: none;
         border-bottom: 1px solid var(--divider-color); 
     }
-    .grupo-lista .mapa-item:last-child {
-        border-bottom: none;
-    }
 }
 
+/* 2. LÓGICA DA SETA (CHEVRON) CORRIGIDA */
 
-/* 2. FAZ A LISTA CARREGAR ABERTA (inverte a lógica do 'toggle') */
-
-/* Esta regra sobrescreve a original '.grupo-lista { display: none; }' */
-.grupo-lista {
-    display: block; /* Força a lista a CARREGAR ABERTA */
-}
-
-/* Inverte a lógica da seta (chevron) */
-
-/* Estado padrão (agora "aberto") */
+/* Estado padrão: Fechado (Seta apontando para baixo) */
 .grupo-titulo::after {
-    transform: rotate(180deg); /* Seta aponta para cima */
+    transform: rotate(0deg); 
+    transition: transform 0.3s ease;
 }
 
-/* Quando a classe 'active' for adicionada pelo JS (no primeiro clique), 
-   a seta gira de volta (indicando "fechado") */
+/* Quando o JS adiciona a classe 'active' (Seta gira para cima) */
 .grupo-titulo.active::after {
-    transform: rotate(0deg); 
+    transform: rotate(180deg); 
 }
