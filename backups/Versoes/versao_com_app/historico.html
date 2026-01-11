@@ -1,0 +1,158 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Histórico de Designações</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        .historico-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .historico-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .historico-table th, .historico-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .historico-table th {
+            background-color: #f2f2f2;
+        }
+        .historico-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .historico-table a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .historico-table a:hover {
+            text-decoration: underline;
+        }
+        .password-container {
+            margin-bottom: 20px;
+        }
+        .password-container input {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        .password-container button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .password-container button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="historico-container">
+        <h1>Histórico de Designações</h1>
+        <div class="password-container">
+            <label for="senha-historico">Digite a senha para limpar o histórico:</label>
+            <input type="password" id="senha-historico" placeholder="Senha">
+            <button id="limpar-historico-btn" onclick="limparHistorico()">Limpar Histórico</button>
+        </div>
+        <table class="historico-table">
+            <thead>
+                <tr>
+                    <th>ID do Mapa</th>
+                    <th>Nome</th>
+                    <th>Link</th>
+                    <th>Observação</th>
+                    <th>Ação</th>
+                    <th>Data e Hora</th>
+                </tr>
+            </thead>
+            <tbody id="historico-tbody"></tbody>
+        </table>
+        <p><a href="index.html">Voltar para a página inicial</a></p>
+    </div>
+
+    <script src="firebase.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarHistorico();
+        });
+
+        function carregarHistorico() {
+            const tbody = document.getElementById("historico-tbody");
+            database.ref("historicoDesignacoes").on("value", snapshot => {
+                tbody.innerHTML = "";
+                const historico = snapshot.val();
+                if (historico) {
+                    // Ordenar por timestamp (mais recente primeiro)
+                    const entries = Object.entries(historico).sort((a, b) => 
+                        new Date(b[1].timestamp) - new Date(a[1].timestamp)
+                    );
+                    entries.forEach(([key, entry]) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${entry.mapaId}</td>
+                            <td>${entry.nome}</td>
+                            <td><a href="${entry.link}" target="_blank">${entry.link ? "Abrir" : "-"}</a></td>
+                            <td>${entry.observacao || "-"}</td>
+                            <td>${entry.acao === "designado" ? "Designado" : "Removido"}</td>
+                            <td>${new Date(entry.timestamp).toLocaleString("pt-BR")}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td colspan="6">Nenhum registro encontrado.</td>`;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relatórios Enviados</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { max-width: 1000px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+    th { background: #4CAF50; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .btn { background: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    .btn:hover { background: #45a049; }
+    .btn-danger { background: #F44336; }
+    .btn-danger:hover { background: #e53935; }
+    .no-data { text-align: center; padding: 20px; font-size: 16px; color: #555; }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Relatórios de Serviço</h1>
+    <button class="btn" onclick="copiarRelatorios()">📋 Copiar para WhatsApp</button>
+    <button class="btn" onclick="baixarExcel()">📥 Baixar Excel</button>
+    <button class="btn btn-danger" onclick="excluirTodos()">🗑️ Excluir Tudo</button>
+    <div id="table-container">
+      <p class="no-data">Carregando relatórios...</p>
+    </div>
+  </div>
+
+  <script>
+    const tableContainer = document.getElementById("table-container");
+    const relatoriosRef = database.ref("relatorios");
+    let allReports = [];
+    let whatsappText = "";
+
+    relatoriosRef.on("value", snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        tableContainer.innerHTML = "<p class='no-data'>Nenhum relatório enviado ainda.</p>";
+        allReports = [];
+        whatsappText = "";
+        return;
+      }
+
+      allReports = Object.entries(data); // agora temos id e valores
+      let table = `<table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Mês</th>
+            <th>Participou</th>
+            <th>Estudos</th>
+            <th>Horas</th>
+            <th>Observações</th>
+            <th>Data de Envio</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      let textBlocks = [];
+
+      allReports.forEach(([id, r]) => {
+        const enviadoEm = new Date(r.enviadoEm || "").toLocaleString("pt-BR");
+        table += `
+          <tr>
+            <td>${r.nome || ""}</td>
+            <td>${r.mes || ""}</td>
+            <td>${r.participou ? "✅ Sim" : "❌ Não"}</td>
+            <td>${r.estudos || 0}</td>
+            <td>${r.horas || 0}</td>
+            <td>${r.observacoes || ""}</td>
+            <td>${enviadoEm}</td>
+            <td><button class="btn btn-danger" onclick="excluirRelatorio('${id}')">🗑️ Excluir</button></td>
+          </tr>`;
+
+        textBlocks.push(
+`📋 *${r.nome || "Sem nome"}*
+📅 Mês: ${r.mes || "-"}
+✅ Participou: ${r.participou ? "Sim" : "Não"}
+📖 Estudos: ${r.estudos || 0}
+⏳ Horas: ${r.horas || 0}
+📝 Obs: ${r.observacoes || "-"}\n`
+        );
+      });
+
+      table += "</tbody></table>";
+      tableContainer.innerHTML = table;
+      whatsappText = textBlocks.join("\n");
+    });
+
+    // Copiar formato WhatsApp
+    function copiarRelatorios() {
+      if (!whatsappText) {
+        alert("Nenhum relatório para copiar!");
+        return;
+      }
+      navigator.clipboard.writeText(whatsappText)
+        .then(() => alert("Relatórios copiados! Cole no WhatsApp."))
+        .catch(() => alert("Erro ao copiar. Selecione manualmente."));
+    }
+
+    // Baixar Excel
+    function baixarExcel() {
+      if (!allReports.length) {
+        alert("Nenhum dado para exportar!");
+        return;
+      }
+
+      const rows = [["Nome", "Mês", "Participou", "Estudos", "Horas", "Observações", "Data de Envio"]];
+      allReports.forEach(([_, r]) => {
+        rows.push([
+          r.nome || "",
+          r.mes || "",
+          r.participou ? "Sim" : "Não",
+          r.estudos || 0,
+          r.horas || 0,
+          r.observacoes || "",
+          new Date(r.enviadoEm || "").toLocaleString("pt-BR")
+        ]);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, "Relatórios");
+      XLSX.writeFile(wb, "relatorios.xlsx");
+    }
+
+    // Excluir TODOS os relatórios
+    function excluirTodos() {
+      if (!confirm("Tem certeza que deseja EXCLUIR TODOS os relatórios? Essa ação não pode ser desfeita!")) return;
+      relatoriosRef.remove()
+        .then(() => alert("Todos os relatórios foram excluídos!"))
+        .catch(err => alert("Erro ao excluir: " + err.message));
+    }
+
+    // Excluir relatório individual
+    function excluirRelatorio(id) {
+      if (!confirm("Tem certeza que deseja excluir este relatório?")) return;
+      database.ref("relatorios/" + id).remove()
+        .then(() => alert("Relatório excluído!"))
+        .catch(err => alert("Erro ao excluir: " + err.message));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,625 @@
+/* Reset e Configurações Globais */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary-color: #3f51b5; /* Azul Índigo Material */
+    --primary-dark: #303f9f; /* Índigo Escuro Material */
+    --accent-color: #ff9800; /* Laranja Material como cor de destaque */
+    --text-primary: #212121; /* Preto (87% de opacidade em branco) */
+    --text-secondary: #757575; /* Cinza Médio (54% de opacidade em branco) */
+    --divider-color: #e0e0e0; /* Cinza Claro para divisores e bordas */
+    --background: #f5f5f5; /* Cinza Muito Claro (fundo de apps Android) */
+    --surface: #ffffff; /* Branco para superfícies de cards, diálogos */
+    --error: #f44336; /* Vermelho Material */
+    --success: #4caf50; /* Verde Material */
+    
+    /* Sombras Material Design (aproximações) */
+    --elevation-z1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --elevation-z2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    --elevation-z3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    --elevation-z4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    --elevation-z5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+    
+    --transition-swift: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1); /* Transição rápida Material */
+    --border-radius-standard: 4px; /* Raio de borda comum no Material */
+}
+
+body, html {
+    font-family: 'Roboto', sans-serif; /* Fonte padrão do Android */
+    background: var(--background);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px; /* Base para dp/sp (1dp = 1px em telas mdpi) */
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* App Bar (h1) - Semelhante à Toolbar do Android */
+h1 {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 0 16px; /* Padding lateral típico */
+    height: 56px; /* Altura padrão da Toolbar mobile */
+    line-height: 56px; /* Centralizar texto verticalmente */
+    font-size: 1.25rem; /* Material Title (20sp) */
+    font-weight: 500; /* Medium */
+    text-align: left; /* Títulos geralmente à esquerda ou centralizados se únicos */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Sobrepor outros elementos */
+    box-shadow: var(--elevation-z2); /* Sombra de AppBar */
+    margin: 0;
+    transition: background-color var(--transition-swift);
+}
+
+/* Container Principal */
+.container {
+    flex: 1;
+    padding: 8px; /* Espaçamento menor em telas pequenas, ajustado em media queries */
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Cards - Padrão Material */
+.card, .destaque-principal, .mapa-item, #password-container, .grupo-lista {
+    background: var(--surface);
+    border-radius: var(--border-radius-standard); /* Borda padrão Material */
+    box-shadow: var(--elevation-z1);
+    padding: 16px; /* Espaçamento interno de card */
+    margin-bottom: 16px; /* Espaçamento entre cards */
+    transition: transform var(--transition-swift), box-shadow var(--transition-swift);
+}
+
+.card:hover, .mapa-item:hover { /* Leve elevação no hover para desktop */
+    box-shadow: var(--elevation-z2);
+}
+
+.card-title { /* Usado em .destaque-principal */
+    font-size: 1.125rem; /* Material Subtitle1 (16sp) */
+    font-weight: 500; /* Medium */
+    color: var(--text-primary); 
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+/* Informações (dentro de cards) */
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px; 
+    font-size: 0.875rem; /* Material Body2 (14sp) */
+    gap: 8px;
+}
+
+.info-label {
+    font-weight: 400; /* Normal */
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 500; /* Destaque para o valor */
+    text-align: right;
+}
+
+/* Botões - Estilo Material */
+button, .button { 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; 
+    gap: 8px;
+    padding: 0 16px; 
+    height: 36px; 
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius-standard);
+    font-size: 0.875rem; /* 14sp */
+    font-weight: 500; /* Medium */
+    text-transform: uppercase; 
+    cursor: pointer;
+    transition: background-color var(--transition-swift), box-shadow var(--transition-swift);
+    position: relative;
+    overflow: hidden; 
+    box-shadow: var(--elevation-z1);
+    user-select: none; 
+}
+
+button:hover, .button:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--elevation-z2);
+}
+
+button:focus, .button:focus { 
+    outline: 2px solid var(--primary-dark);
+    outline-offset: 2px;
+    box-shadow: var(--elevation-z2);
+}
+button:active, .button:active { 
+    box-shadow: var(--elevation-z3);
+    background-color: var(--primary-dark); 
+}
+
+
+button.button-secondary {
+    background: var(--surface); 
+    color: var(--primary-color);
+    box-shadow: none; 
+}
+button.button-secondary:hover {
+    background: rgba(0,0,0,0.04); 
+    box-shadow: none;
+}
+
+button.success { background: var(--success); }
+button.success:hover { background: #388e3c; } 
+
+button i { 
+    font-size: 1.125rem; /* 18sp */
+}
+
+/* Botão Animado (Ver onde trabalhar) */
+#open-territories-container {
+    text-align: center;
+    margin: 24px 0 16px;
+}
+.animated-btn { 
+    padding: 0 24px; 
+    font-size: 0.875rem;
+    font-weight: 500;
+    height: 48px; 
+    line-height: 48px;
+    background: var(--accent-color); 
+    color: #fff;
+    border-radius: 24px; 
+    box-shadow: var(--elevation-z3);
+    animation: pulse 2s infinite;
+    transition: var(--transition-swift);
+    text-transform: uppercase;
+}
+.animated-btn:hover {
+    background: #f57c00; 
+    box-shadow: var(--elevation-z4);
+    animation: none;
+}
+@keyframes pulse { 
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+/* Itens de Mapa */
+.mapa-item {
+    padding: 16px;
+    margin-bottom: 8px; 
+}
+.mapa-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem; /* Material Subtitle2 (16sp) */
+    display: block; 
+    margin-bottom: 4px;
+}
+.mapa-item a:hover { text-decoration: underline; }
+
+.mapa-item span#status-id { /* Para o status do mapa - ID específico, aplicar a todos os spans de status */
+    font-size: 0.75rem; /* Material Caption (12sp) */
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 8px;
+}
+/* Se seus spans de status não têm ID, use uma classe ou selecione de forma mais genérica */
+.mapa-item a span[id^="status-"] { /* Seleciona spans dentro de 'a' cujo ID começa com "status-" */
+    font-size: 0.75rem; 
+    color: var(--text-secondary);
+    margin-left: 8px; /* Para separar o status do nome do mapa se estiver na mesma linha do link */
+}
+
+.mapa-item label {
+    font-size: 0.75rem; /* Material Caption */
+    color: var(--text-secondary);
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.mapa-item .info { 
+    margin-top: 8px;
+    border-top: 1px solid var(--divider-color);
+    padding-top: 8px;
+}
+.mapa-item .info label {
+    margin-top: 4px;
+}
+
+
+/* Formulários - Inputs e Textarea com estilo Material */
+label { 
+    font-size: 0.875rem; /* 14sp */
+    color: var(--text-secondary);
+    margin-bottom: 4px; 
+    display: block;
+    font-weight: 400; /* Normal */
+}
+
+textarea, input[type="date"], input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 8px 0; 
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.42); 
+    border-radius: 0; 
+    font-size: 1rem; /* 16sp - tamanho de texto de input */
+    background: transparent; 
+    transition: border-color var(--transition-swift);
+    color: var(--text-primary);
+    margin-bottom: 16px; 
+}
+textarea:focus, input[type="date"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+    border-bottom: 2px solid var(--primary-color); 
+    outline: none;
+    margin-bottom: 15px; /* Ajuste para a borda de 2px */
+}
+textarea {
+    min-height: 80px; 
+    line-height: 1.4;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Botões Específicos (designar, enviar/remover) */
+.designar-btn { background: var(--accent-color); }
+.designar-btn:hover { background: #f57c00; }
+
+.enviar-btn { 
+    background: var(--error);
+    height: 32px; 
+    line-height: 32px;
+    padding: 0 12px;
+    font-size: 0.8125rem; /* 13sp */
+}
+.enviar-btn:hover { background: #d32f2f; }
+/* style.css */
+
+.progress-container {
+    width: 100%;
+    /* max-width: 700px;  - Keep this from your original CSS if you want */
+    background-color: var(--divider-color); /* A light background for the whole container */
+    border-radius: 8px;
+    overflow: hidden; /* Ensures the inner bar respects border-radius */
+    margin-bottom: 20px; /* Add some space below the container */
+    box-shadow: var(--elevation-z1); /* Optional: add a subtle shadow */
+}
+
+.progress-container p {
+    text-align: center;
+    padding: 10px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0; /* Remove default paragraph margin */
+}
+
+.progress-wrapper {
+    position: relative; /* This is key for positioning the text */
+    height: 30px; /* Height of your progress bar */
+    background-color: #e0e0e0; /* Background of the track */
+    border-radius: 8px; /* Match container border-radius */
+    margin: 0 10px 10px 10px; /* Adjust margin around the bar itself */
+    overflow: hidden; /* Ensure anything overflowing is hidden */
+}
+
+.progress-bar {
+    height: 100%; /* Fill the height of the wrapper */
+    width: 0%; /* Initial width */
+    background-color: var(--primary-color); /* Color of the progress fill */
+    border-radius: 8px; /* Match wrapper border-radius */
+    transition: width 0.5s ease-in-out; /* Smooth animation */
+    position: absolute; /* Position within the wrapper */
+    top: 0;
+    left: 0;
+}
+
+.progress-text {
+    position: absolute; /* Position the text absolutely within the wrapper */
+    top: 50%;
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for perfect centering */
+    color: var(--text-primary); /* Or a contrasting color like white if you want it over the bar */
+    font-weight: bold;
+    font-size: 1rem; /* Adjust font size as needed */
+    z-index: 1; /* Ensure text is above the progress bar */
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+/* Add some responsive adjustments if needed based on your existing media queries */
+@media (max-width: 600px) {
+    .progress-wrapper {
+        height: 25px; /* Slightly smaller on mobile */
+    }
+    .progress-text {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Container de Senha */
+#password-container {
+    text-align: center;
+    margin-top: 16px; 
+}
+#password-container input[type="password"] {
+    max-width: 280px; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 12px; 
+    display: block;
+}
+#password-container button {
+    margin-top: 8px;
+}
+
+/* Grupos (Listas Expansíveis) - MODIFICADO PARA BARRA AZUL */
+.grupo {
+    margin-bottom: 16px; 
+}
+.grupo-titulo {
+    background: var(--primary-color); /* MODIFICADO para cor primária (azul) */
+    color: #fff; /* MODIFICADO para texto branco */
+    padding: 12px 16px;
+    border-radius: var(--border-radius-standard);
+    font-weight: 500; 
+    font-size: 1rem; 
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color var(--transition-swift);
+    box-shadow: var(--elevation-z1); /* Leve elevação */
+}
+.grupo-titulo:hover {
+    background: var(--primary-dark); /* MODIFICADO para azul mais escuro no hover */
+}
+.grupo-titulo.active { 
+    background: var(--primary-dark); /* MODIFICADO para manter azul escuro */
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    /* border-bottom: none; /* Removido, pois .grupo-lista agora tem sua própria borda superior */
+}
+
+.grupo-titulo::after { /* Ícone Chevron */
+    content: '\f078'; 
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    transition: transform var(--transition-swift);
+    color: rgba(255,255,255,0.7); /* MODIFICADO para branco semi-transparente */
+}
+.grupo-titulo.active::after {
+    transform: rotate(180deg);
+}
+
+.grupo-lista { 
+    display: none;
+    padding: 0; /* Removido padding para que os .mapa-item preencham */
+    background: var(--surface);
+    border-radius: 0 0 var(--border-radius-standard) var(--border-radius-standard); 
+    margin-top: 0; 
+    box-shadow: var(--elevation-z1);
+    border: 1px solid var(--divider-color);
+    border-top: none; /* Para se conectar suavemente ao .grupo-titulo.active */
+}
+.grupo-lista .mapa-item { 
+    box-shadow: none; 
+    border-radius: 0;
+    border-bottom: 1px solid var(--divider-color); 
+    margin-bottom: 0;
+}
+.grupo-lista .mapa-item:last-child {
+    border-bottom: none; 
+    border-bottom-left-radius: var(--border-radius-standard); /* Arredondar canto do último item */
+    border-bottom-right-radius: var(--border-radius-standard);
+}
+
+/* Footer */
+footer {
+    background: var(--surface); 
+    color: var(--text-secondary);
+    padding: 16px; 
+    text-align: center;
+    margin-top: auto; 
+    border-top: 1px solid var(--divider-color);
+}
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px; 
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+footer a {
+    color: var(--primary-color); 
+    text-decoration: none;
+    font-size: 0.875rem; /* 14sp */
+    font-weight: 500; /* Medium */
+    transition: color var(--transition-swift);
+}
+footer a:hover {
+    text-decoration: underline;
+    color: var(--primary-dark);
+}
+footer p { 
+    font-size: 0.75rem; /* 12sp */
+    margin-top: 16px;
+    color: var(--text-secondary);
+}
+
+/* Utilitários */
+.hidden { display: none !important; }
+.sr-only { 
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Font Awesome (se você já tem no HTML, pode remover esta linha) */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+/* Responsividade */
+@media (min-width: 600px) { 
+    .container {
+        padding: 16px; 
+    }
+    h1 {
+        padding: 0 24px; 
+        height: 64px; 
+        line-height: 64px;
+        font-size: 1.25rem; 
+    }
+    .info-item {
+        font-size: 1rem; 
+    }
+    #password-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center; 
+        justify-content: center;
+    }
+    #password-container input[type="password"] {
+        margin-bottom: 0; 
+        flex-grow: 1; 
+    }
+    .progress-container {
+        max-width: 700px; 
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .grupo-lista {
+        padding: 16px; 
+    }
+}
+
+@media (min-width: 900px) { 
+    .container {
+        max-width: 960px; 
+    }
+    .destaque-principal { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 24px;
+        align-items: start;
+    }
+    .card, .mapa-item { 
+        padding: 20px;
+    }
+    .grupo-lista { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+        gap: 16px;
+        padding: 16px; 
+    }
+    .grupo-lista .mapa-item { 
+        margin-bottom: 0; 
+        border: 1px solid var(--divider-color); 
+        box-shadow: var(--elevation-z1); 
+    }
+     .mapa-item { 
+        padding: 20px;
+    }
+}
+
+/* Acessibilidade - Reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+    .animated-btn, button, .grupo-titulo, #progress-bar { /* Adicionado #progress-bar */
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ================================================= */
+/* === MODIFICAÇÕES PARA LISTA SIMPLES E ABERTA === */
+/* ================================================= */
+
+/* 1. REMOVE O ESTILO DE CARD (transforma em lista simples) */
+
+.grupo-lista {
+    background: none; /* Remove fundo branco */
+    box-shadow: none; /* Remove sombra */
+    border: none; /* Remove borda */
+    padding: 0;
+    margin-top: 5px; 
+}
+
+.mapa-item {
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 0; 
+    padding: 10px 8px; 
+    border-bottom: 1px solid var(--divider-color); /* Linha separadora */
+}
+
+/* Remove o efeito 'hover' dos cards */
+.card:hover, .mapa-item:hover {
+    box-shadow: none;
+    transform: none; 
+}
+
+.grupo-lista .mapa-item:last-child {
+    border-bottom: none; /* Remove linha do último item */
+}
+
+/* Ajusta telas maiores para não usar grid (mantém formato de lista) */
+@media (min-width: 900px) {
+    .grupo-lista {
+        grid-template-columns: none; /* Remove o layout de grid */
+        padding: 0; /* Remove padding extra */
+        
+        /* Re-aplica estilos "sem card" */
+        background: none;
+        box-shadow: none;
+        border: none;
+    }
+    .grupo-lista .mapa-item {
+        border: none; 
+        box-shadow: none;
+        border-bottom: 1px solid var(--divider-color); 
+    }
+    .grupo-lista .mapa-item:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* 2. FAZ A LISTA CARREGAR ABERTA (inverte a lógica do 'toggle') */
+
+/* Esta regra sobrescreve a original '.grupo-lista { display: none; }' */
+.grupo-lista {
+   display: none;
+   overflow: hidden;
+}
+
+/* Inverte a lógica da seta (chevron) */
+
+/* Estado padrão (agora "aberto") */
+.grupo-titulo::after {
+    transform: rotate(180deg); /* Seta aponta para cima */
+}
+
+/* Quando a classe 'active' for adicionada pelo JS (no primeiro clique), 
+   a seta gira de volta (indicando "fechado") */
+.grupo-titulo.active::after {
+    transform: rotate(0deg); 
+}

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #fotoPerfil {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+      text-align: left; 
+      overflow-y: auto; 
+    }
+    nav {
+      background: #222;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-top: 1px solid #444;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+      flex: 1;
+    }
+    nav button.active {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    main h2 {
+        text-align: center;
+        color: #333;
+    }
+    .user-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .user-card {
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .user-card:hover {
+        transform: translateY(-2px);
+    }
+    .user-card img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+        border: 1px solid #eee;
+    }
+    .user-card p {
+        font-size: 14px;
+        color: #333;
+        margin: 0;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .user-list-link {
+        text-decoration: none;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  
+  <script src="firebase.js"></script> 
+</head>
+<body>
+  <header>
+    <span id="tituloSistema">Congregação São Paulo</span>
+    <img id="fotoPerfil" src="https://via.placeholder.com/50" alt="Foto de perfil" onclick="alterarFoto()">
+  </header>
+
+  <main id="conteudo">
+    </main>
+
+  <input type="file" id="uploadFotoInput" onchange="uploadNovaFoto(event)" accept="image/*" style="display: none;">
+
+  <nav>
+    <button onclick="navegar('pagina1')" id="btn1" class="active">Página 1</button>
+    <button onclick="navegar('pagina2')" id="btn2">Página 2</button>
+    <button onclick="navegar('pagina3')" id="btn3">Página 3</button>
+    <button onclick="navegar('pagina4')" id="btn4">Página 4</button>
+    <button onclick="navegar('pagina5')" id="btn5">Página 5</button>
+  </nav>
+
+  <script>
+    let usuarioId = null;
+    let dadosUsuario = null; 
+
+    // *** LINHA REMOVIDA DAQUI ***
+    // const storage = firebase.storage(); 
+    // (Isto já foi definido no firebase.js)
+
+    // Carregar dados do usuário
+    window.onload = async function() {
+      const telefone = localStorage.getItem("telefoneLogado");
+      if (!telefone) {
+        alert("Faça login novamente!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(telefone).once("value");
+      if (snapshot.exists()) {
+        snapshot.forEach(snap => {
+          usuarioId = snap.key;
+          dadosUsuario = snap.val(); 
+        });
+
+        document.getElementById("tituloSistema").innerText = `Olá, ${dadosUsuario.nome.split(' ')[0]}!`;
+        if (dadosUsuario.fotoPerfil) {
+          document.getElementById("fotoPerfil").src = dadosUsuario.fotoPerfil;
+        }
+
+        navegar('pagina1');
+      }
+    }
+
+    // Esta função agora será encontrada porque o script não vai falhar
+    function alterarFoto() {
+      document.getElementById('uploadFotoInput').click();
+    }
+
+    // Nova função de upload
+    async function uploadNovaFoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!usuarioId) return alert("Erro: ID de usuário não encontrado.");
+
+      alert("A enviar a foto... Por favor, aguarde.");
+      
+      // A variável 'storage' está a vir do ficheiro firebase.js
+      const fotoPerfilRef = storage.ref(`fotosPerfil/${usuarioId}/${file.name}`);
+      
+      try {
+        const snapshot = await fotoPerfilRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        await database.ref(`pessoas/${usuarioId}/fotoPerfil`).set(downloadURL);
+        
+        document.getElementById("fotoPerfil").src = downloadURL;
+        alert("Foto atualizada com sucesso!");
+
+      } catch (error) {
+        console.error("Erro ao fazer upload da foto:", error);
+        alert("Erro ao enviar foto.");
+      }
+    }
+
+    // Nova função de navegação
+    async function navegar(pagina) {
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("btn" + pagina.charAt(pagina.length - 1)).classList.add("active");
+
+      const conteudo = document.getElementById("conteudo");
+      
+      if (pagina === 'pagina1') {
+        conteudo.innerHTML = "<h2></h2><p>A carregar...</p>";
+        
+        try {
+          const snapshot = await database.ref("pessoas").once("value");
+          if (!snapshot.exists()) {
+            conteudo.innerHTML = "<h2>Lista de Membros</h2><p>Nenhuma pessoa encontrada.</p>";
+            return;
+          }
+          
+          let html = '<h2>Lista de Membros</h2><div class="user-list">';
+          
+          snapshot.forEach(snap => {
+            const pessoa = snap.val();
+            
+            if (pessoa.telefone === dadosUsuario.telefone) {
+                return; 
+            }
+
+            const foto = pessoa.fotoPerfil || 'https://via.placeholder.com/60';
+            const nome = pessoa.nome.split(' ')[0]; 
+            const telefoneLimpo = pessoa.telefone.replace(/\D/g, ''); 
+            
+            html += `
+              <a href="https://wa.me/55${telefoneLimpo}" target="_blank" class="user-list-link">
+                <div class="user-card">
+                  <img src="${foto}" alt="${nome}">
+                  <p>${nome}</p>
+                </div>
+              </a>
+            `;
+          });
+          
+          html += '</div>';
+          conteudo.innerHTML = html; 
+
+        } catch (error) {
+          console.error("Erro ao carregar pessoas:", error);
+          conteudo.innerHTML = "<h2>Lista de Membros</h2><p>Erro ao carregar a lista.</p>";
+        }
+
+      } else {
+        // Comportamento padrão para as outras páginas
+        conteudo.innerHTML = `<h2>${pagina.toUpperCase()}</h2><p>Conteúdo da ${pagina} aqui!</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

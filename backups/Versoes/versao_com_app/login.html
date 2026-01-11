@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <style>
+  
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #121212;
+    margin: 0;
+    padding: 0;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+  }
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #c8eded; /* Neon blue */
+    text-shadow: 0 0 5px #0babab;
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #b0b0b0;
+  }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #2b2b2b;
+    color: #e0e0e0;
+    box-sizing: border-box;
+  }
+  input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  }
+  button {
+    background: #00ffff;
+    color: #121212;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button:hover {
+    background: #00b0b0;
+    transform: translateY(-2px);
+  }
+  .hidden {
+    display: none;
+  }
+  .dados {
+    background: #2b2b2b;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    margin-bottom: 20px;
+  }
+  .dados p {
+    margin: 5px 0;
+  }
+  .dados strong {
+    color: #00ffff;
+  }
+  .btn-secondary {
+    background: #555;
+    color: #fff;
+  }
+  .btn-secondary:hover {
+    background: #777;
+  }
+
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+    
+  <div class="container">
+  
+    <h1>Login</h1>
+    
+    <div id="step1">
+      <label for="telefone">Digite seu telefone (com DDD):</label>
+      <input type="tel" id="telefone" placeholder="Ex: (86) 99999-9999">
+      <button onclick="verificarTelefone()">Continuar</button>
+    </div>
+
+    <div id="step2" class="hidden">
+      <label for="senha">Digite sua senha:</label>
+      <input type="password" id="senha" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+    </div>
+
+    <div id="step3" class="hidden">
+      <h3>Confirme seus dados</h3>
+      <div id="dadosUsuario" class="dados"></div>
+      <button onclick="confirmarDados()">Confirmar</button>
+      <button class="btn-secondary" onclick="editarDados()">Editar Dados</button>
+    </div>
+  </div>
+
+  <script>
+    let usuarioEncontrado = null;
+
+    // --- FUNÇÃO VERIFICAR TELEFONE (ATUALIZADA) ---
+    async function verificarTelefone() {
+      const telefoneInput = document.getElementById('telefone').value;
+      
+      // 1. Limpa o telefone de tudo o que não for número (parênteses, espaços, traços)
+      const telefoneLimpo = telefoneInput.replace(/\D/g, ''); 
+
+      // 2. Verifica se o número limpo tem 11 dígitos
+      if (telefoneLimpo.length !== 11) {
+          alert("Telefone inválido!\n\nPor favor, verifique se o número tem 11 dígitos (DDD + 9 na frente).\nExemplo: 86999998888");
+          return; // Para a execução da função
+      }
+
+      // 3. A procura no Firebase agora usa o 'telefoneLimpo'
+      const snapshot = await database.ref("pessoas").orderByChild("telefone").equalTo(telefoneLimpo).once("value");
+
+      if (snapshot.exists()) {
+        snapshot.forEach(snap => usuarioEncontrado = { id: snap.key, ...snap.val() });
+
+        // Se já logou antes, entra direto
+        if (usuarioEncontrado.primeiroLogin === false) {
+            localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
+            window.location.href = "sistema.html";
+            return;
+        }
+
+        // Se for o primeiro login, mostra o passo da senha
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+      } else {
+        // Se o telefone (já limpo) não for encontrado
+        alert("Telefone não encontrado! Vou enviar uma mensagem para liberar o cadastro.");
+        const msg = `Olá! O telefone ${telefoneLimpo} não está no sistema. Pode liberar o cadastro?`;
+        window.open(`https://wa.me/5586994142411?text=${encodeURIComponent(msg)}`, "_blank");
+      }
+    }
+    // --- FIM DA FUNÇÃO ATUALIZADA ---
+
+    async function login() {
+      const senha = document.getElementById('senha').value.trim();
+      if (!senha) return alert("Digite sua senha!");
+
+      // Se não tem senha no cadastro, salva a nova
+      if (!usuarioEncontrado.senha) {
+        await database.ref(`pessoas/${usuarioEncontrado.id}/senha`).set(senha);
+        usuarioEncontrado.senha = senha; // Atualiza o objeto local
+      } else if (usuarioEncontrado.senha !== senha) {
+        alert("Senha incorreta!");
+        return;
+      }
+
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+      mostrarDados();
+    }
+
+    function mostrarDados() {
+      const dados = usuarioEncontrado;
+      let html = `<p><strong>Nome:</strong> ${dados.nome}</p>`;
+      html += `<p><strong>Telefone:</strong> ${dados.telefone}</p>`;
+      html += `<p><strong>Endereço:</strong> ${dados.endereco.logradouro}, ${dados.endereco.numero}, ${dados.endereco.bairro}, ${dados.endereco.cidade}-${dados.endereco.estado}</p>`;
+      if (dados.conjuge) html += `<p><strong>Cônjuge:</strong> ${dados.conjuge.nome} (${dados.conjuge.telefone})</p>`;
+      if (dados.filhos && dados.filhos.length > 0) {
+        html += `<p><strong>Filhos:</strong></p><ul>`;
+        dados.filhos.forEach(f => html += `<li>${f.nome} (${f.telefone || 'Sem telefone'})</li>`);
+        html += `</ul>`;
+      }
+      document.getElementById('dadosUsuario').innerHTML = html;
+    }
+
+   async function confirmarDados() {
+      await database.ref(`pessoas/${usuarioEncontrado.id}/primeiroLogin`).set(false);
+
+      // Salva telefone no localStorage
+      localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
+
+      alert("Dados confirmados! Redirecionando...");
+      window.location.href = "sistema.html";
+    }
+
+    function editarDados() {
+      alert("Você será redirecionado para atualizar seus dados.");
+      window.location.href = "atualizacao.html";
+    }
+  </script>
+</body>
+</html>

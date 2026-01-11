@@ -1,0 +1,252 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+      return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert sheet to JSON to filter blank rows
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+            // Filter out blank rows (rows where all cells are empty, null, or undefined)
+            var filteredData = jsonData.filter(row => row.some(filledCell));
+
+            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+            var headerRowIndex = filteredData.findIndex((row, index) =>
+              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+            );
+            // Fallback
+            if (headerRowIndex === -1 || headerRowIndex > 25) {
+              headerRowIndex = 0;
+            }
+
+            // Convert filtered JSON back to CSV
+            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+            return csv;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+    return gk_fileData[filename] || "";
+    }
+    </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<title>Territórios</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="destaque-principal">
+       
+<!-- Substituir a seção .destaque-principal existente -->
+<div class="destaque-principal">
+    <div class="card field-schedule">
+        <h2 class="card-title">Programação de Saída de Campo</h2>
+        <div class="info-item">
+            <span class="info-label">Dia:</span>
+            <span class="info-value" id="current-day">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Local de saída:</span>
+            <span class="info-value" id="field-location">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Horário da consideração:</span>
+            <span class="info-value" id="field-time">Carregando...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Dirigente:</span>
+            <span class="info-value" id="field-leader">Carregando...</span>
+        </div>
+    </div>
+
+    <div class="card afternoon-schedule">
+        <h2 class="card-title">Horários de Saída à Tarde</h2>
+        <div class="schedule-item">
+            <span class="schedule-day">Quarta-feira e Quinta-Feira</span>
+            <span class="schedule-time"> 15:30h 🕒- </span>
+            <span class="schedule-location">Saída do Salão do Reino</span>
+        </div>
+        
+    </div>
+
+    <div id="mapas-container"></div>
+
+    <button id="restaurar-btn" class="button button-secondary hidden" onclick="restaurarMapa()">Restaurar</button>
+</div>
+
+    <div id="botao-compartilhar-independente" onclick="compartilharLink()"> 
+        <button> 📤Compartilhar mapa </button> 
+    </div>
+
+    <script>
+let currentDate = new Date();
+let backupMapas = null;
+let lastUpdatedDate = null; // Rastreia a última data atualizada
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadFieldServiceData();
+    carregarMapasDesignados();
+    checkTimeAndUpdateDate(); // Inicia a verificação de horário
+});
+
+function getCurrentDay(date) {
+    const days = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'];
+    return days[date.getDay()];
+}
+
+// ✅ CORRIGIDO: avança 1 dia depois de 12h
+function getNextDay(date) {
+    const nextDate = new Date(date);
+
+    if (date.getHours() >= 12) {
+        nextDate.setDate(date.getDate() + 1); // Avança só 1 dia após meio-dia
+    }
+
+    return getCurrentDay(nextDate);
+}
+
+// ✅ Atualiza a data e recarrega as informações do Firebase
+function checkTimeAndUpdateDate() {
+    const now = new Date();
+    const currentDateString = now.toDateString();
+
+    if (now.getHours() >= 12 && lastUpdatedDate !== currentDateString) {
+        currentDate = new Date(now.setDate(now.getDate() + 0));
+        lastUpdatedDate = currentDate.toDateString();
+        console.log("Data atualizada para:", currentDate.toDateString());
+        loadFieldServiceData();
+        carregarMapasDesignados();
+    } else if (lastUpdatedDate !== currentDateString) {
+        currentDate = new Date();
+        lastUpdatedDate = currentDate.toDateString();
+        console.log("Data ajustada para o dia atual:", currentDate.toDateString());
+        loadFieldServiceData();
+        carregarMapasDesignados();
+    }
+
+    setTimeout(checkTimeAndUpdateDate, 60000);
+}
+
+function loadFieldServiceData() {
+    const now = new Date();
+    let displayDay;
+
+    if (now.getHours() < 12) {
+        displayDay = getNextDay(new Date());
+    } else {
+        displayDay = getNextDay(currentDate);
+    }
+
+    console.log("Carregando dados para o dia:", displayDay, "com currentDate:", currentDate.toDateString(), "e hora atual:", now.getHours());
+    document.getElementById('current-day').textContent = displayDay;
+
+    document.getElementById('field-location').textContent = 'Carregando...';
+    document.getElementById('field-time').textContent = 'Carregando...';
+    document.getElementById('field-leader').textContent = 'Carregando...';
+
+    database.ref('schedules/field').once('value', (snapshot) => {
+        const data = snapshot.val() || [];
+        console.log("Dados brutos do Firebase:", data);
+        const dayData = data.find(d => d.day === displayDay) || {};
+        console.log("Dados do dia encontrados:", dayData);
+
+        document.getElementById('field-location').textContent = dayData.location || 'Não definido';
+        document.getElementById('field-time').textContent = dayData.time || 'Não definido';
+        document.getElementById('field-leader').textContent = dayData.leader || 'Não definido';
+    }).catch(error => {
+        console.error("Erro ao carregar dados de saída de campo:", error);
+        alert("Erro ao carregar dados de saída de campo: " + error.message);
+        document.getElementById('field-location').textContent = 'Não definido';
+        document.getElementById('field-time').textContent = 'Não definido';
+        document.getElementById('field-leader').textContent = 'Não definido';
+    });
+}
+
+function carregarMapasDesignados() {
+    const container = document.getElementById("mapas-container");
+    database.ref("mapasDesignados").on("value", snapshot => {
+        container.innerHTML = "";
+        const mapas = snapshot.val();
+        if (mapas) {
+            Object.keys(mapas).forEach(id => {
+                const mapa = mapas[id];
+                const mapaDiv = document.createElement("div");
+                mapaDiv.className = "mapa-item";
+                mapaDiv.id = `mapa-designado-${id}`;
+                mapaDiv.innerHTML = `
+                    <a href="${mapa.link}" target="_blank">${mapa.nome}</a>
+                    <label for="observacao-designado-${id}">Observações:</label>
+                    <p id="observacao-designado-${id}" class="observacao-designada">${mapa.observacao || ""}</p>
+                    <button style="display: none; class="enviar-btn" style="margin-top: 5px; padding: 5px 10px;" onclick="enviarMapa(${id})">Remover</button>`;
+                container.appendChild(mapaDiv);
+            });
+        } else {
+            console.log("Nenhum mapa designado encontrado.");
+        }
+    }, error => {
+        console.error("Erro ao carregar mapas designados:", error);
+        alert("Erro ao carregar mapas designados: " + error.message);
+    });
+}
+    </script>
+
+    <script src="firebase.js"></script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'934ddb02ec97676a',t:'MTc0NTQxNjQ5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+
+
+</body>
+</html>

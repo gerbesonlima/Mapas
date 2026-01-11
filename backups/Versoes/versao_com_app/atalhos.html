@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel Principal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      transition: transform 0.2s ease-in-out;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      background: #f1f1f1;
+    }
+    .card span {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      position: absolute;
+      top: 20px;
+      text-align: center;
+      width: 100%;
+      color: white;
+      font-size: 26px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 Painel Principal</h1>
+  <div class="container">
+    <a href="atualizacao.html" class="card">
+      <span>👤</span>
+      Cadastro
+    </a>
+    <a href="gerenciar_pessoas.html" class="card">
+      <span>📂</span>
+      Gerenciar Cadastros
+    </a>
+    <a href="S-4_T.html" class="card">
+      <span>📝</span>
+      Relatorio de campo S-4_T
+    </a>
+    <a href="relatorioscampo.html" class="card">
+      <span>📊</span>
+      Relatórios
+    </a>
+  </div>
+</body>
+</html>

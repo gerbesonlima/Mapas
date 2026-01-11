@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualização de Registros Arquivados de Território</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            line-height: 1.4;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            display: flex; /* Usar flexbox */
+            flex-wrap: wrap; /* Permitir quebra de linha */
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .controls label, .controls select, .controls button {
+            margin: 5px;
+            padding: 8px;
+            font-size: 0.9em;
+        }
+        .controls select {
+            width: 150px;
+        }
+        .controls button {
+            cursor: pointer;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+        h2#serviceYearHeader {
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        /* Contêiner da tabela para permitir scroll horizontal */
+        .table-responsive {
+            overflow-x: auto; /* Adicionado para responsividade da tabela */
+            -webkit-overflow-scrolling: touch; /* Melhor rolagem em iOS */
+        }
+        table {
+            width: 100%; /* Garante que a tabela use toda a largura disponível no .table-responsive */
+            min-width: 700px; /* Define uma largura mínima para a tabela, para que as colunas não fiquem muito apertadas antes do scroll */
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+        }
+        th, td {
+            border: 1px solid #bbb;
+            padding: 5px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+        thead th.main-header {
+            background-color: #c0c0c0;
+        }
+        td.name-cell {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        tr.date-row td {
+            font-size: 0.95em;
+        }
+        .footnote, .form-id {
+            font-size: 0.75em;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .col-terr-no { width: 5%; }
+        .col-last-completed { width: 10%; }
+
+        /* Styles for the new PDF button */
+        .pdf-button-container {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .pdf-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .pdf-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* MEDIA QUERIES FOR RESPONSIVENESS */
+        @media screen and (max-width: 768px) {
+            body {
+                margin: 10px; /* Reduz margens para telas menores */
+            }
+            .container {
+                padding: 10px; /* Reduz padding do container */
+            }
+            .controls {
+                flex-direction: column; /* Empilha os controles verticalmente */
+                align-items: stretch; /* Estica os itens para preencher a largura */
+                gap: 10px;
+            }
+            .controls label, .controls select, .controls button {
+                width: 100%; /* Faz com que preencham a largura disponível */
+                box-sizing: border-box; /* Inclui padding e border na largura */
+            }
+            h1 {
+                font-size: 1.2em; /* Reduz tamanho do título principal */
+            }
+            h2#serviceYearHeader {
+                font-size: 1em; /* Reduz tamanho do subtítulo */
+            }
+            table {
+                font-size: 0.7em; /* Reduz a fonte da tabela para tentar caber mais */
+                min-width: 600px; /* Pode ajustar para mais ou menos, dependendo do conteúdo */
+            }
+            th, td {
+                padding: 3px; /* Reduz o padding das células */
+            }
+            .footnote, .form-id {
+                font-size: 0.7em;
+            }
+        }
+
+        /* MEDIA PRINT STYLES - Mantidos para impressão nativa do navegador */
+        @media print {
+            body {
+                margin: 0;
+                background-color: #fff;
+                font-size: 6.5pt;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .controls,
+            .pdf-button-container {
+                display: none !important;
+            }
+            h1, h2 {
+                color: #000;
+                text-align: center;
+            }
+            /* Ocultar o .table-responsive na impressão para usar a tabela diretamente */
+            .table-responsive {
+                overflow-x: visible !important; /* Certifica-se de que não há scroll na impressão */
+            }
+            table {
+                width: 100%;
+                font-size: 6.5pt;
+                table-layout: fixed;
+            }
+            th, td {
+                border: 1px solid #bbb;
+                padding: 2px;
+                text-align: center;
+                vertical-align: middle;
+                color: #000 !important;
+                word-wrap: break-word;
+                overflow: hidden;
+            }
+            th {
+                background-color: #f2f2f2 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            thead th.main-header {
+                background-color: #d3d3d3 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            td.name-cell {
+                background-color: #f9f9f9 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .footnote, .form-id {
+                font-size: 0.7em;
+                text-align: left;
+            }
+            .col-terr-no { width: 5%; }
+            .col-last-completed { width: 8%; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <label for="serviceYearSelect">Selecionar Ano de Serviço:</label>
+            <select id="serviceYearSelect" onchange="loadSelectedServiceYear()">
+                </select>
+
+            <label for="campaignTypeSelect">Tipo de Campanha:</label>
+            <select id="campaignTypeSelect" onchange="loadSelectedServiceYear()">
+                </select>
+        </div>
+
+        <div class="pdf-button-container">
+            <button class="pdf-button" onclick="downloadPdf()">Baixar Relatório em PDF</button>
+        </div>
+
+        <div id="reportContent">
+            <h1>REGISTRO DE DESIGNAÇÃO DE TERRITÓRIO</h1>
+            <h2 id="serviceYearHeader">Ano de Serviço: [Aguardando carregamento...]</h2>
+
+            <div class="table-responsive"> <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-terr-no main-header">Terr. n.º</th>
+                            <th rowspan="2" class="col-last-completed main-header">Última data concluída*</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                            <th colspan="2" class="main-header">Designado para</th>
+                        </tr>
+                        <tr>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                            <th>Data da designação</th><th>Data da conclusão</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archived_territory_table_body">
+                    </tbody>
+                </table>
+            </div> <p class="footnote">*Ao iniciar uma nova folha, use esta coluna para registrar a data em que cada território foi concluído pela última vez.</p>
+            <p class="form-id">S-13-T (Visualização de Arquivados)</p>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function formatFirebaseDate(dateString) {
+            if (!dateString || String(dateString).trim() === "") return "";
+            const parts = String(dateString).split("-");
+            if (parts.length === 3) {
+                const [year, month, day] = parts;
+                return `${day}/${month}/${year.slice(-2)}`; // DD/MM/YY
+            }
+            return dateString;
+        }
+
+        function getYearFromDateString(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return parseInt(parts[0]);
+            }
+            return null;
+        }
+
+        function getMonthFromDateString(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return parseInt(parts[1]);
+            }
+            return null;
+        }
+
+        async function populateServiceYearSelect() {
+            const serviceYearSelect = document.getElementById('serviceYearSelect');
+            serviceYearSelect.innerHTML = '';
+
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                const availableYears = new Set();
+                const campaignsByYear = {};
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        let recordYear = null;
+                        if (record.dataInicio) {
+                            recordYear = getYearFromDateString(record.dataInicio);
+                        } else if (record.dataFim) {
+                            recordYear = getYearFromDateString(record.dataFim);
+                        }
+
+                        if (recordYear) {
+                            availableYears.add(recordYear);
+
+                            if (record.tipoCiclo) {
+                                if (!campaignsByYear[recordYear]) {
+                                    campaignsByYear[recordYear] = new Set();
+                                }
+                                campaignsByYear[recordYear].add(record.tipoCiclo);
+                            } else {
+                                if (!campaignsByYear[recordYear]) {
+                                    campaignsByYear[recordYear] = new Set();
+                                }
+                                campaignsByYear[recordYear].add("Padrão");
+                            }
+                        }
+                    }
+                }
+
+                const sortedYears = Array.from(availableYears).sort((a, b) => a - b);
+
+                if (sortedYears.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Nenhum ano de serviço disponível';
+                    serviceYearSelect.appendChild(option);
+                    serviceYearSelect.disabled = true;
+                    document.getElementById('campaignTypeSelect').disabled = true;
+                    return;
+                }
+
+                sortedYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = `Ano ${year}`;
+                    serviceYearSelect.appendChild(option);
+                });
+
+                const currentYear = new Date().getFullYear();
+                let defaultYear = '';
+                if (sortedYears.includes(currentYear)) {
+                    defaultYear = currentYear;
+                } else if (sortedYears.length > 0) {
+                    defaultYear = sortedYears[sortedYears.length - 1];
+                }
+                
+                if (defaultYear) {
+                    serviceYearSelect.value = defaultYear;
+                }
+
+                window.availableCampaignsByYear = campaignsByYear;
+
+                populateCampaignSelect(defaultYear);
+                loadSelectedServiceYear();
+
+            } catch (error) {
+                console.error("Erro ao carregar anos de serviço e campanhas:", error);
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Erro ao carregar anos';
+                serviceYearSelect.appendChild(option);
+                serviceYearSelect.disabled = true;
+                document.getElementById('campaignTypeSelect').disabled = true;
+            }
+        }
+
+        function populateCampaignSelect(selectedYear) {
+            const campaignTypeSelect = document.getElementById('campaignTypeSelect');
+            campaignTypeSelect.innerHTML = '';
+
+            const campaignsForSelectedYear = window.availableCampaignsByYear[selectedYear] || new Set();
+            
+            const allOption = document.createElement('option');
+            allOption.value = 'Todos';
+            allOption.textContent = 'Todos os Tipos';
+            campaignTypeSelect.appendChild(allOption);
+
+            const sortedCampaigns = Array.from(campaignsForSelectedYear).sort();
+            sortedCampaigns.forEach(campaign => {
+                const option = document.createElement('option');
+                option.value = campaign;
+                option.textContent = campaign;
+                campaignTypeSelect.appendChild(option);
+            });
+
+            campaignTypeSelect.disabled = sortedCampaigns.length === 0;
+        }
+
+        function loadSelectedServiceYear() {
+            const serviceYearSelect = document.getElementById('serviceYearSelect');
+            const campaignTypeSelect = document.getElementById('campaignTypeSelect');
+
+            const selectedYear = serviceYearSelect.value;
+            const selectedCampaignType = campaignTypeSelect.value;
+
+            populateCampaignSelect(selectedYear); // Re-popula as campanhas para o ano
+
+            if (selectedYear) {
+                loadAndRenderArchivedData(selectedYear, selectedCampaignType);
+            } else {
+                const tbody = document.getElementById('archived_territory_table_body');
+                const serviceYearHeader = document.getElementById('serviceYearHeader');
+                serviceYearHeader.textContent = 'Ano de Serviço: [Selecione um ano]';
+                tbody.innerHTML = '<tr><td colspan="10">Por favor, selecione um ano para visualizar os dados.</td></tr>';
+            }
+        }
+
+        async function getLastCompletionDate(mapId, currentServiceYear) {
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                let latestDate = '';
+                let latestRecordYear = -1;
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        let recordDateYear = null;
+                        if (record.dataFim) {
+                            recordDateYear = getYearFromDateString(record.dataFim);
+                        } else if (record.dataInicio) {
+                            recordDateYear = getYearFromDateString(record.dataInicio);
+                        }
+                        
+                        if (String(record.mapa) === String(mapId) && recordDateYear && recordDateYear < parseInt(currentServiceYear)) {
+                            if (record.dataFim) {
+                                if (recordDateYear > latestRecordYear) {
+                                    latestRecordYear = recordDateYear;
+                                    latestDate = record.dataFim;
+                                } else if (recordDateYear === latestRecordYear) {
+                                    if (record.dataFim > latestDate) {
+                                        latestDate = record.dataFim;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return latestDate;
+            } catch (error) {
+                console.error("Erro ao obter última data de conclusão:", error);
+                return '';
+            }
+        }
+
+        async function loadAndRenderArchivedData(selectedServiceYear, selectedCampaignType) {
+            const tbody = document.getElementById('archived_territory_table_body');
+            const serviceYearHeader = document.getElementById('serviceYearHeader');
+
+            if (!selectedServiceYear) {
+                serviceYearHeader.textContent = 'Ano de Serviço: [Ano não definido]';
+                tbody.innerHTML = '<tr><td colspan="10">Ano de serviço não foi definido.</td></tr>';
+                return;
+            }
+
+            serviceYearHeader.textContent = `Ano de Serviço: ${selectedServiceYear}` + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` (${selectedCampaignType})` : '');
+            tbody.innerHTML = '<tr><td colspan="10">Carregando dados para o ano ' + selectedServiceYear + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` e campanha ${selectedCampaignType}` : '') + '...</td></tr>';
+
+            try {
+                const snapshot = await db.ref('historico_arquivado').once('value');
+                const allArchivedData = snapshot.val();
+                let processedData = {};
+
+                if (allArchivedData) {
+                    for (const key in allArchivedData) {
+                        const record = allArchivedData[key];
+                        let recordYear = null;
+                        if (record.dataInicio) {
+                            recordYear = getYearFromDateString(record.dataInicio);
+                        } else if (record.dataFim) {
+                            recordYear = getYearFromDateString(record.dataFim);
+                        }
+
+                        const isMatchingYear = recordYear && String(recordYear) === String(selectedServiceYear);
+                        // Verifica se o tipoCiclo do registro corresponde ao selecionado, ou se é 'Todos' ou 'Padrão' para registros sem tipoCiclo
+                        const recordTipoCiclo = record.tipoCiclo || 'Padrão'; // Trata registros sem tipoCiclo como 'Padrão'
+                        const isMatchingCampaign = selectedCampaignType === 'Todos' || String(recordTipoCiclo) === String(selectedCampaignType);
+
+                        if (isMatchingYear && isMatchingCampaign) {
+                            if (!processedData[record.mapa]) {
+                                processedData[record.mapa] = {
+                                    assignments: [],
+                                    ultimaDataConcluida: ''
+                                };
+                            }
+                            processedData[record.mapa].assignments.push({
+                                nome: record.nome || '',
+                                dataInicio: record.dataInicio || '',
+                                dataFim: record.dataFim || ''
+                            });
+                        }
+                    }
+                }
+
+                for (const mapId in processedData) {
+                    processedData[mapId].assignments.sort((a, b) => {
+                        if (!a.dataInicio) return 1;
+                        if (!b.dataInicio) return -1;
+                        if (a.dataInicio < b.dataInicio) return -1;
+                        if (a.dataInicio > b.dataInicio) return 1;
+                        return 0;
+                    });
+                }
+
+                tbody.innerHTML = '';
+
+                let foundDataForYear = false;
+                const allTerritoryPromises = [];
+
+                for (let i = 1; i <= 38; i++) {
+                    const mapId = String(i);
+                    const terrData = processedData[mapId];
+                    let assignments = terrData ? terrData.assignments : [];
+                    let ultimaData = '';
+
+                    if (terrData) foundDataForYear = true;
+
+                    allTerritoryPromises.push(getLastCompletionDate(mapId, selectedServiceYear).then(date => {
+                        ultimaData = date;
+                        let namesRowHTML = `<tr><td rowspan="2">${mapId.padStart(2, '0')}</td><td rowspan="2">${formatFirebaseDate(ultimaData)}</td>`;
+                        for (let j = 0; j < 4; j++) {
+                            const assignment = assignments[j];
+                            namesRowHTML += `<td colspan="2" class="name-cell">${assignment ? (assignment.nome || '') : ''}</td>`;
+                        }
+                        namesRowHTML += `</tr>`;
+
+                        let datesRowHTML = `<tr class="date-row">`;
+                        for (let j = 0; j < 4; j++) {
+                            const assignment = assignments[j];
+                            datesRowHTML += `<td>${assignment ? formatFirebaseDate(assignment.dataInicio) : ''}</td>
+                                             <td>${assignment ? formatFirebaseDate(assignment.dataFim) : ''}</td>`;
+                        }
+                        datesRowHTML += `</tr>`;
+                        return { htmlNames: namesRowHTML, htmlDates: datesRowHTML, mapId: parseInt(mapId) };
+                    }));
+
+                    if ((mapId === "19" || mapId === "24") && assignments.length > 4) {
+                        const fifthAssignment = assignments[4];
+                        if (fifthAssignment) {
+                            let extraNamesRowHTML = `<tr><td rowspan="2" style="font-style:italic;">${mapId.padStart(2, '0')} (cont.)</td><td rowspan="2"></td>`;
+                            extraNamesRowHTML += `<td colspan="2" class="name-cell">${fifthAssignment.nome || ''}</td>`;
+                            extraNamesRowHTML += `<td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td> <td colspan="2" class="name-cell"></td>`;
+                            extraNamesRowHTML += `</tr>`;
+
+                            let extraDatesRowHTML = `<tr class="date-row">`;
+                            extraDatesRowHTML += `<td>${formatFirebaseDate(fifthAssignment.dataInicio)}</td><td>${formatFirebaseDate(fifthAssignment.dataFim)}</td>`;
+                            extraDatesRowHTML += `<td></td><td></td> <td></td><td></td> <td></td><td></td>`;
+                            extraDatesRowHTML += `</tr>`;
+                            allTerritoryPromises.push(Promise.resolve({ htmlNames: extraNamesRowHTML, htmlDates: extraDatesRowHTML, mapId: parseInt(mapId) + 0.1 }));
+                        }
+                    }
+                }
+
+                const sortedTerritoryHtml = (await Promise.all(allTerritoryPromises)).sort((a, b) => a.mapId - b.mapId);
+
+                sortedTerritoryHtml.forEach(item => {
+                    tbody.insertAdjacentHTML('beforeend', item.htmlNames);
+                    tbody.insertAdjacentHTML('beforeend', item.htmlDates);
+                });
+
+                if (!foundDataForYear && tbody.innerHTML === '') {
+                    tbody.innerHTML = `<tr><td colspan="10">Nenhum registro arquivado encontrado para o ano: ${selectedServiceYear}` + (selectedCampaignType && selectedCampaignType !== 'Todos' ? ` e campanha ${selectedCampaignType}` : '') + `.</td></tr>`;
+                }
+
+            } catch (error) {
+                console.error("Erro ao carregar dados arquivados:", error);
+                serviceYearHeader.textContent = `Ano de Serviço: [Erro ao Carregar]`;
+                tbody.innerHTML = '<tr><td colspan="10">Erro ao carregar dados. Verifique o console (F12).</td></tr>';
+                alert("Erro ao carregar dados: " + error.message);
+            }
+        }
+
+        function downloadPdf() {
+            const element = document.getElementById('reportContent');
+
+            html2pdf(element, {
+                margin: 10,
+                filename: 'registro_de_designacao_territorio.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            });
+        }
+
+        window.onload = function() {
+            populateServiceYearSelect();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conjunto São Paulo</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+               body { 
+                    margin: 0; 
+                    padding: 0; 
+                    font-family: Arial, sans-serif; 
+
+                    /* === ADICIONADO === */
+                    display: flex;             /* Ativa o layout flexível */
+                    flex-direction: column;    /* Empilha os itens (cabeçalho e mapa) verticalmente */
+                    height: 100vh;             /* Faz o corpo ocupar 100% da altura da tela */
+                }
+                #map { 
+                    /* height: 70vh; */  /* <-- REMOVIDO */
+                    width: 100%; 
+
+                    /* === ADICIONADO === */
+                    flex-grow: 1;       /* Faz o mapa "crescer" e ocupar todo o espaço vertical restante */
+                }
+                        .controls { 
+                            padding: 1px; text-align: center; background-color: #f4f4f4; border-bottom: 1px solid #ddd;
+                        }
+                        button {
+                            padding: 8px 15px; margin: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;
+                            }
+                        button:hover {
+                            background-color: #0056b3; 
+                            }
+                        /* === CORREÇÃO 1: CSS DO LABEL === */
+                            .quadra-label {
+                                    background: transparent;
+                                    border: none;
+                                    box-shadow: none;
+                                    color: #333;
+                                    font-size: 13px;
+                                    /* font-weight: bold; */ 
+                                    text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
+                                    text-align: center; 
+                                    padding-bottom: 5px; /* Dá um espaço geral para o texto girado não vazar */
+                        .status-text {
+                            display: inline-block; 
+                            
+                            /* Combina a rotação E a translação (movimento) na mesma linha.
+                            1. Gira -45 graus.
+                            2. Move 25px para "baixo" no seu novo eixo diagonal.
+                            */
+                            transform: rotate(75deg) translateY(-2px); 
+                            
+                            margin-top: 32px; /* Pode deixar uma margem pequena só para garantir o fluxo */
+                            font-weight: normal;   
+
+                }
+                }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h1>Conjunto São Paulo</h1>
+        <p>Clique nas quadras para mudar seu status</p>
+        <button id="resetButton">Resetar Todas as Quadras</button>
+        <button id="locateButton">📍 Encontrar Minha Localização</button> 
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // === INÍCIO DA CONFIGURAÇÃO DO FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app", 
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dbRefQuadras = database.ref("conjuntoSaoPaulo/quadras");
+        // === FIM DA CONFIGURAÇÃO DO FIREBASE ===
+
+
+        // --- LÓGICA DO MAPA (LEAFLET) ---
+    
+        const centroDoMapa = [-5.110919509003918, -42.73113129178036]; 
+        const zoomInicial = 16.5; 
+
+        const map = L.map('map').setView(centroDoMapa, zoomInicial);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // --- DEFINIÇÃO DAS COORDENADAS ---
+        const coords_QA = [
+            [-5.109188053652607, -42.73280229934059], // Canto Superior Esquerdo
+            [-5.109003884802046, -42.732461560962186], // Canto Superior Direito
+            [-5.11106377910359, -42.73189542392853], // Canto Inferior Direito
+            [-5.111329369444862, -42.73220578777016]  // Canto Inferior Esquerdo
+        ];
+        const coords_QB = [
+            [-5.1089477603495315, -42.732385011955685], // Canto Superior Esquerdo
+            [-5.1087997258549525, -42.73206153415373], // Canto Superior Direito
+            [-5.110737292028634, -42.731554023433404], // Canto Inferior Direito
+            [-5.110990593174692, -42.73182246411993]  // Canto Inferior Esquerdo
+        ];
+        const coords_QC = [
+            [-5.1087544978677935, -42.731980641116124], // Canto Superior Esquerdo
+            [-5.10858895323453, -42.73168600522402], // Canto Superior Direito
+            [-5.110450073790369, -42.73116220807302], // Canto Inferior Direito
+            [-5.110670799320684, -42.73147195349726]  // Canto Inferior Esquerdo
+        ];
+         const coords_QD = [
+            [-5.108537158014731, -42.73160473577895], // Canto Superior Esquerdo
+            [-5.108338787701675, -42.73129404401757], // Canto Superior Direito
+            [-5.1098344983540445, -42.73088377156201], // Canto Inferior Direito
+            [-5.110084444355055, -42.73117056395714]  // Canto Inferior Esquerdo
+        ];
+         const coords_QE = [
+            [-5.108306336962282, -42.73122109068097], // Canto Superior Esquerdo
+            [-5.108107767503081, -42.73090076866613], // Canto Superior Direito
+            [-5.109543358367828, -42.730472436439925], // Canto Inferior Direito
+            [-5.1097999362961595, -42.73079275845477]  // Canto Inferior Esquerdo
+        ];
+
+        // Definição dos estilos de status
+        const statusStyles = {
+            'Pendente': { color: '#ff0000', fillOpacity: 0, weight: 2 }, // Apenas borda vermelha
+            'Em Andamento': { color: '#ffa500', fillColor: '#ffe0b3', fillOpacity: 0.7, weight: 2 },
+            'Concluído': { color: '#008000', fillColor: '#ccffcc', fillOpacity: 0.7, weight: 2 }
+        };
+
+        // Função para criar uma quadra
+        function createQuadra(name, coordinates, initialStatus = 'Pendente') {
+            const quadra = L.polygon(coordinates, statusStyles[initialStatus]).addTo(map);
+            // O popup (ao clicar) continua mostrando o status
+            quadra.bindPopup(`<b>Quadra: ${name}</b><br>Status: ${initialStatus}`);
+            
+            // ===== CORREÇÃO 2: CRIAÇÃO DO TOOLTIP =====
+            // O tooltip (texto fixo) agora mostra o NOME e o STATUS
+            const tooltipContent = `<b>${name}</b><br><span class="status-text">${initialStatus}</span>`;; // Nome em negrito + quebra de linha + status
+            quadra.bindTooltip(tooltipContent, { 
+                permanent: true, 
+                direction: 'center', 
+                className: 'quadra-label'
+            }).openTooltip();
+            
+            quadra.name = name;
+            quadra.status = initialStatus;
+
+            // Adiciona interação de clique
+            quadra.on('click', function() {
+                if (this.status === 'Pendente') {
+                    this.status = 'Em Andamento';
+                } else if (this.status === 'Em Andamento') {
+                    this.status = 'Concluído';
+                } else {
+                    this.status = 'Pendente';
+                }
+                // A cor (estilo) continua mudando
+                this.setStyle(statusStyles[this.status]);
+                // O popup (ao clicar) continua sendo atualizado
+                this.getPopup().setContent(`<b>Quadra: ${this.name}</b><br>Status: ${this.status}`);
+                
+                // ===== CORREÇÃO 3: ATUALIZAÇÃO DO TOOLTIP NO CLIQUE =====
+                // A linha que muda o texto fixo foi RE-ADICIONADA e atualiza com NOME e STATUS
+              const newTooltipContent = `<b>${this.name}</b><br><span class="status-text">${this.status}</span>`;
+                this.getTooltip().setContent(newTooltipContent);
+                
+                // O salvamento no Firebase continua igual
+                saveQuadraStatus(this.name, this.status);
+            });
+            return quadra;
+        }
+
+        // Array para armazenar todas as quadras
+        const quadras = [];
+
+        // Cria as quadras e adiciona ao array
+        quadras.push(createQuadra('Q-A', coords_QA));
+        quadras.push(createQuadra('Q-B', coords_QB));
+        quadras.push(createQuadra('Q-C', coords_QC));
+        quadras.push(createQuadra('Q-D', coords_QD));
+        quadras.push(createQuadra('Q-E', coords_QE));
+        // Adicione mais quadras aqui...
+
+
+        // --- FUNCIONALIDADES DE SALVAR E CARREGAR ---
+
+        function saveQuadraStatus(name, status) {
+            dbRefQuadras.child(name).set({ status: status })
+                .catch(error => console.error("Erro ao salvar status:", error));
+        }
+
+        // Sincronização em Tempo Real
+        dbRefQuadras.on('value', (snapshot) => {
+            const savedStatuses = snapshot.val() || {}; 
+            console.log("Sincronização: Novos dados recebidos do Firebase:", savedStatuses);
+
+            quadras.forEach(quadra => {
+                const savedData = savedStatuses[quadra.name]; 
+                let newStatus = 'Pendente'; 
+
+                if (savedData && savedData.status && statusStyles[savedData.status]) {
+                    newStatus = savedData.status;
+                }
+                
+                // A lógica de status (cor, popup) continua igual
+                if (quadra.status !== newStatus) {
+                    quadra.status = newStatus;
+                    quadra.setStyle(statusStyles[newStatus]);
+                    quadra.getPopup().setContent(`<b>Quadra: ${quadra.name}</b><br>Status: ${quadra.status}`);
+                    
+                    // ===== CORREÇÃO 4: ATUALIZAÇÃO DO TOOLTIP NA SINCRONIZAÇÃO =====
+                    // A linha que muda o texto fixo na sincronização foi RE-ADICIONADA
+                   const newTooltipContent = `<b>${quadra.name}</b><br><span class="status-text">${quadra.status}</span>`;;
+                    quadra.getTooltip().setContent(newTooltipContent);
+                }
+            });
+
+        }, (error) => {
+            console.error("Erro ao sincronizar com o Firebase:", error);
+            alert("Erro de conexão. Não foi possível sincronizar os status.");
+        });
+
+      
+        // Botão de Resetar
+        document.getElementById('resetButton').addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja resetar o status de todas as quadras no FIREBASE para "Pendente"?')) {
+                
+                dbRefQuadras.remove()
+                    .then(() => {
+                        // O 'dbRefQuadras.on' vai detectar isso e atualizar o mapa sozinho
+                        alert('Todos os status foram resetados para "Pendente" no Firebase.');
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar no Firebase:", error);
+                        alert("Erro ao resetar status no Firebase.");
+                    });
+            }
+        });
+
+
+        // --- LÓGICA DE GEOLOCALIZAÇÃO (PONTO AZUL) ---
+        
+        let userDot = null;
+        let accuracyCircle = null;
+
+        function onLocationFound(e) {
+            const radius = e.accuracy / 2;
+            const latlng = e.latlng;
+
+            if (!userDot) {
+                userDot = L.circleMarker(latlng, {
+                    radius: 8,
+                    color: '#007bff',       
+                    fillColor: '#007bff',    
+                    fillOpacity: 1,
+                    weight: 2
+                }).addTo(map).bindPopup("Você está aqui!");
+
+                accuracyCircle = L.circle(latlng, radius, {
+                    color: '#007bff',
+                    fillColor: '#007bff',
+                    fillOpacity: 0.15,
+                    weight: 1
+                }).addTo(map);
+
+                map.setView(latlng, 18); 
+            } else {
+                userDot.setLatLng(latlng);
+                accuracyCircle.setLatLng(latlng).setRadius(radius);
+            }
+        }
+
+        function onLocationError(e) {
+            let errorMsg = "Não foi possível obter sua localização.\n";
+            switch(e.code) {
+                case 1: errorMsg += "Permissão negada."; break;
+                case 2: errorMsg += "Localização indisponível."; break;
+                case 3: errorMsg += "Tempo esgotado."; break;
+                default: errorMsg += "Erro desconhecido.";
+            }
+            alert(errorMsg);
+        }
+
+        document.getElementById('locateButton').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert("Seu navegador não suporta geolocalização.");
+                return;
+            }
+
+            navigator.geolocation.watchPosition(
+                (position) => {
+                    const leafletEvent = {
+                        latlng: L.latLng(position.coords.latitude, position.coords.longitude),
+                        accuracy: position.coords.accuracy
+                    };
+                    onLocationFound(leafletEvent);
+                },
+                onLocationError, 
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+            
+            this.textContent = "Seguindo localização...";
+            this.disabled = true; 
+        });
+
+    </script>
+</body>
+</html>

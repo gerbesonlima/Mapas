@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>S-4-T — Relatório de Serviço de Campo (Versão Mobile)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+    body { background: #f5f5f5; }
+    .page { width: 100%; min-height: 100vh; background: #fff; padding: 16px; }
+    .title { text-align: center; font-weight: bold; font-size: 20px; margin-bottom: 20px; }
+    .row, .grid2, .obs { display: flex; flex-direction: column; margin-bottom: 16px; }
+    label { font-size: 14px; margin-bottom: 4px; }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%; border: 1px solid #000; padding: 8px; font-size: 14px; border-radius: 4px; outline: none;
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    .checkbox-container {
+      display: flex; align-items: center; margin-bottom: 16px; font-size: 16px; font-weight: bold;
+    }
+    .checkbox-container input {
+      margin-right: 10px; width: 20px; height: 20px; cursor: pointer;
+    }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #333; }
+    button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; transition: background 0.3s; }
+    button:hover { background: #45a049; }
+    .success-message {
+      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #4CAF50; color: white; padding: 20px; border-radius: 8px; font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); animation: fadeInOut 2s ease-in-out;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -60%); }
+      20% { opacity: 1; transform: translate(-50%, -50%); }
+      80% { opacity: 1; transform: translate(-50%, -50%); }
+      100% { opacity: 0; transform: translate(-50%, -40%); }
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="firebase.js"></script>
+</head>
+<body>
+  <main class="page" role="document">
+    <h1 class="title">RELATÓRIO DE SERVIÇO DE CAMPO</h1>
+
+    <div class="row">
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" placeholder="Digite seu nome">
+    </div>
+    <div class="row">
+      <label for="mes">Mês:</label>
+      <input type="text" id="mes" placeholder="Digite o mês">
+    </div>
+
+    <!-- Checkbox de participação -->
+    <div class="checkbox-container">
+      <input type="checkbox" id="participou">
+      <label for="participou">Marque se você participou em alguma modalidade do ministério durante o mês.</label>
+    </div>
+
+    <div class="grid2">
+      <div class="row">
+        <label for="estudos">Estudos bíblicos</label>
+        <input type="number" id="estudos" min="0">
+      </div>
+      <div class="row">
+        <label for="horas">Horas (se for pioneiro auxiliar, regular, especial ou missionário em campo)</label>
+        <input type="number" id="horas" min="0" step="0.25">
+      </div>
+    </div>
+
+    <div class="obs">
+      <label for="obs" >Observações:</label>
+      <textarea id="obs" placeholder="Exemplo informe neste campo se é pioneiro auxiliar, pioneiro regular ou outra observação "></textarea>
+    </div>
+
+    <button onclick="enviarFormulario()">Enviar Relatório</button>
+    <div class="success-message" id="successMessage">Relatório enviado com sucesso!</div>
+    <div class="footer">S-4-T 11/23</div>
+  </main>
+
+  <script>
+    function enviarFormulario() {
+      const nome = document.getElementById("nome").value.trim();
+      const mes = document.getElementById("mes").value.trim();
+      const participou = document.getElementById("participou").checked;
+      const estudos = document.getElementById("estudos").value || 0;
+      const horas = document.getElementById("horas").value || 0;
+      const observacoes = document.getElementById("obs").value.trim();
+
+      if (!nome || !mes) {
+        alert("Por favor, preencha os campos Nome e Mês.");
+        return;
+      }
+
+      const data = {
+        nome,
+        mes,
+        participou,
+        estudos: Number(estudos),
+        horas: Number(horas),
+        observacoes,
+        enviadoEm: new Date().toISOString()
+      };
+
+      database.ref("relatorios").push(data)
+        .then(() => {
+          const successMessage = document.getElementById("successMessage");
+          successMessage.style.display = "block";
+
+          document.querySelectorAll("input, textarea").forEach(input => input.value = "");
+          document.getElementById("participou").checked = false;
+
+          setTimeout(() => { successMessage.style.display = "none"; }, 2000);
+        })
+        .catch(error => {
+          alert("Erro ao enviar o relatório: " + error.message);
+        });
+    }
+  </script>
+</body>
+</html>

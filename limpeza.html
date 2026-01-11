@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programação de Limpeza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        .trimestral-row {
+            background-color: #fff7ed; /* Laranja claro */
+            border-left: 5px solid #f97316;
+        }
+        .event-row {
+            background-color: #eff6ff; /* Azul claro */
+            border-left: 5px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4 max-w-4xl">
+        
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Programação de Limpeza</h1>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="saveData()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold shadow">Salvar Alterações</button>
+                <button onclick="downloadPDF()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold shadow">Baixar PDF</button>
+            </div>
+
+            <div class="bg-gray-50 border border-gray-200 p-4 rounded mt-4">
+                <h3 class="font-bold text-gray-700 mb-2">Adicionar Evento (Congresso/Assembleia)</h3>
+                <div class="flex flex-wrap gap-2 items-end">
+                    <div>
+                        <label class="block text-sm text-gray-600">Data de Início da Semana</label>
+                        <input type="date" id="eventDate" class="border p-2 rounded">
+                    </div>
+                    <div class="flex-grow">
+                        <label class="block text-sm text-gray-600">Nome do Evento</label>
+                        <input type="text" id="eventName" placeholder="Ex: Assembleia de Circuito" class="w-full border p-2 rounded">
+                    </div>
+                    <button onclick="addEvent()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Adicionar</button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">* Eventos cadastrados aparecerão automaticamente na lista abaixo na semana correspondente.</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <table id="cleaning-table" class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <th class="border border-gray-700 p-3 text-left w-1/3">Semana</th>
+                        <th class="border border-gray-700 p-3 text-left">Grupo Designado / Evento</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD75RGb3lOiZ0azcSjtP_b9VcZPlHCelJY",
+            authDomain: "territorios-3d0bb.firebaseapp.com",
+            projectId: "territorios-3d0bb",
+            storageBucket: "territorios-3d0bb.firebasestorage.app",
+            messagingSenderId: "712377474662",
+            appId: "1:712377474662:web:dfb86ef024b18aa2cb97a7",
+            measurementId: "G-DME60YZGXX",
+            databaseURL: "https://territorios-3d0bb-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const { jsPDF } = window.jspdf;
+
+        // Variáveis globais para armazenar dados do banco
+        let savedGroups = {}; 
+        let savedEvents = {};
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromFirebase();
+        });
+
+        // --- LÓGICA DE DATA E GERAÇÃO DE TABELA ---
+
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(),
+                diff = d.getDate() - day + (day == 0 ? -6 : 1); // ajusta quando é domingo
+            return new Date(d.setDate(diff));
+        }
+
+        function formatDate(date) {
+            // Formato YYYY-MM-DD para chaves do banco
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatDateDisplay(date) {
+            // Formato dia/mês para exibição
+            const day = String(date.getDate()).padStart(2, '0');
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const month = months[date.getMonth()];
+            return `${day} de ${month}`;
+        }
+
+        function isQuarterlyCleaning(date) {
+            // Regra: Primeira semana dos meses de Jan(0), Abr(3), Jul(6), Out(9)
+            const month = date.getMonth();
+            const day = date.getDate();
+            // Verifica se é um dos meses trimestrais e se é a primeira semana (dia 1 a 7)
+            if ((month === 0 || month === 3 || month === 6 || month === 9) && day <= 7) {
+                return true;
+            }
+            return false;
+        }
+
+        function generateWeeks() {
+            const weeks = [];
+            const today = new Date();
+            let currentMonday = getMonday(today);
+
+            // Gerar para os próximos 6 meses (aprox 26 semanas)
+            for (let i = 0; i < 26; i++) {
+                let endOfWeek = new Date(currentMonday);
+                endOfWeek.setDate(currentMonday.getDate() + 6);
+
+                weeks.push({
+                    startObj: new Date(currentMonday),
+                    endObj: new Date(endOfWeek),
+                    key: formatDate(currentMonday), // Chave única baseada na segunda-feira
+                    display: `${formatDateDisplay(currentMonday)} a ${formatDateDisplay(endOfWeek)}`
+                });
+
+                // Avança para a próxima semana
+                currentMonday.setDate(currentMonday.getDate() + 7);
+            }
+            return weeks;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            const weeks = generateWeeks();
+
+            weeks.forEach(week => {
+                const tr = document.createElement('tr');
+                const key = week.key; // Data da segunda-feira (ex: 2025-05-21)
+                
+                // Dados salvos
+                const groupValue = savedGroups[key] || '';
+                const eventValue = savedEvents[key] || null;
+                const isQuarterly = isQuarterlyCleaning(week.startObj);
+
+                // Classes CSS condicionais
+                if (eventValue) {
+                    tr.classList.add('event-row');
+                } else if (isQuarterly) {
+                    tr.classList.add('trimestral-row');
+                } else {
+                    tr.classList.add('hover:bg-gray-50');
+                }
+
+                // Coluna Data
+                let dateHtml = `<td class="border p-3 text-sm text-gray-700">${week.display}`;
+                if (isQuarterly) {
+                    dateHtml += `<br><span class="text-xs font-bold text-orange-600 uppercase tracking-wide">⭐ Limpeza Trimestral</span>`;
+                }
+                dateHtml += `</td>`;
+
+                // Coluna Grupo / Evento
+                let contentHtml = '';
+                if (eventValue) {
+                    // Se tem evento, mostra texto fixo e botão de remover
+                    contentHtml = `
+                        <td class="border p-3">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-blue-800 uppercase">${eventValue}</span>
+                                <button onclick="removeEvent('${key}')" class="text-xs text-red-500 hover:underline ml-2">Remover Evento</button>
+                            </div>
+                        </td>`;
+                } else {
+                    // Se não, mostra textarea para digitar grupo
+                    contentHtml = `
+                        <td class="border p-3">
+                            <textarea 
+                                data-key="${key}" 
+                                class="w-full p-2 border border-gray-300 rounded focus:border-blue-500 outline-none resize-none bg-transparent" 
+                                rows="1" 
+                                placeholder="Digite o Grupo..."
+                            >${groupValue}</textarea>
+                        </td>`;
+                }
+
+                tr.innerHTML = dateHtml + contentHtml;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- OPERAÇÕES FIREBASE ---
+
+        function loadFromFirebase() {
+            // Carrega Grupos
+            database.ref('schedules/cleaning_assignments').once('value', (snapshot) => {
+                savedGroups = snapshot.val() || {};
+                
+                // Carrega Eventos
+                database.ref('schedules/events').once('value', (snapshotEvents) => {
+                    savedEvents = snapshotEvents.val() || {};
+                    renderTable();
+                });
+            });
+        }
+
+        function saveData() {
+            // Coletar dados dos textareas
+            const textareas = document.querySelectorAll('textarea[data-key]');
+            const updates = {};
+
+            textareas.forEach(input => {
+                const key = input.getAttribute('data-key');
+                const value = input.value;
+                if (key) {
+                    updates[key] = value;
+                }
+            });
+
+            // Mesclar com o objeto existente para não perder semanas passadas se necessário
+            const finalData = { ...savedGroups, ...updates };
+            savedGroups = finalData; // Atualiza local
+
+            database.ref('schedules/cleaning_assignments').set(finalData)
+                .then(() => alert('Programação salva com sucesso!'))
+                .catch(err => alert('Erro ao salvar: ' + err.message));
+        }
+
+        function addEvent() {
+            const dateInput = document.getElementById('eventDate').value;
+            const nameInput = document.getElementById('eventName').value;
+
+            if (!dateInput || !nameInput) {
+                alert("Preencha a data e o nome do evento.");
+                return;
+            }
+
+            // Precisamos encontrar a segunda-feira da semana selecionada para usar como chave
+            const selectedDate = new Date(dateInput);
+            // Ajuste de fuso horário simples (adicionar horas para garantir dia correto)
+            selectedDate.setHours(12,0,0,0); 
+            
+            const mondayDate = getMonday(selectedDate);
+            const key = formatDate(mondayDate);
+
+            // Salvar no banco
+            database.ref(`schedules/events/${key}`).set(nameInput).then(() => {
+                savedEvents[key] = nameInput;
+                renderTable(); // Recarrega a tabela
+                document.getElementById('eventName').value = ''; // Limpa campo
+                alert('Evento adicionado!');
+            });
+        }
+
+        function removeEvent(key) {
+            if(confirm('Deseja remover este evento?')) {
+                database.ref(`schedules/events/${key}`).remove().then(() => {
+                    delete savedEvents[key];
+                    renderTable();
+                });
+            }
+        }
+
+        // --- PDF ---
+            function downloadPDF() {
+            const doc = new jsPDF();
+            
+            // Título Principal
+            doc.setFontSize(18);
+            doc.setTextColor(0, 51, 102); // Azul escuro no título
+            doc.text('Programação de Limpeza', 14, 15);
+            
+            // Data de geração
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100); // Cinza para info secundária
+            doc.text('Gerado em: ' + new Date().toLocaleDateString(), 14, 22);
+
+            const table = document.getElementById('cleaning-table');
+            const data = [];
+            
+            // Reconstrói os dados para o PDF
+            const weeks = generateWeeks();
+            
+            weeks.forEach(week => {
+                const key = week.key;
+                const isEvent = savedEvents[key];
+                const group = isEvent ? savedEvents[key] : (savedGroups[key] || '');
+                const isQuarterly = isQuarterlyCleaning(week.startObj);
+                
+                let weekText = week.display;
+                if(isQuarterly) weekText += "\n(LIMPEZA TRIMESTRAL)"; // Quebra de linha para destaque
+
+                data.push([weekText, group]);
+            });
+
+            doc.autoTable({
+                head: [['Semana', 'Grupo Designado']],
+                body: data,
+                startY: 30,
+                theme: 'grid', // <--- ADICIONA AS GRADES NA TABELA
+                styles: { 
+                    fontSize: 11, 
+                    cellPadding: 4,
+                    textColor: [0, 0, 0], // Texto Preto Absoluto (mais nítido)
+                    lineColor: [0, 0, 0], // Cor da grade (preta)
+                    lineWidth: 0.1,       // Espessura da grade
+                    valign: 'middle'      // Centraliza texto verticalmente
+                },
+                headStyles: { 
+                    fillColor: [0, 80, 160], // Azul Vivo no Cabeçalho
+                    textColor: [255, 255, 255], // Texto branco
+                    fontStyle: 'bold',
+                    halign: 'center' // Centraliza título das colunas
+                },
+                columnStyles: {
+                    0: { cellWidth: 60 }, // Coluna da data um pouco mais estreita
+                    1: { cellWidth: 'auto' }
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'body') {
+                        const rowContent = data.row.raw[1]; 
+                        const weekContent = data.row.raw[0];
+
+                        // --- ESTILO PARA EVENTOS ---
+                        // Verifica se o conteúdo é um evento salvo
+                        const isEventRow = Object.values(savedEvents).includes(rowContent);
+                        if (isEventRow) {
+                            data.cell.styles.fillColor = [225, 240, 255]; // Fundo Azul Bebê
+                            data.cell.styles.textColor = [0, 51, 153];    // Texto Azul Escuro Forte
+                            data.cell.styles.fontStyle = 'bold';          // Negrito
+                        }
+                        
+                        // --- ESTILO PARA TRIMESTRAL ---
+                        if (weekContent.includes("TRIMESTRAL")) {
+                            // Se for a coluna da data, pinta o texto de vermelho vivo
+                            if (data.column.index === 0) {
+                                data.cell.styles.textColor = [220, 20, 20]; // Vermelho Vivo
+                                data.cell.styles.fontStyle = 'bold';
+                            }
+                        }
+                    }
+                }
+            });
+
+            doc.save('Programacao_Limpeza.pdf');
+        }
+    </script>
+</body>
+</html>
