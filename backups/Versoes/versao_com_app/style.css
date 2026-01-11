@@ -548,37 +548,23 @@ footer p {
     }
 }
 
-/* ================================================= */
-/* === MODIFICAÇÕES PARA LISTA SIMPLES E ABERTA === */
-/* ================================================= */
-
-/* 1. REMOVE O ESTILO DE CARD (transforma em lista simples) */
-
+/* Garante que as listas comecem escondidas */
 .grupo-lista {
-    background: none; /* Remove fundo branco */
-    box-shadow: none; /* Remove sombra */
-    border: none; /* Remove borda */
-    padding: 0;
-    margin-top: 5px; 
-}
-
-.mapa-item {
+    display: none; 
     background: none;
     box-shadow: none;
-    border-radius: 0;
-    margin-bottom: 0; 
-    padding: 10px 8px; 
-    border-bottom: 1px solid var(--divider-color); /* Linha separadora */
+    border: none;
+    padding: 0;
 }
 
-/* Remove o efeito 'hover' dos cards */
-.card:hover, .mapa-item:hover {
-    box-shadow: none;
-    transform: none; 
+/* Seta apontando para baixo quando fechado */
+.grupo-titulo::after {
+    transform: rotate(0deg); 
 }
 
-.grupo-lista .mapa-item:last-child {
-    border-bottom: none; /* Remove linha do último item */
+/* Seta girando para cima quando a classe 'active' é adicionada pelo JS */
+.grupo-titulo.active::after {
+    transform: rotate(180deg);
 }
 
 /* Ajusta telas maiores para não usar grid (mantém formato de lista) */
