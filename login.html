@@ -149,7 +149,7 @@
         // Se já logou antes, entra direto
         if (usuarioEncontrado.primeiroLogin === false) {
             localStorage.setItem("telefoneLogado", usuarioEncontrado.telefone);
-            window.location.href = "sistema.html";
+            window.location.href = "atalhos.html";
             return;
         }
 
@@ -158,9 +158,8 @@
         document.getElementById('step2').classList.remove('hidden');
       } else {
         // Se o telefone (já limpo) não for encontrado
-        alert("Telefone não encontrado! Vou enviar uma mensagem para liberar o cadastro.");
-        const msg = `Olá! O telefone ${telefoneLimpo} não está no sistema. Pode liberar o cadastro?`;
-        window.open(`https://wa.me/5586994142411?text=${encodeURIComponent(msg)}`, "_blank");
+        window.location.href = "atualizacao.html";
+        
       }
     }
     // --- FIM DA FUNÇÃO ATUALIZADA ---
