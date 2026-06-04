@@ -1,7 +1,7 @@
 {
  "name": "Territórios App",
  "short_name": "Territórios",
- "start_url": "index.html",
+ "start_url": "arquivos/todososmapas.html",
  "display": "standalone",
  "background_color": "#FFFFFF",
  "theme_color": "#4A90E2",
