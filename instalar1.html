@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar Aplicativo de Territórios</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .install-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .install-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+        .install-text {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .install-button {
+            display: none; /* Começa escondido */
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #0a6f0e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .install-button:hover {
+            background-color: #085a0b;
+        }
+        .fallback-link {
+            display: block;
+            margin-top: 20px;
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="install-container">
+        <h1 id="install-title" class="install-title">Aplicativo de Territórios</h1>
+        <p id="install-text" class="install-text">Para a melhor experiência, instale o aplicativo em seu dispositivo. Ele é leve e funciona offline.</p>
+        
+        <button id="botao-instalar-app" class="install-button">
+            Instalar Aplicativo
+        </button>
+
+        <a id="link-continuar-web" href="index.html" class="fallback-link">
+            Continuar no navegador &rarr;
+        </a>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        let installButtonVisible = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. VERIFICAR SE JÁ ESTÁ NO MODO APP
+            // Se o utilizador abriu o app pelo ícone, vai direto para o index.
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Já está em modo standalone. Redirecionando para index.html');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const btnInstalar = document.getElementById('botao-instalar-app');
+            const linkContinuar = document.getElementById('link-continuar-web');
+
+            // 2. OUVIR O EVENTO DE INSTALAÇÃO DO NAVEGADOR
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('beforeinstallprompt disparado');
+                e.preventDefault();
+                deferredPrompt = e;
+                installButtonVisible = true;
+                
+                // O navegador confirmou que o app PODE ser instalado.
+                if (btnInstalar) btnInstalar.style.display = 'block';
+                if (linkContinuar) linkContinuar.style.display = 'none';
+            });
+
+            // 3. O QUE ACONTECE AO CLICAR NO BOTÃO
+            if (btnInstalar) {
+                btnInstalar.addEventListener('click', () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('Utilizador aceitou a instalação');
+                            // 4. REDIRECIONAR APÓS INSTALAR
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1000);
+                        } else {
+                            console.log('Utilizador recusou a instalação');
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            }
+
+            // 5. O QUE ACONTECE SE O APP FOR INSTALADO (por outros meios)
+            window.addEventListener('appinstalled', () => {
+                console.log('PWA foi instalado');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+            });
+
+            // 6. *** NOVA LÓGICA ***
+            // Se depois de 2 segundos, o evento 'beforeinstallprompt' não disparou,
+            // assumimos que a app já está instalada ou o navegador não é compatível.
+            setTimeout(() => {
+                if (!installButtonVisible) {
+                    console.log('Botão de instalação não apareceu. Assumindo que já está instalado.');
+                    const title = document.getElementById('install-title');
+                    const text = document.getElementById('install-text');
+                    const link = document.getElementById('link-continuar-web');
+
+                    if (title) title.textContent = 'Aplicação Pronta!';
+                    if (text) text.textContent = 'A aplicação já está instalada no seu dispositivo. Abra-a pelo ícone no seu telemóvel ou clique abaixo para continuar.';
+                    if (link) link.textContent = 'Continuar no navegador';
+                }
+            }, 2000); // Espera 2 segundos
+        });
+    </script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+              .then(registration => console.log('SW registado.'))
+              .catch(error => console.error('Falha ao registar SW:', error));
+          });
+        }
+    </script>
+
+</body>
+</html>
